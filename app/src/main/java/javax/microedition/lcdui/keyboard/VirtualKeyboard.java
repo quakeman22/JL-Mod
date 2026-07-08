@@ -20,6 +20,7 @@ package javax.microedition.lcdui.keyboard;
 import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_A;
 import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_B;
 
+import android.graphics.Rect;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Handler;
@@ -863,7 +864,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		for (int group = 0; group < keyScaleGroups.length; group++) {
 			resizeKeyGroup(group);
 		}
-		snapKeys();
+		if (isClassicsLayoutActive() && layoutEditMode == LAYOUT_EOF) {
+			applyClassicsLayout();
+		} else {
+			snapKeys();
+		}
 		overlayView.postInvalidate();
 		int delay = settings.vkHideDelay;
 		if (delay > 0 && obscuresVirtualScreen && layoutEditMode == LAYOUT_EOF) {
@@ -1157,6 +1162,75 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	public void setView(View view) {
 		overlayView = view;
+	}
+
+	private boolean isClassicsLayoutActive() {
+		return !ContextHolder.getCanvasViewport().isEmpty()
+				&& ContextHolder.hasClassicsControlBounds();
+	}
+
+	private void applyClassicsLayout() {
+		for (VirtualKey key : keypad) {
+			key.visible = false;
+			key.selected = false;
+		}
+
+		applyRect(keypad[KEY_SOFT_LEFT], ContextHolder.getClassicsSoftLeftBounds(), 0.08f);
+		applyRect(keypad[KEY_MENU], ContextHolder.getClassicsMenuBounds(), 0.08f);
+		applyRect(keypad[KEY_SOFT_RIGHT], ContextHolder.getClassicsSoftRightBounds(), 0.08f);
+
+		Rect dpadBounds = ContextHolder.getClassicsDpadBounds();
+		applyDpadRect(keypad[KEY_UP_LEFT], dpadBounds, 0, 0);
+		applyDpadRect(keypad[KEY_UP], dpadBounds, 1, 0);
+		applyDpadRect(keypad[KEY_UP_RIGHT], dpadBounds, 2, 0);
+		applyDpadRect(keypad[KEY_LEFT], dpadBounds, 0, 1);
+		applyDpadRect(keypad[KEY_FIRE], dpadBounds, 1, 1);
+		applyDpadRect(keypad[KEY_RIGHT], dpadBounds, 2, 1);
+		applyDpadRect(keypad[KEY_DOWN_LEFT], dpadBounds, 0, 2);
+		applyDpadRect(keypad[KEY_DOWN], dpadBounds, 1, 2);
+		applyDpadRect(keypad[KEY_DOWN_RIGHT], dpadBounds, 2, 2);
+
+		applyRect(keypad[KEY_A], ContextHolder.getClassicsActionABounds(), 0.08f);
+		applyRect(keypad[KEY_B], ContextHolder.getClassicsActionBBounds(), 0.08f);
+		applyRect(keypad[KEY_C], ContextHolder.getClassicsActionXBounds(), 0.08f);
+		applyRect(keypad[KEY_D], ContextHolder.getClassicsActionYBounds(), 0.08f);
+
+		obscuresVirtualScreen = false;
+	}
+
+	private void applyRect(VirtualKey key, Rect bounds, float insetRatio) {
+		if (bounds.isEmpty()) {
+			key.visible = false;
+			key.rect.setEmpty();
+			return;
+		}
+		float insetX = bounds.width() * insetRatio;
+		float insetY = bounds.height() * insetRatio;
+		key.rect.set(bounds.left + insetX, bounds.top + insetY,
+				bounds.right - insetX, bounds.bottom - insetY);
+		key.corners = (int) (Math.min(key.rect.width(), key.rect.height()) * 0.25f);
+		key.visible = true;
+		key.opaque = false;
+	}
+
+	private void applyDpadRect(VirtualKey key, Rect bounds, int column, int row) {
+		if (bounds.isEmpty()) {
+			key.visible = false;
+			key.rect.setEmpty();
+			return;
+		}
+		float cellWidth = bounds.width() / 3.0f;
+		float cellHeight = bounds.height() / 3.0f;
+		float insetX = cellWidth * 0.14f;
+		float insetY = cellHeight * 0.14f;
+		float left = bounds.left + column * cellWidth + insetX;
+		float top = bounds.top + row * cellHeight + insetY;
+		float right = bounds.left + (column + 1) * cellWidth - insetX;
+		float bottom = bounds.top + (row + 1) * cellHeight - insetY;
+		key.rect.set(left, top, right, bottom);
+		key.corners = (int) (Math.min(key.rect.width(), key.rect.height()) * 0.25f);
+		key.visible = true;
+		key.opaque = false;
 	}
 
 	public int getKeyStatesVodafone() {
