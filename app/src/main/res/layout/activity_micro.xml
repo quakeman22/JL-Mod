@@ -84,12 +84,13 @@
                 android:background="#FF000000"
                 android:clipChildren="true"
                 android:clipToPadding="true"
-                android:padding="1dp">
+                android:padding="2dp">
 
                 <FrameLayout
                     android:id="@+id/displayable_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_margin="1dp"
                     android:background="#FF000000"
                     android:clipChildren="true"
                     android:clipToPadding="true" />
@@ -177,7 +178,7 @@
                 android:background="@drawable/bg_micro_dpad_button" />
         </FrameLayout>
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/action_cluster"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -190,53 +191,70 @@
             app:layout_constraintStart_toEndOf="@id/control_pad_shell"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_min="188dp"
             app:layout_constraintWidth_max="206dp"
-            app:layout_constraintWidth_percent="0.32">
+            app:layout_constraintWidth_percent="0.34">
 
             <TextView
+                android:id="@+id/button_y_shell"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
-                android:layout_gravity="bottom|center_horizontal"
-                android:background="@drawable/bg_micro_action_button"
-                android:gravity="center"
-                android:text="A"
-                android:textColor="@android:color/white"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="center|end"
-                android:background="@drawable/bg_micro_action_button"
-                android:gravity="center"
-                android:text="B"
-                android:textColor="@android:color/white"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="center|start"
-                android:background="@drawable/bg_micro_action_button"
-                android:gravity="center"
-                android:text="X"
-                android:textColor="@android:color/white"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="top|center_horizontal"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="Y"
                 android:textColor="@android:color/white"
                 android:textSize="28sp"
-                android:textStyle="bold" />
-        </FrameLayout>
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/button_b_shell"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="B"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+
+            <TextView
+                android:id="@+id/button_x_shell"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="X"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+
+            <TextView
+                android:id="@+id/button_a_shell"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <javax.microedition.lcdui.overlay.OverlayView
