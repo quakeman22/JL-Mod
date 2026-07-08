@@ -37,6 +37,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.DigitsKeyListener;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,9 +45,11 @@ import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -712,7 +715,17 @@ public class MicroActivity extends AppCompatActivity {
 			binding.overlay.setLocation(0, toolbarHeight);
 			binding.toolbar.setLayoutParams(layoutParams);
 			if (next != null) {
-				binding.displayableContainer.addView(next.getDisplayableView());
+				View displayableView = next.getDisplayableView();
+				ViewParent parent = displayableView.getParent();
+				if (parent instanceof ViewGroup) {
+					((ViewGroup) parent).removeView(displayableView);
+				}
+				FrameLayout.LayoutParams displayLayoutParams = new FrameLayout.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						Gravity.CENTER);
+				displayableView.setLayoutParams(displayLayoutParams);
+				binding.displayableContainer.addView(displayableView, displayLayoutParams);
 			}
 		}
 	}
