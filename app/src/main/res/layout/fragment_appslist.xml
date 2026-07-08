@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_in_game"
+    android:background="@drawable/bg_classics_menu_background"
     tools:context="ru.playsoftware.j2meloader.applist.AppsListFragment">
 
     <View
@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingHorizontal="18dp"
-        android:paddingTop="20dp"
+        android:paddingTop="8dp"
         android:paddingBottom="16dp">
 
         <LinearLayout

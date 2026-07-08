@@ -5,7 +5,7 @@
     android:id="@+id/midletFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_apps_launcher"
+    android:background="@drawable/bg_classics_game_background"
     tools:context="javax.microedition.shell.MicroActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,13 +44,13 @@
         <ImageButton
             android:id="@+id/button_back_overlay"
             style="@style/ImageButtonStyle"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="18dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_launcher_play_button"
             android:contentDescription="@string/exit"
-            android:padding="11dp"
+            android:padding="10dp"
             android:src="@drawable/ic_launcher_arrow_left"
             android:tint="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
