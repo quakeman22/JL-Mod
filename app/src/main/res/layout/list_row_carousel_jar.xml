@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ru.playsoftware.j2meloader.applist.AppItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="260dp"
+    android:layout_width="220dp"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingHorizontal="8dp"
-    android:paddingVertical="12dp"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp"
     tools:showIn="@layout/fragment_appslist">
 
     <FrameLayout
@@ -20,10 +20,10 @@
         <ImageView
             android:id="@+id/list_image"
             android:layout_width="match_parent"
-            android:layout_height="360dp"
+            android:layout_height="294dp"
             android:adjustViewBounds="true"
             android:background="@drawable/bg_launcher_card_inner"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@mipmap/ic_launcher"
             tools:src="@mipmap/ic_launcher" />
 
@@ -36,17 +36,17 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif-black"
             android:gravity="center"
-            android:maxLines="2"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="10dp"
+            android:maxLines="1"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="18sp"
             tools:text="Abracadaball" />
 
         <View
             android:id="@+id/bookmark_badge"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_gravity="bottom|end"
             android:background="@drawable/bg_launcher_bookmark" />
     </FrameLayout>
