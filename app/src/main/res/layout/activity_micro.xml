@@ -13,6 +13,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_controls_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.72" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_controls_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.96" />
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="0dp"
@@ -30,13 +44,13 @@
         <ImageButton
             android:id="@+id/button_back_overlay"
             style="@style/ImageButtonStyle"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="20dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="18dp"
             android:layout_marginTop="18dp"
             android:background="@drawable/bg_launcher_play_button"
             android:contentDescription="@string/exit"
-            android:padding="12dp"
+            android:padding="11dp"
             android:src="@drawable/ic_launcher_arrow_left"
             android:tint="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,29 +60,49 @@
             android:id="@+id/game_frame"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginEnd="24dp"
             android:background="@drawable/bg_micro_display_frame"
-            android:padding="16dp"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:padding="14dp"
             app:layout_constraintBottom_toTopOf="@+id/control_top_row"
             app:layout_constraintDimensionRatio="3:4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintVertical_bias="0.08"
-            app:layout_constraintWidth_percent="0.78">
+            app:layout_constraintVertical_bias="0.02"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="360dp"
+            app:layout_constraintWidth_percent="0.76">
 
             <FrameLayout
-                android:id="@+id/displayable_container"
+                android:id="@+id/game_surface"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#FF000000" />
+                android:background="#FF000000"
+                android:clipChildren="true"
+                android:clipToPadding="true"
+                android:padding="1dp">
+
+                <FrameLayout
+                    android:id="@+id/displayable_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FF000000"
+                    android:clipChildren="true"
+                    android:clipToPadding="true" />
+            </FrameLayout>
         </FrameLayout>
 
         <LinearLayout
             android:id="@+id/control_top_row"
             android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="12dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/game_frame"
@@ -114,22 +148,30 @@
 
         <FrameLayout
             android:id="@+id/control_pad_shell"
-            android:layout_width="210dp"
-            android:layout_height="180dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginBottom="60dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
             android:background="@drawable/bg_micro_pad_shell"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
+            app:layout_constraintDimensionRatio="1.08:1"
+            app:layout_constraintEnd_toStartOf="@id/action_cluster"
+            app:layout_constraintHorizontal_bias="0.22"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guide_controls_top"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="220dp"
+            app:layout_constraintWidth_percent="0.36">
 
             <View
                 android:layout_width="60dp"
-                android:layout_height="128dp"
+                android:layout_height="120dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_micro_dpad_button" />
 
             <View
-                android:layout_width="128dp"
+                android:layout_width="120dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_micro_dpad_button" />
@@ -137,16 +179,23 @@
 
         <FrameLayout
             android:id="@+id/action_cluster"
-            android:layout_width="190dp"
-            android:layout_height="190dp"
-            android:layout_marginEnd="22dp"
-            android:layout_marginBottom="72dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="18dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/control_pad_shell"
+            app:layout_constraintTop_toTopOf="@id/guide_controls_top"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="206dp"
+            app:layout_constraintWidth_percent="0.32">
 
             <TextView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_gravity="bottom|center_horizontal"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
@@ -156,8 +205,8 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_gravity="center|end"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
@@ -167,8 +216,8 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_gravity="center|start"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
@@ -178,8 +227,8 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_gravity="top|center_horizontal"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
