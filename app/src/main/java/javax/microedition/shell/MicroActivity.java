@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -120,6 +121,13 @@ public class MicroActivity extends AppCompatActivity {
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
 		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
+		binding.virtualDisplay.addOnLayoutChangeListener((v, left, top, right, bottom,
+				oldLeft, oldTop, oldRight, oldBottom) -> {
+			if (current instanceof Canvas && (left != oldLeft || top != oldTop
+					|| right != oldRight || bottom != oldBottom)) {
+				updateClassicsControlBounds();
+			}
+		});
 		binding.displayableContainer.addOnLayoutChangeListener((v, left, top, right, bottom,
 				oldLeft, oldTop, oldRight, oldBottom) -> {
 			if (current instanceof Canvas && (left != oldLeft || top != oldTop
@@ -341,6 +349,39 @@ public class MicroActivity extends AppCompatActivity {
 		ContextHolder.setCanvasViewport(location[0], location[1],
 				location[0] + width, location[1] + height);
 		((Canvas) current).updateSize();
+	}
+
+	private void updateClassicsControlBounds() {
+		if (!(current instanceof Canvas)) {
+			ContextHolder.clearClassicsControlBounds();
+			return;
+		}
+		Rect softLeft = getViewBounds(binding.buttonSoftLeftShell);
+		Rect menu = getViewBounds(binding.buttonMenuShell);
+		Rect softRight = getViewBounds(binding.buttonSoftRightShell);
+		Rect dpad = getViewBounds(binding.controlPadShell);
+		Rect actionA = getViewBounds(binding.buttonAShell);
+		Rect actionB = getViewBounds(binding.buttonBShell);
+		Rect actionX = getViewBounds(binding.buttonXShell);
+		Rect actionY = getViewBounds(binding.buttonYShell);
+		if (softLeft.isEmpty() || menu.isEmpty() || softRight.isEmpty()
+				|| dpad.isEmpty() || actionA.isEmpty() || actionB.isEmpty()
+				|| actionX.isEmpty() || actionY.isEmpty()) {
+			ContextHolder.clearClassicsControlBounds();
+			return;
+		}
+		ContextHolder.setClassicsControlBounds(
+				softLeft, menu, softRight, dpad, actionA, actionB, actionX, actionY);
+		((Canvas) current).updateSize();
+	}
+
+	private Rect getViewBounds(View view) {
+		Rect rect = new Rect();
+		int[] location = new int[2];
+		view.getLocationInWindow(location);
+		rect.set(location[0], location[1],
+				location[0] + view.getWidth(), location[1] + view.getHeight());
+		return rect;
 	}
 
 	public void setCurrent(Displayable displayable) {
@@ -730,6 +771,7 @@ public class MicroActivity extends AppCompatActivity {
 				binding.controlPadShell.setVisibility(View.GONE);
 				binding.actionCluster.setVisibility(View.GONE);
 				ContextHolder.clearCanvasViewport();
+				ContextHolder.clearClassicsControlBounds();
 				actionBar.show();
 				final String title = next != null ? next.getTitle() : null;
 				actionBar.setTitle(title == null ? appName : title);
@@ -752,7 +794,10 @@ public class MicroActivity extends AppCompatActivity {
 				displayableView.setLayoutParams(displayLayoutParams);
 				binding.displayableContainer.addView(displayableView, displayLayoutParams);
 				if (next instanceof Canvas) {
-					binding.displayableContainer.post(MicroActivity.this::updateCanvasViewport);
+					binding.displayableContainer.post(() -> {
+						updateCanvasViewport();
+						updateClassicsControlBounds();
+					});
 				}
 			}
 		}
