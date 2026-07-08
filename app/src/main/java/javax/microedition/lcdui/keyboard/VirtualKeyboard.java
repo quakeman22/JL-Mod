@@ -919,9 +919,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						associatedKeys[pointer] = key;
 						key.onDown();
 						overlayView.postInvalidate();
-						break;
+						return true;
 					}
 				}
+				return false;
 			}
 			case LAYOUT_KEYS -> {
 				editedIndex = -1;
@@ -931,9 +932,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						RectF rect = keypad[i].rect;
 						offsetX = x - rect.left;
 						offsetY = y - rect.top;
-						break;
+						return true;
 					}
 				}
+				return false;
 			}
 			case LAYOUT_SCALES -> {
 				int index = -1;
@@ -959,6 +961,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				}
 				offsetX = x;
 				offsetY = y;
+				return editedIndex >= 0;
 			}
 		}
 		return false;
@@ -973,13 +976,14 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				}
 				VirtualKey aKey = associatedKeys[pointer];
 				if (aKey == null) {
-					pointerPressed(pointer, x, y);
+					return pointerPressed(pointer, x, y);
 				} else if (!aKey.contains(x, y)) {
 					associatedKeys[pointer] = null;
 					aKey.onUp();
 					overlayView.postInvalidate();
-					pointerPressed(pointer, x, y);
+					return pointerPressed(pointer, x, y);
 				}
+				return true;
 			}
 			case LAYOUT_KEYS -> {
 				if (editedIndex >= 0) {
@@ -1004,11 +1008,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					}
 					snapKey(editedIndex, 0);
 					overlayView.postInvalidate();
+					return true;
 				}
 			}
 			case LAYOUT_SCALES -> {
 				if (editedIndex == -1) {
-					break;
+					return false;
 				}
 				float dx = x - offsetX;
 				float dy = offsetY - y;
@@ -1046,6 +1051,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				resizeKeyGroup(editedIndex);
 				snapKeys();
 				overlayView.postInvalidate();
+				return true;
 			}
 		}
 		return false;
@@ -1062,6 +1068,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				associatedKeys[pointer] = null;
 				key.onUp();
 				overlayView.postInvalidate();
+				return true;
 			}
 		} else if (layoutEditMode == LAYOUT_KEYS) {
 			for (int key = 0; key < keypad.length; key++) {
@@ -1088,6 +1095,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			}
 			snapKeys();
 			editedIndex = -1;
+			return true;
 		}
 		return false;
 	}
