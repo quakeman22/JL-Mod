@@ -4,32 +4,198 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="@drawable/bg_apps_launcher"
+    tools:context="ru.playsoftware.j2meloader.applist.AppsListFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@android:id/list"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:spanCount="4"
-        tools:itemCount="12"
-        tools:listitem="@layout/list_row_grid_jar"/>
+        android:layout_height="match_parent"
+        android:background="#22000000" />
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:text="@string/loading_info"
-        android:textSize="18sp"
-        tools:visibility="gone" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_add_white" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/header_brand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.06"
+                android:text="@string/classics_brand"
+                android:textAllCaps="true"
+                android:textColor="#163A75"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/header_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-4dp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="0.04"
+                android:text="@string/classics_title"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="40sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/button_previous"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_launcher_arrow_button"
+                android:contentDescription="@string/classics_previous"
+                android:padding="14dp"
+                android:src="@drawable/ic_launcher_arrow_left"
+                app:tint="@android:color/white" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@android:id/list"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingHorizontal="34dp"
+                tools:itemCount="5"
+                tools:listitem="@layout/list_row_carousel_jar" />
+
+            <ImageButton
+                android:id="@+id/button_next"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_launcher_arrow_button"
+                android:contentDescription="@string/classics_next"
+                android:padding="14dp"
+                android:src="@drawable/ic_launcher_arrow_right"
+                app:tint="@android:color/white" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/selected_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            tools:text="Abracadaball" />
+
+        <TextView
+            android:id="@+id/selected_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="#DDF0FF"
+            android:textSize="14sp"
+            tools:text="Gameloft • 1.0.0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/position_badge"
+                android:layout_width="72dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_launcher_position_badge"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                tools:text="1/30" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="10dp"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="30"
+                android:progressDrawable="@drawable/bg_launcher_progress" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_play"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_launcher_play_button"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.04"
+            android:text="@string/classics_play"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/loading_info"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_more_games"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_launcher_secondary_button"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/classics_more_games"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/button_settings"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/bg_launcher_icon_button"
+                android:contentDescription="@string/action_settings"
+                android:padding="10dp"
+                android:src="@drawable/ic_setting_default"
+                app:tint="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>
