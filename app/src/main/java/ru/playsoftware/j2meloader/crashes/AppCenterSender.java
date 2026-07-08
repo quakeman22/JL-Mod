@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import java.util.Map;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.util.Constants;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 public class AppCenterSender implements ReportSender {
 	private static final String TAG = AppCenterSender.class.getSimpleName();
@@ -119,19 +121,16 @@ public class AppCenterSender implements ReportSender {
 				Object od = o.opt(Constants.KEY_APPCENTER_ATTACHMENT);
 				if (od != null) {
 					String midlet = (String) od;
-					fos.write(midlet.getBytes());
+					fos.write(midlet.getBytes(StandardCharsets.UTF_8));
 				}
 			}
 			String stack = report.getString(ReportField.STACK_TRACE);
 			if (stack != null) {
-				fos.write("\n===================Error===================\n".getBytes());
-				fos.write(stack.getBytes());
+				fos.write("\n===================Error===================\n".getBytes(StandardCharsets.UTF_8));
+				fos.write(stack.getBytes(StandardCharsets.UTF_8));
 			}
-			String logcat = report.getString(ReportField.LOGCAT);
-			if (logcat != null) {
-				fos.write("\n==================More=Log=================\n".getBytes());
-				fos.write(logcat.getBytes());
-			}
+			fos.write("\n================Game=States================\n".getBytes(StandardCharsets.UTF_8));
+			fos.write(GameLog.dump().getBytes(StandardCharsets.UTF_8));
 			msg += " Saved to file:\n" + logFile;
 		} catch (Exception e) {
 			Log.e(TAG, "saveToFile: failed save", e);
