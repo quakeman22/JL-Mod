@@ -1229,8 +1229,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 		float cellWidth = bounds.width() / 3.0f;
 		float cellHeight = bounds.height() / 3.0f;
-		float insetX = cellWidth * 0.14f;
-		float insetY = cellHeight * 0.14f;
+		float insetX = cellWidth * 0.06f;
+		float insetY = cellHeight * 0.06f;
 		float left = bounds.left + column * cellWidth + insetX;
 		float top = bounds.top + row * cellHeight + insetY;
 		float right = bounds.left + (column + 1) * cellWidth - insetX;
