@@ -86,12 +86,10 @@ class AppsCarouselAdapter extends ListAdapter<AppItem, AppsCarouselAdapter.AppVi
 
 	static class AppViewHolder extends RecyclerView.ViewHolder {
 		private final ImageView icon;
-		private final TextView title;
 
 		AppViewHolder(ListRowCarouselJarBinding binding, OnItemActionListener listener) {
 			super(binding.getRoot());
 			icon = binding.listImage;
-			title = binding.listTitle;
 
 			itemView.setOnClickListener(v -> {
 				RecyclerView.Adapter<?> adapter = getBindingAdapter();
@@ -119,7 +117,6 @@ class AppsCarouselAdapter extends ListAdapter<AppItem, AppsCarouselAdapter.AppVi
 			} else {
 				icon.setImageResource(R.mipmap.ic_launcher);
 			}
-			title.setText(item.getTitle());
 			itemView.setTag(item);
 			itemView.setScaleX(1.0f);
 			itemView.setScaleY(1.0f);
