@@ -32,11 +32,14 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 public class MidletThread extends HandlerThread implements Handler.Callback {
-	private static final String TAG = MidletThread.class.getName();
-	private static final UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) ->
-			Log.e(TAG, "Error in thread: \"" + t + "\" after destroy app called", e);
+private static final String TAG = MidletThread.class.getName();
+	private static final UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> {
+		GameLog.e("MidletThread", "Uncaught exception after destroy in thread \"" + t + "\"", e);
+		Log.e(TAG, "Error in thread: \"" + t + "\" after destroy app called", e);
+	};
 
 	private static final int INIT = 0;
 	private static final int START = 1;
@@ -64,6 +67,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 
 	public static void notifyDestroyed() {
 		Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
+		GameLog.i("MidletThread", "notifyDestroyed()");
 		if (instance != null) {
 			instance.state = DESTROYED;
 		}
@@ -75,10 +79,12 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 	}
 
 	public static void notifyPaused() {
+		GameLog.i("MidletThread", "notifyPaused()");
 		instance.state = PAUSED;
 	}
 
 	public static void resumeRequest() {
+		GameLog.i("MidletThread", "resumeRequest()");
 		MicroActivity activity = ContextHolder.getActivity();
 		if (instance != null && activity != null && activity.isVisible())
 			instance.handler.obtainMessage(START).sendToTarget();
@@ -86,6 +92,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 
 	static void destroyApp() {
 		Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
+		GameLog.i("MidletThread", "destroyApp() requested");
 		new Thread(() -> {
 			try {
 				Thread.sleep(1000);
@@ -120,9 +127,12 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 					break;
 				}
 				try {
+					GameLog.i("MidletThread", "Initializing MIDlet " + mainClass);
 					midlet = microLoader.loadMIDlet(this.mainClass);
 					state = INITIALIZED;
+					GameLog.i("MidletThread", "MIDlet initialized");
 				} catch (Throwable t) {
+					GameLog.e("MidletThread", "Init midlet failed", t);
 					throw new RuntimeException("Init midlet failed", t);
 				}
 				break;
@@ -136,13 +146,17 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 					}
 				}
 				try {
+					GameLog.i("MidletThread", "Calling startApp()");
 					state = STARTED;
 					midlet.startApp();
+					GameLog.i("MidletThread", "startApp() completed");
 				} catch (MIDletStateChangeException e) {
 					state = PAUSED;
+					GameLog.w("MidletThread", "MIDlet refused startApp()");
 					Log.w(TAG, "Midlet doesn't want to start!", e);
 				} catch (Throwable t) {
 					state = DESTROYED;
+					GameLog.e("MidletThread", "Failed startApp", t);
 					throw new RuntimeException("Failed startApp", t);
 				}
 				break;
@@ -151,27 +165,35 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 					break;
 				}
 				try {
+					GameLog.i("MidletThread", "Calling pauseApp()");
 					midlet.pauseApp();
 					state = PAUSED;
+					GameLog.i("MidletThread", "pauseApp() completed");
 				} catch (Throwable t) {
 					state = DESTROYED;
 					try {
 						midlet.destroyApp(true);
 					} catch (MIDletStateChangeException ignored) {}
+					GameLog.e("MidletThread", "Failed pauseApp", t);
 					throw new RuntimeException("Filed pauseApp", t);
 				}
 				break;
 			case DESTROY:
 				if (state == DESTROYED) {
+					GameLog.i("MidletThread", "Destroy requested after state already destroyed");
 					notifyDestroyed();
 					break;
 				}
 				state = DESTROYED;
 				try {
+					GameLog.i("MidletThread", "Calling destroyApp(true)");
 					midlet.destroyApp(true);
+					GameLog.i("MidletThread", "destroyApp(true) completed");
 				} catch (MIDletStateChangeException e) {
+					GameLog.w("MidletThread", "MIDlet refused destroyApp(true)");
 					Log.w(TAG, "Midlet didn't want to die!", e);
 				} catch (Throwable t) {
+					GameLog.e("MidletThread", "Failed destroyApp(true)", t);
 					Log.e(TAG, "Filed destroyApp:", t);
 				}
 				notifyDestroyed();
