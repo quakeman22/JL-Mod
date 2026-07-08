@@ -443,12 +443,17 @@ public abstract class Canvas extends Displayable {
 		maxHeight = height;
 
 		// calculate the current height
-		softBar.resize();
-		float softBarHeight = softBar.bounds.height();
-		if (softBarHeight > 0) {
-			float scaleY = (float) onHeight / height;
-			height = (int) (height - softBarHeight / scaleY);
-			onHeight -= softBarHeight;
+		float softBarHeight = 0;
+		if (hasViewportOverride) {
+			softBar.bounds.setEmpty();
+		} else {
+			softBar.resize();
+			softBarHeight = softBar.bounds.height();
+			if (softBarHeight > 0) {
+				float scaleY = (float) onHeight / height;
+				height = (int) (height - softBarHeight / scaleY);
+				onHeight -= softBarHeight;
+			}
 		}
 
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
