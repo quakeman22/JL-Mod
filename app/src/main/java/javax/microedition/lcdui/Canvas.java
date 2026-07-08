@@ -81,6 +81,7 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class Canvas extends Displayable {
@@ -893,6 +894,7 @@ public abstract class Canvas extends Displayable {
 			try {
 				paint(g);
 			} catch (Throwable e) {
+				GameLog.e("Canvas", "Error in paint() for " + getClass().getName(), e);
 				Log.e(TAG, "Error in paint()", e);
 			}
 			synchronized (bufferLock) {
