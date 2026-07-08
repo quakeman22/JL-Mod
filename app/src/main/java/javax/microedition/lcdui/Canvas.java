@@ -132,6 +132,7 @@ public abstract class Canvas extends Displayable {
 	private final SoftBar softBar = new SoftBar();
 	private final CanvasWrapper canvasWrapper = new CanvasWrapper(settings.screenFilter);
 	private final RectF virtualScreen = new RectF();
+	private final RectF overlayScreen = new RectF();
 
 	protected int width, height;
 	protected int maxHeight;
@@ -141,6 +142,8 @@ public abstract class Canvas extends Displayable {
 	private GLRenderer renderer;
 	private int displayWidth;
 	private int displayHeight;
+	private int renderWidth;
+	private int renderHeight;
 	private boolean fullscreen;
 	private boolean visible;
 	private boolean sizeChangedCalled;
@@ -261,9 +264,11 @@ public abstract class Canvas extends Displayable {
 		CanvasWrapper g = canvasWrapper;
 		g.bind(canvas);
 		g.clear(settings.screenBackgroundColor | Color.BLACK);
+		boolean hasViewportOverride = !ContextHolder.getCanvasViewport().isEmpty();
 		SkinLayer skinLayer = SkinLayer.getInstance();
-		int p = skinLayer != null && skinLayer.hasDisplayFrame() ? 0 : settings.screenPadding;
-		canvas.clipRect(p, p, displayWidth - p, displayHeight - p);
+		int p = hasViewportOverride || (skinLayer != null && skinLayer.hasDisplayFrame())
+				? 0 : settings.screenPadding;
+		canvas.clipRect(p, p, renderWidth - p, renderHeight - p);
 		synchronized (bufferLock) {
 			offscreenCopy.getBitmap().prepareToDraw();
 			g.drawImage(offscreenCopy, virtualScreen);
@@ -338,6 +343,8 @@ public abstract class Canvas extends Displayable {
 				scaledDisplayHeight = displayHeight - settings.screenPadding * 2;
 			}
 		}
+		renderWidth = scaledDisplayWidth;
+		renderHeight = scaledDisplayHeight;
 
 		if (settings.screenWidth > 0) {
 			if (settings.screenHeight > 0) {
@@ -422,12 +429,11 @@ public abstract class Canvas extends Displayable {
 			}
 		}
 
-		if (skinLayer != null && skinLayer.hasDisplayFrame()) {
+		if (hasViewportOverride) {
+			// Keep drawing coordinates local to the host view.
+		} else if (skinLayer != null && skinLayer.hasDisplayFrame()) {
 			onX += virtualScreen.left;
 			onY += virtualScreen.top;
-		} else if (hasViewportOverride) {
-			onX += viewportLeft;
-			onY += viewportTop;
 		} else {
 			onX += settings.screenPadding;
 			onY += settings.screenPadding;
@@ -447,6 +453,14 @@ public abstract class Canvas extends Displayable {
 
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
 		virtualScreen.set(onX, onY, onX + onWidth, onY + onHeight);
+		if (hasViewportOverride) {
+			overlayScreen.set(viewportLeft + virtualScreen.left, viewportTop + virtualScreen.top,
+					viewportLeft + virtualScreen.right,
+					viewportTop + virtualScreen.bottom + softBarHeight);
+		} else {
+			overlayScreen.set(virtualScreen.left, virtualScreen.top,
+					virtualScreen.right, virtualScreen.bottom + softBarHeight);
+		}
 
 		synchronized (bufferLock) {
 			if (offscreenCopy == null) {
@@ -457,17 +471,18 @@ public abstract class Canvas extends Displayable {
 			}
 		}
 		if (overlay != null) {
-			overlay.resize(screen, onX, onY, onX + onWidth, onY + onHeight + softBarHeight);
+			overlay.resize(screen, overlayScreen.left, overlayScreen.top,
+					overlayScreen.right, overlayScreen.bottom);
 		}
 		if (!hasViewportOverride && skinLayer != null && !skinLayer.hasDisplayFrame()) {
 			skinLayer.resize(virtualScreen, 0, 0, displayWidth, displayHeight);
 		}
 
 		if (settings.graphicsMode == 1) {
-			float gl = 2.0f * virtualScreen.left / displayWidth - 1.0f;
-			float gt = 1.0f - 2.0f * virtualScreen.top / displayHeight;
-			float gr = 2.0f * virtualScreen.right / displayWidth - 1.0f;
-			float gb = 1.0f - 2.0f * virtualScreen.bottom / displayHeight;
+			float gl = 2.0f * virtualScreen.left / renderWidth - 1.0f;
+			float gt = 1.0f - 2.0f * virtualScreen.top / renderHeight;
+			float gr = 2.0f * virtualScreen.right / renderWidth - 1.0f;
+			float gb = 1.0f - 2.0f * virtualScreen.bottom / renderHeight;
 			float th = (float) height / offscreenCopy.getBitmap().getHeight();
 			float tw = (float) width / offscreenCopy.getBitmap().getWidth();
 			renderer.updateSize(gl, gt, gr, gb, th, tw);
@@ -653,9 +668,11 @@ public abstract class Canvas extends Displayable {
 				CanvasWrapper g = this.canvasWrapper;
 				g.bind(canvas);
 				g.clear(settings.screenBackgroundColor | Color.BLACK);
+				boolean hasViewportOverride = !ContextHolder.getCanvasViewport().isEmpty();
 				SkinLayer skinLayer = SkinLayer.getInstance();
-				int p = skinLayer != null && skinLayer.hasDisplayFrame() ? 0 : settings.screenPadding;
-				canvas.clipRect(p, p, displayWidth - p, displayHeight - p);
+				int p = hasViewportOverride || (skinLayer != null && skinLayer.hasDisplayFrame())
+						? 0 : settings.screenPadding;
+				canvas.clipRect(p, p, renderWidth - p, renderHeight - p);
 				synchronized (bufferLock) {
 					g.drawImage(offscreenCopy, virtualScreen);
 				}
