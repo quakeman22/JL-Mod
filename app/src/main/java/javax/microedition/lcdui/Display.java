@@ -25,6 +25,7 @@ import javax.microedition.lcdui.event.EventQueue;
 import javax.microedition.lcdui.event.RunnableEvent;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.util.ContextHolder;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 @SuppressWarnings("unused")
 public class Display {
@@ -86,6 +87,7 @@ public class Display {
 		if (displayable == current) {
 			return;
 		}
+		GameLog.i("Display", "setCurrent: " + describe(current) + " -> " + describe(displayable));
 		this.current = displayable;
 		if (current instanceof Canvas canvas) {
 			canvas.setInvisible();
@@ -109,6 +111,7 @@ public class Display {
 		} else if (displayable instanceof Alert) {
 			throw new IllegalArgumentException();
 		}
+		GameLog.i("Display", "setCurrent alert: " + describe(alert) + " -> " + describe(displayable));
 		current = alert;
 		ViewHandler.postEvent(this::showAlert);
 	}
@@ -175,5 +178,16 @@ public class Display {
 
 	public boolean isColor() {
 		return true;
+	}
+
+	private static String describe(Displayable displayable) {
+		if (displayable == null) {
+			return "null";
+		}
+		String title = displayable.getTitle();
+		if (title == null || title.isBlank()) {
+			return displayable.getClass().getName();
+		}
+		return displayable.getClass().getName() + " [" + title + ']';
 	}
 }
