@@ -72,9 +72,9 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:clipToPadding="false"
+                android:clipToPadding="true"
                 android:overScrollMode="never"
-                android:paddingHorizontal="48dp"
+                android:paddingHorizontal="0dp"
                 tools:itemCount="5"
                 tools:listitem="@layout/list_row_carousel_jar" />
 

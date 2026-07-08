@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ru.playsoftware.j2meloader.applist.AppItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="220dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingHorizontal="10dp"
+    android:paddingHorizontal="0dp"
     android:paddingVertical="8dp"
     tools:showIn="@layout/fragment_appslist">
 
     <FrameLayout
         android:id="@+id/card_container"
-        android:layout_width="match_parent"
+        android:layout_width="232dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:background="@drawable/bg_launcher_card_frame"
         android:foreground="?android:attr/selectableItemBackground"
         android:padding="10dp">
@@ -20,7 +21,7 @@
         <ImageView
             android:id="@+id/list_image"
             android:layout_width="match_parent"
-            android:layout_height="294dp"
+            android:layout_height="310dp"
             android:adjustViewBounds="true"
             android:background="@drawable/bg_launcher_card_inner"
             android:scaleType="fitCenter"
@@ -40,7 +41,7 @@
             android:paddingHorizontal="10dp"
             android:paddingVertical="8dp"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="17sp"
             tools:text="Abracadaball" />
 
         <View
