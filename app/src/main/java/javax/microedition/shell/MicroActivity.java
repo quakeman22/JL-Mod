@@ -88,6 +88,7 @@ import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.databinding.ActivityMicroBinding;
 import ru.playsoftware.j2meloader.databinding.DialogInputBinding;
 import ru.playsoftware.j2meloader.util.Constants;
+import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
 public class MicroActivity extends AppCompatActivity {
@@ -140,6 +141,8 @@ public class MicroActivity extends AppCompatActivity {
 				throw new RuntimeException("Can't access file system");
 			}
 		}
+		GameLog.clear();
+		GameLog.i("Session", "Starting MIDlet session for \"" + appName + "\" from " + appPath);
 		microLoader = new MicroLoader(appPath);
 		if (!microLoader.init()) {
 			Config.openSettings(this, appName, appPath);
@@ -240,6 +243,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (size == 0) {
 			showErrorDialog("No MIDlets found");
 		} else if (size == 1) {
+			GameLog.i("Session", "Single MIDlet found: \"" + midletsNameArray[0] + "\" (" + midletsClassArray[0] + ')');
 			microLoader.loadMidlet(midletsClassArray[0], appName);
 		} else {
 			showMidletDialog(midletsNameArray, midletsClassArray);
@@ -259,6 +263,7 @@ public class MicroActivity extends AppCompatActivity {
 					}
 					sb.append("Begin app: ").append(names[n]).append(", ").append(clazz);
 					errorReporter.putCustomData(Constants.KEY_APPCENTER_ATTACHMENT, sb.toString());
+					GameLog.i("Session", "Selected MIDlet \"" + names[n] + "\" (" + clazz + ')');
 					microLoader.loadMidlet(clazz, appName);
 				})
 				.setOnCancelListener(d -> {
@@ -269,6 +274,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	void showErrorDialog(String message) {
+		GameLog.e("Session", "Error dialog: " + message);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.error)
@@ -532,8 +538,10 @@ public class MicroActivity extends AppCompatActivity {
 	private void saveLog() {
 		try {
 			LogUtils.writeLog();
+			GameLog.i("Session", "Filtered game log saved");
 			Toast.makeText(this, R.string.log_saved, Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
+			GameLog.e("Session", "Failed to save filtered game log", e);
 			e.printStackTrace();
 			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
 		}
