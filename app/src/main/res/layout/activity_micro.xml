@@ -5,32 +5,191 @@
     android:id="@+id/midletFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_apps_launcher"
     tools:context="javax.microedition.shell.MicroActivity">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/virtual_display"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:descendantFocusability="blocksDescendants"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:popupTheme="@style/AppTheme.NoActionBar"
             tools:title="MIDlet Title" />
 
-        <FrameLayout
-            android:id="@+id/displayable_container"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/button_back_overlay"
+            style="@style/ImageButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_launcher_play_button"
+            android:contentDescription="@string/exit"
+            android:padding="12dp"
+            android:src="@drawable/ic_launcher_arrow_left"
+            android:tint="@android:color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- MUST be transparent and math root container -->
+        <FrameLayout
+            android:id="@+id/game_frame"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/bg_micro_display_frame"
+            android:padding="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/control_top_row"
+            app:layout_constraintDimensionRatio="3:4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintVertical_bias="0.08"
+            app:layout_constraintWidth_percent="0.78">
+
+            <FrameLayout
+                android:id="@+id/displayable_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FF000000" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/control_top_row"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/game_frame"
+            app:layout_constraintStart_toStartOf="@id/game_frame"
+            app:layout_constraintTop_toBottomOf="@id/game_frame">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="L"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="II"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="R"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/control_pad_shell"
+            android:layout_width="210dp"
+            android:layout_height="180dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginBottom="60dp"
+            android:background="@drawable/bg_micro_pad_shell"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="128dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_micro_dpad_button" />
+
+            <View
+                android:layout_width="128dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_micro_dpad_button" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/action_cluster"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:layout_marginEnd="22dp"
+            android:layout_marginBottom="72dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center|end"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="B"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center|start"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="X"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="top|center_horizontal"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="Y"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <javax.microedition.lcdui.overlay.OverlayView
         android:id="@+id/overlay"
         android:layout_width="match_parent"
