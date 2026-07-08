@@ -82,6 +82,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.ViewHandler;
 import javax.microedition.lcdui.event.SimpleEvent;
+import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
 import javax.microedition.lcdui.skin.SkinLayer;
 import javax.microedition.util.ContextHolder;
@@ -418,6 +419,22 @@ public class MicroActivity extends AppCompatActivity {
 				location[0] - overlayLocation[0] + view.getWidth(),
 				location[1] - overlayLocation[1] + view.getHeight());
 		return rect;
+	}
+
+	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
+		runOnUiThread(() -> {
+			switch (keyCode) {
+				case Canvas.KEY_SOFT_LEFT -> binding.buttonSoftLeftShell.setPressed(pressed);
+				case Canvas.KEY_SOFT_RIGHT -> binding.buttonSoftRightShell.setPressed(pressed);
+				case KeyMapper.KEY_OPTIONS_MENU -> binding.buttonMenuShell.setPressed(pressed);
+				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
+						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
+				case Canvas.KEY_NUM7 -> binding.buttonAShell.setPressed(pressed);
+				case Canvas.KEY_NUM8 -> binding.buttonBShell.setPressed(pressed);
+				case Canvas.KEY_NUM5 -> binding.buttonXShell.setPressed(pressed);
+				case Canvas.KEY_NUM0 -> binding.buttonYShell.setPressed(pressed);
+			}
+		});
 	}
 
 	public void setCurrent(Displayable displayable) {
