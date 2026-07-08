@@ -21,6 +21,7 @@ package javax.microedition.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Vibrator;
 import android.view.Display;
 import android.view.WindowManager;
@@ -55,6 +56,7 @@ public class ContextHolder {
 	private static WeakReference<MicroActivity> currentActivity;
 	private static Vibrator vibrator;
 	private static final ArrayList<ActivityResultListener> resultListeners = new ArrayList<>();
+	private static final Rect canvasViewport = new Rect();
 	private static boolean vibrationEnabled;
 
 	public static Context getAppContext() {
@@ -82,6 +84,18 @@ public class ContextHolder {
 
 	public static int getDisplayHeight() {
 		return getDisplay().getHeight();
+	}
+
+	public static void setCanvasViewport(int left, int top, int right, int bottom) {
+		canvasViewport.set(left, top, right, bottom);
+	}
+
+	public static void clearCanvasViewport() {
+		canvasViewport.setEmpty();
+	}
+
+	public static Rect getCanvasViewport() {
+		return new Rect(canvasViewport);
 	}
 
 	public static void setCurrentActivity(MicroActivity activity) {
