@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_apps_launcher"
+    android:background="@drawable/bg_in_game"
     tools:context="ru.playsoftware.j2meloader.applist.AppsListFragment">
 
     <View
