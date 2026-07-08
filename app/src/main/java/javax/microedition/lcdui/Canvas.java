@@ -373,7 +373,8 @@ public abstract class Canvas extends Displayable {
 		// We turn the size of the canvas into the size of the image
 		// that will be displayed on the screen of the device.
 		int scaleRatio = settings.screenScaleRatio;
-		switch (settings.screenScaleType) {
+		int screenScaleType = hasViewportOverride ? 2 : settings.screenScaleType;
+		switch (screenScaleType) {
 			case 0 -> {
 				// without scaling
 				onWidth = width;
