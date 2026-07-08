@@ -54,13 +54,14 @@ import ru.playsoftware.j2meloader.crashes.models.ExceptionModel;
 import ru.playsoftware.j2meloader.crashes.models.RequestBody;
 import ru.playsoftware.j2meloader.crashes.models.StackFrame;
 import ru.playsoftware.j2meloader.util.Constants;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 @AutoService(Collector.class)
 public class AppCenterCollector implements Collector {
 	public static final String APPCENTER_LOG = "APPCENTER_LOG";
 	public static final List<ReportField> REPORT_FIELDS = Arrays.asList(
 			ANDROID_VERSION, APP_VERSION_CODE, APP_VERSION_NAME, BRAND, CUSTOM_DATA, DISPLAY,
-			INSTALLATION_ID, IS_SILENT, LOGCAT, PACKAGE_NAME, PHONE_MODEL, REPORT_ID,
+			INSTALLATION_ID, IS_SILENT, PACKAGE_NAME, PHONE_MODEL, REPORT_ID,
 			STACK_TRACE, USER_APP_START_DATE, USER_CRASH_DATE);
 
 	@Override
@@ -125,12 +126,12 @@ public class AppCenterCollector implements Collector {
 			}
 		}
 
-		String logcat = report.getString(LOGCAT);
-		if (logcat != null) {
+		String gameLog = GameLog.dump();
+		if (!gameLog.isBlank()) {
 			if (sb == null) {
-				sb = new StringBuilder(logcat);
+				sb = new StringBuilder(gameLog);
 			} else {
-				sb.append("\n====================Logcat==================\n").append(logcat);
+				sb.append("\n====================GameLog=================\n").append(gameLog);
 			}
 		}
 		if (sb != null) {
