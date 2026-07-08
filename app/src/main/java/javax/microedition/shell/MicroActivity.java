@@ -43,6 +43,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,6 +122,38 @@ public class MicroActivity extends AppCompatActivity {
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
 		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
+		binding.overlay.setOnTouchListener((v, event) -> {
+			if (!(current instanceof Canvas)) {
+				return false;
+			}
+			VirtualKeyboard vk = ContextHolder.getVk();
+			if (vk == null || !ContextHolder.hasClassicsControlBounds()) {
+				return false;
+			}
+			switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN -> vk.show();
+				case MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> vk.hide();
+			}
+			int index = event.getActionIndex();
+			int id = event.getPointerId(index);
+			float x = event.getX(index);
+			float y = event.getY(index);
+			return switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN ->
+						vk.pointerPressed(id, x, y);
+				case MotionEvent.ACTION_MOVE -> {
+					boolean consumed = false;
+					for (int i = 0; i < event.getPointerCount(); i++) {
+						consumed |= vk.pointerDragged(event.getPointerId(i),
+								event.getX(i), event.getY(i));
+					}
+					yield consumed;
+				}
+				case MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_CANCEL ->
+						vk.pointerReleased(id, x, y);
+				default -> false;
+			};
+		});
 		binding.virtualDisplay.addOnLayoutChangeListener((v, left, top, right, bottom,
 				oldLeft, oldTop, oldRight, oldBottom) -> {
 			if (current instanceof Canvas && (left != oldLeft || top != oldTop
@@ -377,10 +410,13 @@ public class MicroActivity extends AppCompatActivity {
 
 	private Rect getViewBounds(View view) {
 		Rect rect = new Rect();
+		int[] overlayLocation = new int[2];
 		int[] location = new int[2];
+		binding.overlay.getLocationInWindow(overlayLocation);
 		view.getLocationInWindow(location);
-		rect.set(location[0], location[1],
-				location[0] + view.getWidth(), location[1] + view.getHeight());
+		rect.set(location[0] - overlayLocation[0], location[1] - overlayLocation[1],
+				location[0] - overlayLocation[0] + view.getWidth(),
+				location[1] - overlayLocation[1] + view.getHeight());
 		return rect;
 	}
 
