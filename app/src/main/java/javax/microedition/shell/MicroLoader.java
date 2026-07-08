@@ -74,6 +74,7 @@ import ru.playsoftware.j2meloader.config.ShaderInfo;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.FileUtils;
+import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.IOUtils;
 import ru.woesss.j2me.jar.Descriptor;
 
@@ -146,6 +147,7 @@ public class MicroLoader {
 			}
 		}
 		Map<String, String> attr = descriptor.getAttrs();
+		GameLog.i("Descriptor", "Loaded manifest for \"" + descriptor.getName() + "\"");
 		ErrorReporter errorReporter = ACRA.getErrorReporter();
 		String report = errorReporter.getCustomData(Constants.KEY_APPCENTER_ATTACHMENT);
 		StringBuilder sb = new StringBuilder();
@@ -198,6 +200,7 @@ public class MicroLoader {
 			ClassLoader loader = new AppClassLoader(dexSource.getAbsolutePath(),
 					dexOptDir.getAbsolutePath(), ContextHolder.getActivity().getClassLoader(), appDir);
 			Log.i(TAG, "loadMIDletList main: " + mainClass + " from dex:" + dexSource.getPath());
+			GameLog.i("Loader", "Loading MIDlet class " + mainClass + " from " + dexSource.getPath());
 			//noinspection unchecked
 			Class<MIDlet> clazz = (Class<MIDlet>) loader.loadClass(mainClass);
 			Constructor<MIDlet> init = clazz.getDeclaredConstructor();
@@ -205,6 +208,7 @@ public class MicroLoader {
 			return init.newInstance();
 		} else {
 			AppClassLoader.setDataDir(appDir);
+			GameLog.i("Loader", "Loading embedded MIDlet class " + mainClass);
 			//noinspection unchecked
 			Class<MIDlet> clazz = (Class<MIDlet>) Class.forName(mainClass);
 			Constructor<MIDlet> init = clazz.getDeclaredConstructor();
