@@ -36,6 +36,7 @@ import ru.playsoftware.j2meloader.crashes.AppCenterCollector;
 import ru.playsoftware.j2meloader.crashes.AppCenterSender;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.FileUtils;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 public class EmulatorApplication extends Application implements OnSharedPreferenceChangeListener {
 	private static EmulatorApplication instance;
@@ -48,6 +49,7 @@ public class EmulatorApplication extends Application implements OnSharedPreferen
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
 		instance = this;
+		GameLog.install();
 		if (BuildConfig.DEBUG) {
 			MultiDex.install(this);
 		}
