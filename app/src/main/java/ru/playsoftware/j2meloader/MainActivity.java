@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().hide();
+		}
 		storagePermissionHelper.launch(this);
 		appListModel = new ViewModelProvider(this).get(AppListModel.class);
 		if (savedInstanceState == null) {
