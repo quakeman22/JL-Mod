@@ -115,6 +115,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
+		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
@@ -674,25 +675,38 @@ public class MicroActivity extends AppCompatActivity {
 			}
 			binding.displayableContainer.removeAllViews();
 			ActionBar actionBar = Objects.requireNonNull(getSupportActionBar());
-			LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.toolbar.getLayoutParams();
+			ViewGroup.LayoutParams layoutParams = binding.toolbar.getLayoutParams();
 			int toolbarHeight = 0;
 			if (next instanceof Canvas) {
 				hideSystemUI();
+				binding.buttonBackOverlay.setVisibility(View.VISIBLE);
+				binding.gameFrame.setVisibility(View.VISIBLE);
+				binding.controlTopRow.setVisibility(View.VISIBLE);
+				binding.controlPadShell.setVisibility(View.VISIBLE);
+				binding.actionCluster.setVisibility(View.VISIBLE);
 				if (!actionBarEnabled) {
 					actionBar.hide();
+					binding.toolbar.setVisibility(View.GONE);
 				} else {
 					final String title = next.getTitle();
 					actionBar.setTitle(title == null ? appName : title);
 					toolbarHeight = (int) (getToolBarHeight() / 1.5);
 					layoutParams.height = toolbarHeight;
+					binding.toolbar.setVisibility(View.VISIBLE);
 				}
 			} else {
 				showSystemUI();
+				binding.buttonBackOverlay.setVisibility(View.GONE);
+				binding.gameFrame.setVisibility(View.GONE);
+				binding.controlTopRow.setVisibility(View.GONE);
+				binding.controlPadShell.setVisibility(View.GONE);
+				binding.actionCluster.setVisibility(View.GONE);
 				actionBar.show();
 				final String title = next != null ? next.getTitle() : null;
 				actionBar.setTitle(title == null ? appName : title);
 				toolbarHeight = (int) getToolBarHeight();
 				layoutParams.height = toolbarHeight;
+				binding.toolbar.setVisibility(View.VISIBLE);
 			}
 			binding.overlay.setLocation(0, toolbarHeight);
 			binding.toolbar.setLayoutParams(layoutParams);
