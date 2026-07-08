@@ -33,6 +33,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.lcdui.Display;
 import javax.microedition.shell.MidletThread;
 import javax.microedition.util.ContextHolder;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 public abstract class MIDlet {
 	private static final String TAG = "MIDlet";
@@ -50,6 +51,7 @@ public abstract class MIDlet {
 	public String getAppProperty(String key) {
 		String value = properties.get(key);
 		Log.d(TAG, "getAppProperty: " + key + "=" + value);
+		GameLog.i("MIDlet", "getAppProperty(" + key + ") -> " + value);
 		return value;
 	}
 
@@ -57,6 +59,7 @@ public abstract class MIDlet {
 	 * Report the shell that the MIDlet is ready to go into a pause.
 	 */
 	public final void notifyPaused() {
+		GameLog.i("MIDlet", "notifyPaused()");
 		MidletThread.notifyPaused();
 	}
 
@@ -67,6 +70,7 @@ public abstract class MIDlet {
 	 * Calls to this method from destroyApp() are ignored.
 	 */
 	public final void notifyDestroyed() {
+		GameLog.i("MIDlet", "notifyDestroyed()");
 		MidletThread.notifyDestroyed();
 	}
 
@@ -92,6 +96,7 @@ public abstract class MIDlet {
 
 	public boolean platformRequest(String url) throws ConnectionNotFoundException {
 		try {
+			GameLog.i("MIDlet", "platformRequest(" + url + ")");
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 			if (url.startsWith("file://")) {
 				FileSystemFileConnection fileConnection = (FileSystemFileConnection) Connector.open(url);
@@ -103,6 +108,7 @@ public abstract class MIDlet {
 			}
 			ContextHolder.getActivity().startActivity(intent);
 		} catch (ActivityNotFoundException | IOException e) {
+			GameLog.e("MIDlet", "platformRequest failed for " + url, e);
 			throw new ConnectionNotFoundException();
 		}
 
@@ -114,6 +120,7 @@ public abstract class MIDlet {
 	}
 
 	public final void resumeRequest() {
+		GameLog.i("MIDlet", "resumeRequest()");
 		MidletThread.resumeRequest();
 	}
 }
