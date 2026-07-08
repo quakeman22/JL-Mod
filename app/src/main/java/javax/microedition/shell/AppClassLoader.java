@@ -42,6 +42,7 @@ public class AppClassLoader extends DexClassLoader {
 	private static ZipFile zipFile;
 	private static String sDataDir;
 	private static File sOldResDir;
+	private static String sResJarName;
 
 	AppClassLoader(String paths, String tmpDir, ClassLoader parent, File appDir) {
 		super(paths, tmpDir, null, new CoreClassLoader(parent));
@@ -51,6 +52,7 @@ public class AppClassLoader extends DexClassLoader {
 		instance = this;
 		setDataDir(appDir);
 		File jar = new File(appDir, Config.MIDLET_RES_FILE);
+		sResJarName = jar.getName();
 		zipFile = jar.exists() ? new ZipFile(jar) : null;
 	}
 
@@ -59,7 +61,6 @@ public class AppClassLoader extends DexClassLoader {
 	}
 
 	public static InputStream getResourceAsStream(Class<?> resClass, String resName) {
-		Log.d(TAG, "CUSTOM GET RES CALLED WITH PATH: " + resName);
 		if (resName == null || resName.equals("")) {
 			Log.w(TAG, "Can't load res on empty path");
 			return null;
@@ -77,6 +78,7 @@ public class AppClassLoader extends DexClassLoader {
 			normName = normName.substring(1);
 		}
 		byte[] data = getResourceBytes(normName);
+		logResourceAccess(normName, data);
 		if (data == null) {
 			Log.w(TAG, "Can't load res: " + resName);
 			return null;
@@ -102,11 +104,23 @@ public class AppClassLoader extends DexClassLoader {
 			normName = normName.substring(1);
 		}
 		byte[] data = getResourceBytes(normName);
+		logResourceAccess(normName, data);
 		if (data == null) {
 			Log.w(TAG, "Can't load res: " + resName);
 			return null;
 		}
 		return data;
+	}
+
+	private static void logResourceAccess(String name, byte[] data) {
+		String jarLabel = sResJarName != null ? sResJarName : "app.jar";
+		if (data != null) {
+			ru.playsoftware.j2meloader.util.GameLog.i(TAG,
+					jarLabel + ".getResourceStream: " + name + " (" + data.length + ")");
+		} else {
+			ru.playsoftware.j2meloader.util.GameLog.w(TAG,
+					jarLabel + ".getResourceStream: " + name + " (NOT FOUND)");
+		}
 	}
 
 	private static byte[] getResourceBytes(String name) {
