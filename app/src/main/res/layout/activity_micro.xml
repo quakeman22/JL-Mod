@@ -154,29 +154,29 @@
             android:id="@+id/control_pad_shell"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/bg_micro_pad_shell"
             app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
             app:layout_constraintDimensionRatio="1.08:1"
             app:layout_constraintEnd_toStartOf="@id/action_cluster"
-            app:layout_constraintHorizontal_bias="0.22"
+            app:layout_constraintHorizontal_bias="0.18"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="220dp"
-            app:layout_constraintWidth_percent="0.36">
+            app:layout_constraintWidth_max="250dp"
+            app:layout_constraintWidth_percent="0.41">
 
             <View
-                android:layout_width="60dp"
-                android:layout_height="120dp"
+                android:layout_width="72dp"
+                android:layout_height="144dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_micro_dpad_button" />
 
             <View
-                android:layout_width="120dp"
-                android:layout_height="60dp"
+                android:layout_width="144dp"
+                android:layout_height="72dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_micro_dpad_button" />
         </FrameLayout>
