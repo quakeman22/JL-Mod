@@ -17,7 +17,9 @@
 package ru.playsoftware.j2meloader.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import ru.playsoftware.j2meloader.config.Config;
 
@@ -28,7 +30,9 @@ public class LogUtils {
 		if (logFile.exists()) {
 			logFile.delete();
 		}
-		Runtime.getRuntime().exec("logcat -t 500 -f " + logFile);
+		try (FileOutputStream fos = new FileOutputStream(logFile)) {
+			fos.write(GameLog.dump().getBytes(StandardCharsets.UTF_8));
+		}
 	}
 
 }
