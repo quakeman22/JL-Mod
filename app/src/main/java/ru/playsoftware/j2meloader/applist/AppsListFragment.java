@@ -59,8 +59,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.nononsenseapps.filepicker.FilePickerActivity;
@@ -88,7 +89,7 @@ import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.woesss.j2me.installer.InstallerDialog;
 
-public class AppsListFragment extends Fragment implements MenuProvider, AppsListAdapter.OnItemClickListener {
+public class AppsListFragment extends Fragment implements MenuProvider, AppsCarouselAdapter.OnItemActionListener {
 
 	private final ActivityResultLauncher<Void> openFileLauncher = registerForActivityResult(
 			new ActivityResultContract<Void, Uri>() {
@@ -120,14 +121,16 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 				}
 			},
 			this::onActivityResult);
-	private final AppsListAdapter adapter = new AppsListAdapter(this);
+	private final AppsCarouselAdapter adapter = new AppsCarouselAdapter(this);
 	private Uri appUri;
 	private SharedPreferences preferences;
 	private AppListModel appListViewModel;
 	private Disposable searchViewDisposable;
-	private GridLayoutManager layoutManager;
+	private LinearLayoutManager layoutManager;
+	private PagerSnapHelper snapHelper;
 	private FragmentAppslistBinding binding;
-	private DividerItemDecoration itemDecoration;
+	private List<AppItem> currentItems = List.of();
+	private int selectedPosition = RecyclerView.NO_POSITION;
 
 	public static AppsListFragment newInstance(Uri data) {
 		AppsListFragment fragment = new AppsListFragment();
@@ -159,26 +162,25 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		MenuHost menuHost = requireActivity();
 		menuHost.addMenuProvider(this, getViewLifecycleOwner());
-
-		int viewType = preferences.getInt(PREF_APPS_VIEW, AppsListAdapter.LAYOUT_TYPE_GRID);
-		int spanCount;
-		if (viewType == AppsListAdapter.LAYOUT_TYPE_GRID) {
-			spanCount = getResources().getConfiguration().screenWidthDp / 90;
-		} else {
-			spanCount = 1;
-			itemDecoration = new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL);
-			binding.list.addItemDecoration(itemDecoration);
-		}
-		adapter.setLayout(viewType);
-		layoutManager = new GridLayoutManager(requireContext(), spanCount);
-		requireActivity().addOnConfigurationChangedListener(configuration -> {
-			if (adapter.getItemViewType(0) == AppsListAdapter.LAYOUT_TYPE_GRID) {
-				layoutManager.setSpanCount(configuration.screenWidthDp / 90);
-			}
-		});
+		layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
 		binding.list.setLayoutManager(layoutManager);
 		binding.list.setAdapter(adapter);
-		binding.fab.setOnClickListener(v -> openFileLauncher.launch(null));
+		snapHelper = new PagerSnapHelper();
+		snapHelper.attachToRecyclerView(binding.list);
+		binding.list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+					updateSelectionFromSnap();
+				}
+			}
+		});
+		binding.buttonPrevious.setOnClickListener(v -> moveSelection(-1));
+		binding.buttonNext.setOnClickListener(v -> moveSelection(1));
+		binding.buttonPlay.setOnClickListener(v -> launchSelectedApp());
+		binding.buttonMoreGames.setOnClickListener(v -> openFileLauncher.launch(null));
+		binding.buttonSettings.setOnClickListener(v ->
+				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
 		appListViewModel.getAppList().observe(getViewLifecycleOwner(), this::onDbUpdated);
 	}
 
@@ -221,8 +223,13 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 	}
 
 	@Override
-	public void onClick(AppItem item) {
+	public void onItemActivated(AppItem item) {
 		Config.startApp(requireContext(), item.getTitle(), item.getPathExt());
+	}
+
+	@Override
+	public void onItemSelected(int position) {
+		selectPosition(position, true);
 	}
 
 	@Override
@@ -285,10 +292,7 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 				.map(String::toLowerCase)
 				.distinctUntilChanged()
 				.subscribe(appListViewModel::setAppListFilter);
-		int type = preferences.getInt(PREF_APPS_VIEW, AppsListAdapter.LAYOUT_TYPE_GRID);
-		if (type == AppsListAdapter.LAYOUT_TYPE_LIST) {
-			menu.findItem(R.id.action_view).setIcon(R.drawable.ic_action_apps_view_grid);
-		}
+		menu.findItem(R.id.action_view).setVisible(false);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -323,30 +327,7 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 		} else if (itemId == R.id.action_sort) {
 			showSortDialog();
 		} else if (itemId == R.id.action_view) {
-			int viewType = adapter.getItemViewType(0);
-			viewType = (viewType + 1) % 2;
-			if (viewType == AppsListAdapter.LAYOUT_TYPE_LIST) {
-				item.setIcon(R.drawable.ic_action_apps_view_grid);
-			} else {
-				item.setIcon(R.drawable.ic_action_apps_view_list);
-			}
-			int spanCount;
-			if (viewType == AppsListAdapter.LAYOUT_TYPE_GRID) {
-				spanCount = getResources().getConfiguration().screenWidthDp / 90;
-				if (itemDecoration != null) {
-					binding.list.removeItemDecoration(itemDecoration);
-				}
-			} else {
-				spanCount = 1;
-				if (itemDecoration == null) {
-					itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
-				}
-				binding.list.addItemDecoration(itemDecoration);
-			}
-			layoutManager.setSpanCount(spanCount);
-			adapter.setLayout(viewType);
-			adapter.notifyDataSetChanged();
-			preferences.edit().putInt(PREF_APPS_VIEW, viewType).apply();
+			return true;
 		} else {
 			return false;
 		}
@@ -370,6 +351,9 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 	}
 
 	private void onDbUpdated(List<AppItem> items) {
+		AppItem previousSelected = selectedPosition != RecyclerView.NO_POSITION && selectedPosition < currentItems.size()
+				? currentItems.get(selectedPosition) : null;
+		currentItems = items;
 		adapter.submitList(items);
 		if (items.isEmpty()) {
 			String filter = appListViewModel.getAppFilter();
@@ -379,8 +363,15 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 				binding.empty.setText(getResources().getString(R.string.msg_no_matches, filter));
 			}
 			binding.empty.setVisibility(View.VISIBLE);
+			selectedPosition = RecyclerView.NO_POSITION;
+			adapter.setSelectedPosition(RecyclerView.NO_POSITION);
+			updateSelectedViews(null, 0, 0);
+			setButtonsEnabled(false);
 		} else {
 			binding.empty.setVisibility(View.GONE);
+			int resolvedPosition = resolveSelectedPosition(items, previousSelected);
+			selectPosition(resolvedPosition, false);
+			setButtonsEnabled(true);
 		}
 		if (appUri != null) {
 			InstallerDialog.newInstance(appUri).show(getParentFragmentManager(), "installer");
@@ -424,5 +415,87 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsList
 			}
 			return tv;
 		}
+	}
+
+	private void moveSelection(int delta) {
+		if (currentItems.isEmpty()) {
+			return;
+		}
+		int position = selectedPosition == RecyclerView.NO_POSITION ? 0 : selectedPosition + delta;
+		position = Math.max(0, Math.min(position, currentItems.size() - 1));
+		selectPosition(position, true);
+	}
+
+	private void launchSelectedApp() {
+		if (selectedPosition == RecyclerView.NO_POSITION || selectedPosition >= currentItems.size()) {
+			return;
+		}
+		onItemActivated(currentItems.get(selectedPosition));
+	}
+
+	private void updateSelectionFromSnap() {
+		View snapped = snapHelper.findSnapView(layoutManager);
+		if (snapped == null) {
+			return;
+		}
+		int position = binding.list.getChildAdapterPosition(snapped);
+		if (position != RecyclerView.NO_POSITION) {
+			selectPosition(position, false);
+		}
+	}
+
+	private int resolveSelectedPosition(List<AppItem> items, @Nullable AppItem previousSelected) {
+		if (items.isEmpty()) {
+			return RecyclerView.NO_POSITION;
+		}
+		if (selectedPosition == RecyclerView.NO_POSITION) {
+			return 0;
+		}
+		if (previousSelected == null) {
+			return Math.min(selectedPosition, items.size() - 1);
+		}
+		for (int i = 0; i < items.size(); i++) {
+			if (items.get(i).getId() == previousSelected.getId()) {
+				return i;
+			}
+		}
+		return Math.min(selectedPosition, items.size() - 1);
+	}
+
+	private void selectPosition(int position, boolean smoothScroll) {
+		if (position == RecyclerView.NO_POSITION || position >= currentItems.size()) {
+			return;
+		}
+		selectedPosition = position;
+		adapter.setSelectedPosition(position);
+		updateSelectedViews(currentItems.get(position), position + 1, currentItems.size());
+		if (smoothScroll) {
+			binding.list.smoothScrollToPosition(position);
+		} else {
+			layoutManager.scrollToPosition(position);
+		}
+	}
+
+	private void updateSelectedViews(@Nullable AppItem item, int current, int total) {
+		if (item == null) {
+			binding.selectedTitle.setText("");
+			binding.selectedSubtitle.setText("");
+			binding.positionBadge.setText("0/0");
+			binding.progress.setMax(1);
+			binding.progress.setProgress(0);
+			return;
+		}
+		binding.selectedTitle.setText(item.getTitle());
+		binding.selectedSubtitle.setText(getString(R.string.classics_game_meta,
+				item.getAuthor(), item.getVersion()));
+		binding.positionBadge.setText(getString(R.string.classics_position, current, total));
+		binding.progress.setMax(Math.max(total, 1));
+		binding.progress.setProgress(current);
+	}
+
+	private void setButtonsEnabled(boolean enabled) {
+		binding.buttonPlay.setEnabled(enabled);
+		binding.buttonPrevious.setEnabled(enabled);
+		binding.buttonNext.setEnabled(enabled);
 	}
 }
