@@ -888,6 +888,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void paint(CanvasWrapper g) {
+		boolean hasViewportOverride = !ContextHolder.getCanvasViewport().isEmpty();
+		if (hasViewportOverride && layoutEditMode == LAYOUT_EOF) {
+			return;
+		}
 		if (visible && (layoutEditMode != LAYOUT_EOF || settings.vkAlpha > 0)) {
 			for (VirtualKey key : keypad) {
 				if (key.visible) {
