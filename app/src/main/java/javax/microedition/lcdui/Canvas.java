@@ -312,9 +312,16 @@ public abstract class Canvas extends Displayable {
 		// has the same aspect ratio as the actual screen of the device.
 		int scaledDisplayWidth;
 		int scaledDisplayHeight;
+		Rect viewport = ContextHolder.getCanvasViewport();
+		boolean hasViewportOverride = !viewport.isEmpty();
+		int viewportLeft = hasViewportOverride ? viewport.left : 0;
+		int viewportTop = hasViewportOverride ? viewport.top : 0;
 
 		SkinLayer skinLayer = SkinLayer.getInstance();
-		if (skinLayer != null && skinLayer.hasDisplayFrame()) {
+		if (hasViewportOverride) {
+			scaledDisplayWidth = viewport.width();
+			scaledDisplayHeight = viewport.height();
+		} else if (skinLayer != null && skinLayer.hasDisplayFrame()) {
 			skinLayer.resize(virtualScreen, 0, 0, displayWidth, displayHeight);
 			scaledDisplayWidth = (int) virtualScreen.width();
 			scaledDisplayHeight = (int) virtualScreen.height();
@@ -418,6 +425,9 @@ public abstract class Canvas extends Displayable {
 		if (skinLayer != null && skinLayer.hasDisplayFrame()) {
 			onX += virtualScreen.left;
 			onY += virtualScreen.top;
+		} else if (hasViewportOverride) {
+			onX += viewportLeft;
+			onY += viewportTop;
 		} else {
 			onX += settings.screenPadding;
 			onY += settings.screenPadding;
@@ -449,7 +459,7 @@ public abstract class Canvas extends Displayable {
 		if (overlay != null) {
 			overlay.resize(screen, onX, onY, onX + onWidth, onY + onHeight + softBarHeight);
 		}
-		if (skinLayer != null && !skinLayer.hasDisplayFrame()) {
+		if (!hasViewportOverride && skinLayer != null && !skinLayer.hasDisplayFrame()) {
 			skinLayer.resize(virtualScreen, 0, 0, displayWidth, displayHeight);
 		}
 
