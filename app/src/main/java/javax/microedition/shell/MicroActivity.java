@@ -120,6 +120,13 @@ public class MicroActivity extends AppCompatActivity {
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
 		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
+		binding.displayableContainer.addOnLayoutChangeListener((v, left, top, right, bottom,
+				oldLeft, oldTop, oldRight, oldBottom) -> {
+			if (current instanceof Canvas && (left != oldLeft || top != oldTop
+					|| right != oldRight || bottom != oldBottom)) {
+				updateCanvasViewport();
+			}
+		});
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
@@ -317,6 +324,23 @@ public class MicroActivity extends AppCompatActivity {
 		} else {
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
+	}
+
+	private void updateCanvasViewport() {
+		if (!(current instanceof Canvas)) {
+			ContextHolder.clearCanvasViewport();
+			return;
+		}
+		int width = binding.displayableContainer.getWidth();
+		int height = binding.displayableContainer.getHeight();
+		if (width <= 0 || height <= 0) {
+			return;
+		}
+		int[] location = new int[2];
+		binding.displayableContainer.getLocationInWindow(location);
+		ContextHolder.setCanvasViewport(location[0], location[1],
+				location[0] + width, location[1] + height);
+		((Canvas) current).updateSize();
 	}
 
 	public void setCurrent(Displayable displayable) {
@@ -705,6 +729,7 @@ public class MicroActivity extends AppCompatActivity {
 				binding.controlTopRow.setVisibility(View.GONE);
 				binding.controlPadShell.setVisibility(View.GONE);
 				binding.actionCluster.setVisibility(View.GONE);
+				ContextHolder.clearCanvasViewport();
 				actionBar.show();
 				final String title = next != null ? next.getTitle() : null;
 				actionBar.setTitle(title == null ? appName : title);
@@ -726,6 +751,9 @@ public class MicroActivity extends AppCompatActivity {
 						Gravity.CENTER);
 				displayableView.setLayoutParams(displayLayoutParams);
 				binding.displayableContainer.addView(displayableView, displayLayoutParams);
+				if (next instanceof Canvas) {
+					binding.displayableContainer.post(MicroActivity.this::updateCanvasViewport);
+				}
 			}
 		}
 	}
