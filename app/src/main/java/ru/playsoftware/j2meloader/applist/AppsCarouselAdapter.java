@@ -121,9 +121,9 @@ class AppsCarouselAdapter extends ListAdapter<AppItem, AppsCarouselAdapter.AppVi
 			}
 			title.setText(item.getTitle());
 			itemView.setTag(item);
-			itemView.setScaleX(selected ? 1.0f : 0.88f);
-			itemView.setScaleY(selected ? 1.0f : 0.88f);
-			itemView.setAlpha(selected ? 1.0f : 0.72f);
+			itemView.setScaleX(1.0f);
+			itemView.setScaleY(1.0f);
+			itemView.setAlpha(1.0f);
 		}
 	}
 }
