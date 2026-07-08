@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Replace this drawable with your own full-screen menu art if desired. -->
-    <item android:drawable="@drawable/bg_apps_launcher" />
+    <item android:drawable="@drawable/fundo_menu" />
 </layer-list>
