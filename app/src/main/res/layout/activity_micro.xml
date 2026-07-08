@@ -111,6 +111,7 @@
             app:layout_constraintTop_toBottomOf="@id/game_frame">
 
             <TextView
+                android:id="@+id/button_soft_left_shell"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="6dp"
@@ -123,6 +124,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/button_menu_shell"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="6dp"
@@ -135,6 +137,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/button_soft_right_shell"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="6dp"
