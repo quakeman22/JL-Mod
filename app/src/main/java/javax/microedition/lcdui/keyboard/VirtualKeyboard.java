@@ -1168,6 +1168,13 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		if (settings.vkFeedback) ContextHolder.vibrateKey(FEEDBACK_DURATION);
 	}
 
+	private void notifyClassicsKeyPressed(int keyCode, boolean pressed) {
+		MicroActivity activity = ContextHolder.getActivity();
+		if (activity != null && isClassicsLayoutActive()) {
+			activity.setClassicsKeyPressed(keyCode, pressed);
+		}
+	}
+
 	public void setView(View view) {
 		overlayView = view;
 	}
@@ -1382,6 +1389,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 		protected void onDown() {
 			selected = true;
+			notifyClassicsKeyPressed(keyCode, true);
 			target.postKeyPressed(keyCode);
 			handler.postDelayed(this, 400);
 		}
@@ -1389,6 +1397,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		public void onUp() {
 			selected = false;
 			handler.removeCallbacks(this);
+			notifyClassicsKeyPressed(keyCode, false);
 			target.postKeyReleased(keyCode);
 		}
 	}
@@ -1438,6 +1447,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		@Override
 		protected void onDown() {
 			selected = true;
+			notifyClassicsKeyPressed(keyCode, true);
 			handler.postDelayed(this, 500);
 		}
 
@@ -1446,6 +1456,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			if (selected) {
 				selected = false;
 				handler.removeCallbacks(this);
+				notifyClassicsKeyPressed(keyCode, false);
 				MicroActivity activity = ContextHolder.getActivity();
 				if (activity != null) {
 					activity.openOptionsMenu();
@@ -1456,6 +1467,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		@Override
 		public void run() {
 			selected = false;
+			notifyClassicsKeyPressed(keyCode, false);
 			MicroActivity activity = ContextHolder.getActivity();
 			if (activity != null) {
 				activity.runOnUiThread(activity::showExitConfirmation);
