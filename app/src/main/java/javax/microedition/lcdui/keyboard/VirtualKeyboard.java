@@ -1198,10 +1198,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		applyDpadRect(keypad[KEY_DOWN], dpadBounds, 1, 2);
 		applyDpadRect(keypad[KEY_DOWN_RIGHT], dpadBounds, 2, 2);
 
-		applyRect(keypad[KEY_A], ContextHolder.getClassicsActionABounds(), 0.08f);
-		applyRect(keypad[KEY_B], ContextHolder.getClassicsActionBBounds(), 0.08f);
-		applyRect(keypad[KEY_C], ContextHolder.getClassicsActionXBounds(), 0.08f);
-		applyRect(keypad[KEY_D], ContextHolder.getClassicsActionYBounds(), 0.08f);
+		applyRect(keypad[KEY_NUM7], ContextHolder.getClassicsActionABounds(), 0.08f);
+		applyRect(keypad[KEY_NUM8], ContextHolder.getClassicsActionBBounds(), 0.08f);
+		applyRect(keypad[KEY_NUM5], ContextHolder.getClassicsActionXBounds(), 0.08f);
+		applyRect(keypad[KEY_NUM0], ContextHolder.getClassicsActionYBounds(), 0.08f);
 
 		obscuresVirtualScreen = false;
 	}
