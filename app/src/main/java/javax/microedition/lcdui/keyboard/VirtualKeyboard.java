@@ -1193,15 +1193,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		applyRect(keypad[KEY_SOFT_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_SOFT_LEFT), 0.08f);
 		applyRect(keypad[KEY_MENU], ContextHolder.getClassicsKeyBounds(KeyMapper.KEY_OPTIONS_MENU), 0.08f);
 		applyRect(keypad[KEY_SOFT_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_SOFT_RIGHT), 0.08f);
-		applyRect(keypad[KEY_UP_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP_LEFT), 0.06f);
 		applyRect(keypad[KEY_UP], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP), 0.06f);
-		applyRect(keypad[KEY_UP_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP_RIGHT), 0.06f);
 		applyRect(keypad[KEY_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_LEFT), 0.06f);
 		applyRect(keypad[KEY_FIRE], ContextHolder.getClassicsKeyBounds(Canvas.KEY_FIRE), 0.06f);
 		applyRect(keypad[KEY_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_RIGHT), 0.06f);
-		applyRect(keypad[KEY_DOWN_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN_LEFT), 0.06f);
 		applyRect(keypad[KEY_DOWN], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN), 0.06f);
-		applyRect(keypad[KEY_DOWN_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN_RIGHT), 0.06f);
 		applyRect(keypad[KEY_NUM1], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM1), 0.08f);
 		applyRect(keypad[KEY_NUM2], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM2), 0.08f);
 		applyRect(keypad[KEY_NUM3], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM3), 0.08f);
