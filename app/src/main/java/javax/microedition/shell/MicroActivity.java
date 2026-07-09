@@ -450,15 +450,11 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.phoneKeyPound);
 		} else {
 			Rect dpad = getViewBounds(binding.controlPadShell);
-			addKeyBound(keyBounds, Canvas.KEY_UP_LEFT, subdivideRect(dpad, 0, 0));
 			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
-			addKeyBound(keyBounds, Canvas.KEY_UP_RIGHT, subdivideRect(dpad, 2, 0));
 			addKeyBound(keyBounds, Canvas.KEY_LEFT, subdivideRect(dpad, 0, 1));
 			addKeyBound(keyBounds, Canvas.KEY_FIRE, subdivideRect(dpad, 1, 1));
 			addKeyBound(keyBounds, Canvas.KEY_RIGHT, subdivideRect(dpad, 2, 1));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN_LEFT, subdivideRect(dpad, 0, 2));
 			addKeyBound(keyBounds, Canvas.KEY_DOWN, subdivideRect(dpad, 1, 2));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN_RIGHT, subdivideRect(dpad, 2, 2));
 			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.buttonAShell);
 			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.buttonBShell);
 			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.buttonXShell);
