@@ -27,7 +27,7 @@
             android:minHeight="64dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
+            app:navigationIcon="@drawable/ic_launcher_arrow_left"
             app:navigationIconTint="@android:color/white"
             app:title="@string/action_settings"
             app:titleCentered="false"
