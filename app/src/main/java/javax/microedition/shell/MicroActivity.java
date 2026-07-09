@@ -63,6 +63,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Lifecycle;
 import androidx.preference.PreferenceManager;
 
@@ -171,6 +172,7 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
 		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
 		if (sp.getBoolean(PREF_KEEP_SCREEN, false)) {
@@ -366,6 +368,28 @@ public class MicroActivity extends AppCompatActivity {
 		} else {
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
+	}
+
+	private void applyClassicsViewSize(String size) {
+		ConstraintLayout.LayoutParams params =
+				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
+		if ("large".equals(size)) {
+			params.matchConstraintPercentWidth = 0.84f;
+			params.matchConstraintMaxWidth = dpToPx(392);
+			params.topMargin = dpToPx(14);
+		} else {
+			params.matchConstraintPercentWidth = 0.76f;
+			params.matchConstraintMaxWidth = dpToPx(360);
+			params.topMargin = dpToPx(22);
+		}
+		binding.gameFrame.setLayoutParams(params);
+	}
+
+	private int dpToPx(int dp) {
+		return Math.round(TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP,
+				dp,
+				getResources().getDisplayMetrics()));
 	}
 
 	private void updateCanvasViewport() {
