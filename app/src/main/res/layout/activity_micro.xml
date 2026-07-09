@@ -266,7 +266,7 @@
             android:id="@+id/phone_shell_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone"
@@ -284,8 +284,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_1"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="1"
@@ -295,8 +295,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_2"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="2"
@@ -306,8 +306,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_3"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="3"
@@ -317,8 +317,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_4"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="4"
@@ -328,8 +328,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_5"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="5"
@@ -339,8 +339,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_6"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="6"
@@ -350,8 +350,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_7"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="7"
@@ -361,8 +361,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_8"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="8"
@@ -372,8 +372,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_9"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="9"
@@ -383,8 +383,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_star"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="*"
@@ -394,8 +394,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_0"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="0"
@@ -405,8 +405,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_pound"
-                    android:layout_width="86dp"
-                    android:layout_height="56dp"
+                    android:layout_width="92dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="#"
