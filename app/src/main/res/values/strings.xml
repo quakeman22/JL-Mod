@@ -91,8 +91,8 @@
     <string name="no_data_for_display">No data</string>
     <string name="classics_brand">JL MOD</string>
     <string name="classics_title">Classics</string>
-    <string name="classics_play">Jogar</string>
-    <string name="classics_more_games">Mais jogos</string>
+    <string name="classics_play">Play</string>
+    <string name="classics_more_games">More games</string>
     <string name="classics_previous">Previous game</string>
     <string name="classics_next">Next game</string>
     <string name="classics_position">%1$d/%2$d</string>
@@ -119,6 +119,9 @@
     <string name="pref_enable_actionbar_summary">In fullscreen applications</string>
     <string name="pref_enable_actionbar_title">Enable ActionBar</string>
     <string name="pref_enable_statusbar_title">Enable statusbar</string>
+    <string name="pref_classics_view_size_title">Classics gameplay size</string>
+    <string name="pref_classics_view_size_default">Default</string>
+    <string name="pref_classics_view_size_large">Large</string>
     <string name="pref_encoding_title">Encoding</string>
     <string name="PREF_FILTER">Filter</string>
     <string name="PREF_FONT_ANTI_ALIASING">Anti-Aliasing</string>

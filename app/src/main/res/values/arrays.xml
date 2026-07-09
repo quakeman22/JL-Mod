@@ -16,6 +16,14 @@
         <item>dark</item>
         <item>auto-time</item>
     </string-array>
+    <string-array name="pref_classics_view_size_entries">
+        <item>@string/pref_classics_view_size_default</item>
+        <item>@string/pref_classics_view_size_large</item>
+    </string-array>
+    <string-array name="pref_classics_view_size_values" translatable="false">
+        <item>default</item>
+        <item>large</item>
+    </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
         <item>@string/pref_app_sort_date</item>
