@@ -14,6 +14,13 @@
     <color name="btn_bg_normal">#2e2e2e</color>
     <color name="btn_bg_pressed">#707070</color>
     <color name="config_card">#ffffff</color>
+    <color name="settings_toolbar_start">#0A7DE7</color>
+    <color name="settings_toolbar_end">#A221CC</color>
+    <color name="settings_panel_bg">#F22A2F45</color>
+    <color name="settings_panel_stroke">#66FFFFFF</color>
+    <color name="settings_screen_scrim">#1A06142A</color>
+    <color name="settings_title">#FFFFFFFF</color>
+    <color name="settings_summary">#D8E7FF</color>
 
     <color name="nnf_separator_color">@color/nnf_light_separator_color</color>
 </resources>
