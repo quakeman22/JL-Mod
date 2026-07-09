@@ -85,6 +85,10 @@
     <string name="pref_button_shape_round">Quadrado arredondado</string>
     <string name="pref_button_shape_title">Formato dos botões</string>
     <string name="pref_category_experimental">Opções experimentais/temporárias</string>
+    <string name="pref_category_appearance">Aparência</string>
+    <string name="pref_category_classics">Interface Classics</string>
+    <string name="pref_category_system">Comportamento do sistema</string>
+    <string name="pref_category_library">Biblioteca e perfis</string>
     <string name="pref_default_settings">Configurações padrão</string>
     <string name="pref_emulator_dir">Pasta padrão</string>
     <string name="pref_enable_actionbar_summary">Em aplicativos em tela cheia</string>
