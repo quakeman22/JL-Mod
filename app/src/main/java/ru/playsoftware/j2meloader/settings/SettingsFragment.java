@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,10 +34,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 
 import java.io.File;
 import java.util.Locale;
@@ -70,6 +74,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			openDirLauncher.launch(null);
 			return true;
 		});
+		tintPreferenceIcons(getPreferenceScreen());
 	}
 
 	@Override
@@ -138,5 +143,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 				.putString(PREF_EMULATOR_DIR, path)
 				.apply();
 		prefFolder.setSummary(path);
+	}
+
+	private void tintPreferenceIcons(Preference preference) {
+		if (preference == null) {
+			return;
+		}
+		if (preference.getIcon() != null) {
+			Drawable wrapped = DrawableCompat.wrap(preference.getIcon().mutate());
+			DrawableCompat.setTint(wrapped, requireContext().getColor(R.color.settings_icon_tint));
+			preference.setIcon(wrapped);
+		}
+		if (preference instanceof PreferenceCategory category) {
+			for (int i = 0; i < category.getPreferenceCount(); i++) {
+				tintPreferenceIcons(category.getPreference(i));
+			}
+			return;
+		}
+		if (preference instanceof PreferenceGroup group) {
+			for (int i = 0; i < group.getPreferenceCount(); i++) {
+				tintPreferenceIcons(group.getPreference(i));
+			}
+		}
 	}
 }
