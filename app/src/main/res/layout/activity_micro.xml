@@ -277,88 +277,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="290dp"
-            app:layout_constraintWidth_percent="0.62">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/phone_nav_cluster"
-                android:layout_width="168dp"
-                android:layout_height="132dp"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:id="@+id/phone_nav_up"
-                    android:layout_width="54dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_micro_control_bar"
-                    android:gravity="center"
-                    android:text="▲"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/phone_nav_left"
-                    android:layout_width="54dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_micro_control_bar"
-                    android:gravity="center"
-                    android:text="◀"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/phone_nav_center"
-                    app:layout_constraintEnd_toStartOf="@id/phone_nav_center"
-                    app:layout_constraintTop_toTopOf="@id/phone_nav_center" />
-
-                <TextView
-                    android:id="@+id/phone_nav_center"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:background="@drawable/bg_micro_action_button"
-                    android:gravity="center"
-                    android:text="OK"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/phone_nav_up" />
-
-                <TextView
-                    android:id="@+id/phone_nav_right"
-                    android:layout_width="54dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_micro_control_bar"
-                    android:gravity="center"
-                    android:text="▶"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/phone_nav_center"
-                    app:layout_constraintStart_toEndOf="@id/phone_nav_center"
-                    app:layout_constraintTop_toTopOf="@id/phone_nav_center" />
-
-                <TextView
-                    android:id="@+id/phone_nav_down"
-                    android:layout_width="54dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_micro_control_bar"
-                    android:gravity="center"
-                    android:text="▼"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/phone_nav_center" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintWidth_max="320dp"
+            app:layout_constraintWidth_percent="0.7">
 
             <GridLayout
                 android:id="@+id/phone_keypad_shell"
@@ -370,8 +290,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_1"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="1"
@@ -381,8 +301,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_2"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="2"
@@ -392,8 +312,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_3"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="3"
@@ -403,8 +323,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_4"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="4"
@@ -414,8 +334,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_5"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="5"
@@ -425,8 +345,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_6"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="6"
@@ -436,8 +356,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_7"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="7"
@@ -447,8 +367,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_8"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="8"
@@ -458,8 +378,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_9"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="9"
@@ -469,8 +389,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_star"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="*"
@@ -480,8 +400,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_0"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="0"
@@ -491,8 +411,8 @@
 
                 <TextView
                     android:id="@+id/phone_key_pound"
-                    android:layout_width="74dp"
-                    android:layout_height="48dp"
+                    android:layout_width="86dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="#"

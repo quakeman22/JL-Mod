@@ -59,11 +59,11 @@
 
             <ImageButton
                 android:id="@+id/button_previous"
-                android:layout_width="68dp"
-                android:layout_height="68dp"
+                android:layout_width="82dp"
+                android:layout_height="82dp"
                 android:background="@drawable/bg_launcher_arrow_button"
                 android:contentDescription="@string/classics_previous"
-                android:padding="15dp"
+                android:padding="16dp"
                 android:src="@drawable/ic_launcher_arrow_left"
                 app:tint="@android:color/white" />
 
@@ -80,11 +80,11 @@
 
             <ImageButton
                 android:id="@+id/button_next"
-                android:layout_width="68dp"
-                android:layout_height="68dp"
+                android:layout_width="82dp"
+                android:layout_height="82dp"
                 android:background="@drawable/bg_launcher_arrow_button"
                 android:contentDescription="@string/classics_next"
-                android:padding="15dp"
+                android:padding="16dp"
                 android:src="@drawable/ic_launcher_arrow_right"
                 app:tint="@android:color/white" />
         </LinearLayout>
