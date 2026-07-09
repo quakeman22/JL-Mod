@@ -93,11 +93,8 @@ android {
     }
 
     splits.abi {
-        isEnable = true
-        reset()
-        include("x86", "armeabi-v7a", "x86_64", "arm64-v8a")
-        isUniversalApk = true
-    }
+    isEnable = false
+}
 
     externalNativeBuild.ndkBuild.path("src/main/cpp/Android.mk")
 
