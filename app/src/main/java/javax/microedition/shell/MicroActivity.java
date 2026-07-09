@@ -37,6 +37,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.DigitsKeyListener;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -114,6 +115,7 @@ public class MicroActivity extends AppCompatActivity {
 	private int menuKey;
 	private String appPath;
 	private ActivityMicroBinding binding;
+	private String classicsControlStyle = "joystick";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -173,6 +175,7 @@ public class MicroActivity extends AppCompatActivity {
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
 		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
 		if (sp.getBoolean(PREF_KEEP_SCREEN, false)) {
@@ -374,13 +377,13 @@ public class MicroActivity extends AppCompatActivity {
 		ConstraintLayout.LayoutParams params =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		if ("large".equals(size)) {
-			params.matchConstraintPercentWidth = 0.84f;
-			params.matchConstraintMaxWidth = dpToPx(392);
-			params.topMargin = dpToPx(14);
+			params.matchConstraintPercentWidth = 0.88f;
+			params.matchConstraintMaxWidth = dpToPx(404);
+			params.topMargin = dpToPx(10);
 		} else {
-			params.matchConstraintPercentWidth = 0.76f;
-			params.matchConstraintMaxWidth = dpToPx(360);
-			params.topMargin = dpToPx(22);
+			params.matchConstraintPercentWidth = 0.79f;
+			params.matchConstraintMaxWidth = dpToPx(372);
+			params.topMargin = dpToPx(18);
 		}
 		binding.gameFrame.setLayoutParams(params);
 	}
@@ -390,6 +393,15 @@ public class MicroActivity extends AppCompatActivity {
 				TypedValue.COMPLEX_UNIT_DIP,
 				dp,
 				getResources().getDisplayMetrics()));
+	}
+
+	private void applyClassicsControlStyle(String style) {
+		classicsControlStyle = "phone".equals(style) ? "phone" : "joystick";
+		int joystickVisibility = "phone".equals(classicsControlStyle) ? View.GONE : View.VISIBLE;
+		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		binding.controlPadShell.setVisibility(joystickVisibility);
+		binding.actionCluster.setVisibility(joystickVisibility);
+		binding.phoneShellContainer.setVisibility(phoneVisibility);
 	}
 
 	private void updateCanvasViewport() {
@@ -414,23 +426,81 @@ public class MicroActivity extends AppCompatActivity {
 			ContextHolder.clearClassicsControlBounds();
 			return;
 		}
-		Rect softLeft = getViewBounds(binding.buttonSoftLeftShell);
-		Rect menu = getViewBounds(binding.buttonMenuShell);
-		Rect softRight = getViewBounds(binding.buttonSoftRightShell);
-		Rect dpad = getViewBounds(binding.controlPadShell);
-		Rect actionA = getViewBounds(binding.buttonAShell);
-		Rect actionB = getViewBounds(binding.buttonBShell);
-		Rect actionX = getViewBounds(binding.buttonXShell);
-		Rect actionY = getViewBounds(binding.buttonYShell);
-		if (softLeft.isEmpty() || menu.isEmpty() || softRight.isEmpty()
-				|| dpad.isEmpty() || actionA.isEmpty() || actionB.isEmpty()
-				|| actionX.isEmpty() || actionY.isEmpty()) {
+		SparseArray<Rect> keyBounds = new SparseArray<>();
+		addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
+		addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
+		addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
+		if ("phone".equals(classicsControlStyle)) {
+			addKeyBound(keyBounds, Canvas.KEY_UP, binding.phoneNavUp);
+			addKeyBound(keyBounds, Canvas.KEY_LEFT, binding.phoneNavLeft);
+			addKeyBound(keyBounds, Canvas.KEY_FIRE, binding.phoneNavCenter);
+			addKeyBound(keyBounds, Canvas.KEY_RIGHT, binding.phoneNavRight);
+			addKeyBound(keyBounds, Canvas.KEY_DOWN, binding.phoneNavDown);
+			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
+			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
+			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
+			addKeyBound(keyBounds, Canvas.KEY_NUM4, binding.phoneKey4);
+			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.phoneKey5);
+			addKeyBound(keyBounds, Canvas.KEY_NUM6, binding.phoneKey6);
+			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.phoneKey7);
+			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.phoneKey8);
+			addKeyBound(keyBounds, Canvas.KEY_NUM9, binding.phoneKey9);
+			addKeyBound(keyBounds, Canvas.KEY_STAR, binding.phoneKeyStar);
+			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.phoneKey0);
+			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.phoneKeyPound);
+		} else {
+			Rect dpad = getViewBounds(binding.controlPadShell);
+			addKeyBound(keyBounds, Canvas.KEY_UP_LEFT, subdivideRect(dpad, 0, 0));
+			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
+			addKeyBound(keyBounds, Canvas.KEY_UP_RIGHT, subdivideRect(dpad, 2, 0));
+			addKeyBound(keyBounds, Canvas.KEY_LEFT, subdivideRect(dpad, 0, 1));
+			addKeyBound(keyBounds, Canvas.KEY_FIRE, subdivideRect(dpad, 1, 1));
+			addKeyBound(keyBounds, Canvas.KEY_RIGHT, subdivideRect(dpad, 2, 1));
+			addKeyBound(keyBounds, Canvas.KEY_DOWN_LEFT, subdivideRect(dpad, 0, 2));
+			addKeyBound(keyBounds, Canvas.KEY_DOWN, subdivideRect(dpad, 1, 2));
+			addKeyBound(keyBounds, Canvas.KEY_DOWN_RIGHT, subdivideRect(dpad, 2, 2));
+			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.buttonAShell);
+			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.buttonBShell);
+			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.buttonXShell);
+			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.buttonYShell);
+		}
+		if (keyBounds.get(Canvas.KEY_SOFT_LEFT) == null
+				|| keyBounds.get(KeyMapper.KEY_OPTIONS_MENU) == null
+				|| keyBounds.get(Canvas.KEY_SOFT_RIGHT) == null
+				|| keyBounds.size() < 6) {
 			ContextHolder.clearClassicsControlBounds();
 			return;
 		}
-		ContextHolder.setClassicsControlBounds(
-				softLeft, menu, softRight, dpad, actionA, actionB, actionX, actionY);
+		ContextHolder.setClassicsControlBounds(classicsControlStyle, keyBounds);
 		((Canvas) current).updateSize();
+	}
+
+	private void addKeyBound(SparseArray<Rect> keyBounds, int keyCode, View view) {
+		Rect rect = getViewBounds(view);
+		if (!rect.isEmpty()) {
+			keyBounds.put(keyCode, rect);
+		}
+	}
+
+	private void addKeyBound(SparseArray<Rect> keyBounds, int keyCode, Rect rect) {
+		if (!rect.isEmpty()) {
+			keyBounds.put(keyCode, rect);
+		}
+	}
+
+	private Rect subdivideRect(Rect bounds, int column, int row) {
+		if (bounds.isEmpty()) {
+			return new Rect();
+		}
+		float cellWidth = bounds.width() / 3f;
+		float cellHeight = bounds.height() / 3f;
+		float insetX = cellWidth * 0.06f;
+		float insetY = cellHeight * 0.06f;
+		return new Rect(
+				Math.round(bounds.left + column * cellWidth + insetX),
+				Math.round(bounds.top + row * cellHeight + insetY),
+				Math.round(bounds.left + (column + 1) * cellWidth - insetX),
+				Math.round(bounds.top + (row + 1) * cellHeight - insetY));
 	}
 
 	private Rect getViewBounds(View view) {
@@ -452,11 +522,43 @@ public class MicroActivity extends AppCompatActivity {
 				case Canvas.KEY_SOFT_RIGHT -> binding.buttonSoftRightShell.setPressed(pressed);
 				case KeyMapper.KEY_OPTIONS_MENU -> binding.buttonMenuShell.setPressed(pressed);
 				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
-						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
-				case Canvas.KEY_NUM7 -> binding.buttonAShell.setPressed(pressed);
-				case Canvas.KEY_NUM8 -> binding.buttonBShell.setPressed(pressed);
-				case Canvas.KEY_NUM5 -> binding.buttonXShell.setPressed(pressed);
-				case Canvas.KEY_NUM0 -> binding.buttonYShell.setPressed(pressed);
+						Canvas.KEY_FIRE -> {
+					if ("phone".equals(classicsControlStyle)) {
+						switch (keyCode) {
+							case Canvas.KEY_UP -> binding.phoneNavUp.setPressed(pressed);
+							case Canvas.KEY_DOWN -> binding.phoneNavDown.setPressed(pressed);
+							case Canvas.KEY_LEFT -> binding.phoneNavLeft.setPressed(pressed);
+							case Canvas.KEY_RIGHT -> binding.phoneNavRight.setPressed(pressed);
+							case Canvas.KEY_FIRE -> binding.phoneNavCenter.setPressed(pressed);
+						}
+					} else {
+						binding.controlPadShell.setPressed(pressed);
+					}
+				}
+				case Canvas.KEY_NUM1 -> binding.phoneKey1.setPressed(pressed);
+				case Canvas.KEY_NUM2 -> binding.phoneKey2.setPressed(pressed);
+				case Canvas.KEY_NUM3 -> binding.phoneKey3.setPressed(pressed);
+				case Canvas.KEY_NUM4 -> binding.phoneKey4.setPressed(pressed);
+				case Canvas.KEY_NUM5 -> {
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey5.setPressed(pressed);
+					else binding.buttonXShell.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM6 -> binding.phoneKey6.setPressed(pressed);
+				case Canvas.KEY_NUM7 -> {
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey7.setPressed(pressed);
+					else binding.buttonAShell.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM8 -> {
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey8.setPressed(pressed);
+					else binding.buttonBShell.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM9 -> binding.phoneKey9.setPressed(pressed);
+				case Canvas.KEY_NUM0 -> {
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey0.setPressed(pressed);
+					else binding.buttonYShell.setPressed(pressed);
+				}
+				case Canvas.KEY_STAR -> binding.phoneKeyStar.setPressed(pressed);
+				case Canvas.KEY_POUND -> binding.phoneKeyPound.setPressed(pressed);
 			}
 		});
 	}
