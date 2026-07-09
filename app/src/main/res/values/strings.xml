@@ -122,6 +122,9 @@
     <string name="pref_classics_view_size_title">Classics gameplay size</string>
     <string name="pref_classics_view_size_default">Default</string>
     <string name="pref_classics_view_size_large">Large</string>
+    <string name="pref_classics_control_style_title">Classics control style</string>
+    <string name="pref_classics_control_style_joystick">Joystick</string>
+    <string name="pref_classics_control_style_phone">Phone</string>
     <string name="pref_encoding_title">Encoding</string>
     <string name="PREF_FILTER">Filter</string>
     <string name="PREF_FONT_ANTI_ALIASING">Anti-Aliasing</string>

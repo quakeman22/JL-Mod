@@ -24,6 +24,14 @@
         <item>default</item>
         <item>large</item>
     </string-array>
+    <string-array name="pref_classics_control_style_entries">
+        <item>@string/pref_classics_control_style_joystick</item>
+        <item>@string/pref_classics_control_style_phone</item>
+    </string-array>
+    <string-array name="pref_classics_control_style_values" translatable="false">
+        <item>joystick</item>
+        <item>phone</item>
+    </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
         <item>@string/pref_app_sort_date</item>
