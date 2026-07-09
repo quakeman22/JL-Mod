@@ -115,6 +115,7 @@
         </activity>
         <activity
             android:name=".config.ConfigActivity"
+            android:theme="@style/AppTheme.Settings"
             android:exported="true"
             android:windowSoftInputMode="stateHidden" />
         <activity
