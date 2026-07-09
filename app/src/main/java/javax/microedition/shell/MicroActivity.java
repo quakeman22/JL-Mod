@@ -261,6 +261,14 @@ public class MicroActivity extends AppCompatActivity {
 		super.onPause();
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
+	}
+
 	private void hideSoftInput() {
 		if (inputMethodManager != null) {
 			IBinder windowToken = binding.displayableContainer.getWindowToken();
@@ -377,13 +385,13 @@ public class MicroActivity extends AppCompatActivity {
 		ConstraintLayout.LayoutParams params =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		if ("large".equals(size)) {
-			params.matchConstraintPercentWidth = 0.88f;
-			params.matchConstraintMaxWidth = dpToPx(404);
-			params.topMargin = dpToPx(10);
+			params.matchConstraintPercentWidth = 0.91f;
+			params.matchConstraintMaxWidth = dpToPx(420);
+			params.topMargin = dpToPx(8);
 		} else {
-			params.matchConstraintPercentWidth = 0.79f;
-			params.matchConstraintMaxWidth = dpToPx(372);
-			params.topMargin = dpToPx(18);
+			params.matchConstraintPercentWidth = 0.83f;
+			params.matchConstraintMaxWidth = dpToPx(388);
+			params.topMargin = dpToPx(14);
 		}
 		binding.gameFrame.setLayoutParams(params);
 	}
@@ -431,11 +439,6 @@ public class MicroActivity extends AppCompatActivity {
 		addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
 		addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
 		if ("phone".equals(classicsControlStyle)) {
-			addKeyBound(keyBounds, Canvas.KEY_UP, binding.phoneNavUp);
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, binding.phoneNavLeft);
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, binding.phoneNavCenter);
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, binding.phoneNavRight);
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, binding.phoneNavDown);
 			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
 			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
 			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
@@ -518,19 +521,7 @@ public class MicroActivity extends AppCompatActivity {
 				case Canvas.KEY_SOFT_RIGHT -> binding.buttonSoftRightShell.setPressed(pressed);
 				case KeyMapper.KEY_OPTIONS_MENU -> binding.buttonMenuShell.setPressed(pressed);
 				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
-						Canvas.KEY_FIRE -> {
-					if ("phone".equals(classicsControlStyle)) {
-						switch (keyCode) {
-							case Canvas.KEY_UP -> binding.phoneNavUp.setPressed(pressed);
-							case Canvas.KEY_DOWN -> binding.phoneNavDown.setPressed(pressed);
-							case Canvas.KEY_LEFT -> binding.phoneNavLeft.setPressed(pressed);
-							case Canvas.KEY_RIGHT -> binding.phoneNavRight.setPressed(pressed);
-							case Canvas.KEY_FIRE -> binding.phoneNavCenter.setPressed(pressed);
-						}
-					} else {
-						binding.controlPadShell.setPressed(pressed);
-					}
-				}
+						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
 				case Canvas.KEY_NUM1 -> binding.phoneKey1.setPressed(pressed);
 				case Canvas.KEY_NUM2 -> binding.phoneKey2.setPressed(pressed);
 				case Canvas.KEY_NUM3 -> binding.phoneKey3.setPressed(pressed);
@@ -926,8 +917,7 @@ public class MicroActivity extends AppCompatActivity {
 				binding.buttonBackOverlay.setVisibility(View.VISIBLE);
 				binding.gameFrame.setVisibility(View.VISIBLE);
 				binding.controlTopRow.setVisibility(View.VISIBLE);
-				binding.controlPadShell.setVisibility(View.VISIBLE);
-				binding.actionCluster.setVisibility(View.VISIBLE);
+				applyClassicsControlStyle(classicsControlStyle);
 				if (!actionBarEnabled) {
 					actionBar.hide();
 					binding.toolbar.setVisibility(View.GONE);
@@ -945,6 +935,7 @@ public class MicroActivity extends AppCompatActivity {
 				binding.controlTopRow.setVisibility(View.GONE);
 				binding.controlPadShell.setVisibility(View.GONE);
 				binding.actionCluster.setVisibility(View.GONE);
+				binding.phoneShellContainer.setVisibility(View.GONE);
 				ContextHolder.clearCanvasViewport();
 				ContextHolder.clearClassicsControlBounds();
 				actionBar.show();
