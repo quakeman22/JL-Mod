@@ -11,7 +11,7 @@
 
     <FrameLayout
         android:id="@+id/card_container"
-        android:layout_width="260dp"
+        android:layout_width="286dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/bg_launcher_card_frame"
@@ -21,11 +21,11 @@
         <ImageView
             android:id="@+id/list_image"
             android:layout_width="match_parent"
-            android:layout_height="347dp"
+            android:layout_height="382dp"
             android:adjustViewBounds="false"
             android:background="@drawable/bg_launcher_card_inner"
             android:padding="0dp"
-            android:scaleType="centerCrop"
+            android:scaleType="fitXY"
             android:src="@mipmap/ic_launcher"
             tools:src="@mipmap/ic_launcher" />
     </FrameLayout>
