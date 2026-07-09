@@ -1190,25 +1190,30 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			key.selected = false;
 		}
 
-		applyRect(keypad[KEY_SOFT_LEFT], ContextHolder.getClassicsSoftLeftBounds(), 0.08f);
-		applyRect(keypad[KEY_MENU], ContextHolder.getClassicsMenuBounds(), 0.08f);
-		applyRect(keypad[KEY_SOFT_RIGHT], ContextHolder.getClassicsSoftRightBounds(), 0.08f);
-
-		Rect dpadBounds = ContextHolder.getClassicsDpadBounds();
-		applyDpadRect(keypad[KEY_UP_LEFT], dpadBounds, 0, 0);
-		applyDpadRect(keypad[KEY_UP], dpadBounds, 1, 0);
-		applyDpadRect(keypad[KEY_UP_RIGHT], dpadBounds, 2, 0);
-		applyDpadRect(keypad[KEY_LEFT], dpadBounds, 0, 1);
-		applyDpadRect(keypad[KEY_FIRE], dpadBounds, 1, 1);
-		applyDpadRect(keypad[KEY_RIGHT], dpadBounds, 2, 1);
-		applyDpadRect(keypad[KEY_DOWN_LEFT], dpadBounds, 0, 2);
-		applyDpadRect(keypad[KEY_DOWN], dpadBounds, 1, 2);
-		applyDpadRect(keypad[KEY_DOWN_RIGHT], dpadBounds, 2, 2);
-
-		applyRect(keypad[KEY_NUM7], ContextHolder.getClassicsActionABounds(), 0.08f);
-		applyRect(keypad[KEY_NUM8], ContextHolder.getClassicsActionBBounds(), 0.08f);
-		applyRect(keypad[KEY_NUM5], ContextHolder.getClassicsActionXBounds(), 0.08f);
-		applyRect(keypad[KEY_NUM0], ContextHolder.getClassicsActionYBounds(), 0.08f);
+		applyRect(keypad[KEY_SOFT_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_SOFT_LEFT), 0.08f);
+		applyRect(keypad[KEY_MENU], ContextHolder.getClassicsKeyBounds(KeyMapper.KEY_OPTIONS_MENU), 0.08f);
+		applyRect(keypad[KEY_SOFT_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_SOFT_RIGHT), 0.08f);
+		applyRect(keypad[KEY_UP_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP_LEFT), 0.06f);
+		applyRect(keypad[KEY_UP], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP), 0.06f);
+		applyRect(keypad[KEY_UP_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_UP_RIGHT), 0.06f);
+		applyRect(keypad[KEY_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_LEFT), 0.06f);
+		applyRect(keypad[KEY_FIRE], ContextHolder.getClassicsKeyBounds(Canvas.KEY_FIRE), 0.06f);
+		applyRect(keypad[KEY_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_RIGHT), 0.06f);
+		applyRect(keypad[KEY_DOWN_LEFT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN_LEFT), 0.06f);
+		applyRect(keypad[KEY_DOWN], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN), 0.06f);
+		applyRect(keypad[KEY_DOWN_RIGHT], ContextHolder.getClassicsKeyBounds(Canvas.KEY_DOWN_RIGHT), 0.06f);
+		applyRect(keypad[KEY_NUM1], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM1), 0.08f);
+		applyRect(keypad[KEY_NUM2], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM2), 0.08f);
+		applyRect(keypad[KEY_NUM3], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM3), 0.08f);
+		applyRect(keypad[KEY_NUM4], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM4), 0.08f);
+		applyRect(keypad[KEY_NUM5], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM5), 0.08f);
+		applyRect(keypad[KEY_NUM6], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM6), 0.08f);
+		applyRect(keypad[KEY_NUM7], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM7), 0.08f);
+		applyRect(keypad[KEY_NUM8], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM8), 0.08f);
+		applyRect(keypad[KEY_NUM9], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM9), 0.08f);
+		applyRect(keypad[KEY_NUM0], ContextHolder.getClassicsKeyBounds(Canvas.KEY_NUM0), 0.08f);
+		applyRect(keypad[KEY_STAR], ContextHolder.getClassicsKeyBounds(Canvas.KEY_STAR), 0.08f);
+		applyRect(keypad[KEY_POUND], ContextHolder.getClassicsKeyBounds(Canvas.KEY_POUND), 0.08f);
 
 		obscuresVirtualScreen = false;
 	}
@@ -1223,26 +1228,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		float insetY = bounds.height() * insetRatio;
 		key.rect.set(bounds.left + insetX, bounds.top + insetY,
 				bounds.right - insetX, bounds.bottom - insetY);
-		key.corners = (int) (Math.min(key.rect.width(), key.rect.height()) * 0.25f);
-		key.visible = true;
-		key.opaque = false;
-	}
-
-	private void applyDpadRect(VirtualKey key, Rect bounds, int column, int row) {
-		if (bounds.isEmpty()) {
-			key.visible = false;
-			key.rect.setEmpty();
-			return;
-		}
-		float cellWidth = bounds.width() / 3.0f;
-		float cellHeight = bounds.height() / 3.0f;
-		float insetX = cellWidth * 0.06f;
-		float insetY = cellHeight * 0.06f;
-		float left = bounds.left + column * cellWidth + insetX;
-		float top = bounds.top + row * cellHeight + insetY;
-		float right = bounds.left + (column + 1) * cellWidth - insetX;
-		float bottom = bounds.top + (row + 1) * cellHeight - insetY;
-		key.rect.set(left, top, right, bottom);
 		key.corners = (int) (Math.min(key.rect.width(), key.rect.height()) * 0.25f);
 		key.visible = true;
 		key.opaque = false;
