@@ -36,6 +36,14 @@
         android:key="pref_classics_view_size"
         app:useSimpleSummaryProvider="true"
         android:title="@string/pref_classics_view_size_title" />
+    <ListPreference
+        android:defaultValue="joystick"
+        android:entries="@array/pref_classics_control_style_entries"
+        android:entryValues="@array/pref_classics_control_style_values"
+        android:icon="@drawable/ic_setting_default"
+        android:key="pref_classics_control_style"
+        app:useSimpleSummaryProvider="true"
+        android:title="@string/pref_classics_control_style_title" />
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:icon="@drawable/ic_setting_keep_screen_on"
