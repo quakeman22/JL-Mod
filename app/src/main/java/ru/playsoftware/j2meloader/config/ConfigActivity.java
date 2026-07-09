@@ -32,6 +32,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
@@ -46,6 +47,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
@@ -59,6 +61,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ListPopupWindow;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.preference.PreferenceManager;
 
@@ -166,7 +171,9 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		loadKeyLayout();
 		binding = ActivityConfigBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		setSupportActionBar(binding.toolbar);
+		binding.toolbar.setNavigationOnClickListener(v -> finish());
+		hideSystemUI();
 		display = getWindowManager().getDefaultDisplay();
 
 		fillScreenSizePresets(display.getWidth(), display.getHeight());
@@ -292,6 +299,31 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		TooltipCompat.setTooltipText(binding.cxSkipResumeCall, getString(R.string.tooltip_skip_resume_call));
 		initSoundBankSpinner();
 		initSkinSpinner();
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			hideSystemUI();
+		}
+	}
+
+	private void hideSystemUI() {
+		WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+		WindowInsetsControllerCompat controller =
+				WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+		if (controller != null) {
+			controller.setSystemBarsBehavior(
+					WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+			controller.hide(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			WindowManager.LayoutParams attributes = getWindow().getAttributes();
+			attributes.layoutInDisplayCutoutMode =
+					WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+			getWindow().setAttributes(attributes);
+		}
 	}
 
 	private void initSkinSpinner() {
