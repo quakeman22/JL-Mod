@@ -27,11 +27,13 @@ import android.content.res.XmlResourceParser;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -68,6 +70,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			openDirLauncher.launch(null);
 			return true;
 		});
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		RecyclerView list = getListView();
+		list.setClipToPadding(false);
+		list.setPadding(12, 14, 12, 24);
+		list.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+		list.setBackgroundColor(0x00000000);
 	}
 
 	private void initLanguages() {
