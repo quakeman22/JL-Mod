@@ -124,6 +124,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
             android:process=":midlet" />
         <activity android:name=".settings.SettingsActivity"
+            android:theme="@style/AppTheme.Settings"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
