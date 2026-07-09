@@ -44,12 +44,13 @@
         <ImageButton
             android:id="@+id/button_back_overlay"
             style="@style/ImageButtonStyle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
             android:background="@drawable/bg_launcher_play_button"
             android:contentDescription="@string/exit"
+            android:elevation="10dp"
             android:padding="10dp"
             android:src="@drawable/ic_launcher_arrow_left"
             android:tint="@android:color/white"
@@ -61,7 +62,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="18dp"
             android:layout_marginEnd="24dp"
             android:background="@drawable/bg_micro_display_frame"
             android:clipChildren="true"
@@ -74,8 +75,8 @@
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintVertical_bias="0.02"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="360dp"
-            app:layout_constraintWidth_percent="0.76">
+            app:layout_constraintWidth_max="372dp"
+            app:layout_constraintWidth_percent="0.79">
 
             <FrameLayout
                 android:id="@+id/game_surface"
@@ -102,7 +103,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="12dp"
             android:gravity="center"
             android:orientation="horizontal"
@@ -156,7 +157,7 @@
             android:layout_height="0dp"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/bg_micro_pad_shell"
             app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
             app:layout_constraintDimensionRatio="1.08:1"
@@ -165,8 +166,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="250dp"
-            app:layout_constraintWidth_percent="0.41">
+            app:layout_constraintWidth_max="256dp"
+            app:layout_constraintWidth_percent="0.43">
 
             <View
                 android:layout_width="72dp"
@@ -189,7 +190,7 @@
             android:layout_height="0dp"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="18dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="14dp"
             app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
@@ -197,8 +198,8 @@
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_min="188dp"
-            app:layout_constraintWidth_max="206dp"
-            app:layout_constraintWidth_percent="0.34">
+            app:layout_constraintWidth_max="214dp"
+            app:layout_constraintWidth_percent="0.35">
 
             <TextView
                 android:id="@+id/button_y_shell"
@@ -260,6 +261,246 @@
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/phone_shell_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guide_controls_top"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="290dp"
+            app:layout_constraintWidth_percent="0.62">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/phone_nav_cluster"
+                android:layout_width="168dp"
+                android:layout_height="132dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:id="@+id/phone_nav_up"
+                    android:layout_width="54dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="▲"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/phone_nav_left"
+                    android:layout_width="54dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="◀"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/phone_nav_center"
+                    app:layout_constraintEnd_toStartOf="@id/phone_nav_center"
+                    app:layout_constraintTop_toTopOf="@id/phone_nav_center" />
+
+                <TextView
+                    android:id="@+id/phone_nav_center"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:background="@drawable/bg_micro_action_button"
+                    android:gravity="center"
+                    android:text="OK"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/phone_nav_up" />
+
+                <TextView
+                    android:id="@+id/phone_nav_right"
+                    android:layout_width="54dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="▶"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/phone_nav_center"
+                    app:layout_constraintStart_toEndOf="@id/phone_nav_center"
+                    app:layout_constraintTop_toTopOf="@id/phone_nav_center" />
+
+                <TextView
+                    android:id="@+id/phone_nav_down"
+                    android:layout_width="54dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="▼"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/phone_nav_center" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <GridLayout
+                android:id="@+id/phone_keypad_shell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="4"
+                android:useDefaultMargins="true">
+
+                <TextView
+                    android:id="@+id/phone_key_1"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_2"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="2"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_3"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="3"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_4"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="4"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_5"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="5"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_6"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="6"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_7"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="7"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_8"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="8"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_9"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="9"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_star"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="*"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_0"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_pound"
+                    android:layout_width="74dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="#"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+            </GridLayout>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <javax.microedition.lcdui.overlay.OverlayView

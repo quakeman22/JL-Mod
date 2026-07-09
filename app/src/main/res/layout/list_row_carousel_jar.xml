@@ -11,7 +11,7 @@
 
     <FrameLayout
         android:id="@+id/card_container"
-        android:layout_width="232dp"
+        android:layout_width="244dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/bg_launcher_card_frame"
@@ -21,7 +21,7 @@
         <ImageView
             android:id="@+id/list_image"
             android:layout_width="match_parent"
-            android:layout_height="310dp"
+            android:layout_height="326dp"
             android:adjustViewBounds="true"
             android:background="@drawable/bg_launcher_card_inner"
             android:padding="0dp"
