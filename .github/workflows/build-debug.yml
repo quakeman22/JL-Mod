@@ -48,5 +48,5 @@ jobs:
         uses: actions/upload-artifact@v4.3.3
         with:
           name: "JL-Mod-debug"
-          path: app/build/outputs/apk/emulator/debug/*.apk
+          path: app/build/outputs/apk/emulator/debug/*-universal.apk
           if-no-files-found: error
