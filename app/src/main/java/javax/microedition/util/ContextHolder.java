@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Vibrator;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -57,14 +58,8 @@ public class ContextHolder {
 	private static Vibrator vibrator;
 	private static final ArrayList<ActivityResultListener> resultListeners = new ArrayList<>();
 	private static final Rect canvasViewport = new Rect();
-	private static final Rect classicsSoftLeftBounds = new Rect();
-	private static final Rect classicsMenuBounds = new Rect();
-	private static final Rect classicsSoftRightBounds = new Rect();
-	private static final Rect classicsDpadBounds = new Rect();
-	private static final Rect classicsActionABounds = new Rect();
-	private static final Rect classicsActionBBounds = new Rect();
-	private static final Rect classicsActionXBounds = new Rect();
-	private static final Rect classicsActionYBounds = new Rect();
+	private static final SparseArray<Rect> classicsKeyBounds = new SparseArray<>();
+	private static String classicsControlStyle = "joystick";
 	private static boolean vibrationEnabled;
 
 	public static Context getAppContext() {
@@ -106,76 +101,34 @@ public class ContextHolder {
 		return new Rect(canvasViewport);
 	}
 
-	public static void setClassicsControlBounds(
-			Rect softLeft,
-			Rect menu,
-			Rect softRight,
-			Rect dpad,
-			Rect actionA,
-			Rect actionB,
-			Rect actionX,
-			Rect actionY) {
-		classicsSoftLeftBounds.set(softLeft);
-		classicsMenuBounds.set(menu);
-		classicsSoftRightBounds.set(softRight);
-		classicsDpadBounds.set(dpad);
-		classicsActionABounds.set(actionA);
-		classicsActionBBounds.set(actionB);
-		classicsActionXBounds.set(actionX);
-		classicsActionYBounds.set(actionY);
+	public static void setClassicsControlBounds(String style, SparseArray<Rect> keyBounds) {
+		classicsControlStyle = style;
+		classicsKeyBounds.clear();
+		for (int i = 0; i < keyBounds.size(); i++) {
+			int keyCode = keyBounds.keyAt(i);
+			Rect bounds = keyBounds.valueAt(i);
+			if (bounds != null && !bounds.isEmpty()) {
+				classicsKeyBounds.put(keyCode, new Rect(bounds));
+			}
+		}
 	}
 
 	public static void clearClassicsControlBounds() {
-		classicsSoftLeftBounds.setEmpty();
-		classicsMenuBounds.setEmpty();
-		classicsSoftRightBounds.setEmpty();
-		classicsDpadBounds.setEmpty();
-		classicsActionABounds.setEmpty();
-		classicsActionBBounds.setEmpty();
-		classicsActionXBounds.setEmpty();
-		classicsActionYBounds.setEmpty();
+		classicsKeyBounds.clear();
+		classicsControlStyle = "joystick";
 	}
 
 	public static boolean hasClassicsControlBounds() {
-		return !classicsDpadBounds.isEmpty()
-				&& !classicsSoftLeftBounds.isEmpty()
-				&& !classicsSoftRightBounds.isEmpty()
-				&& !classicsActionABounds.isEmpty()
-				&& !classicsActionBBounds.isEmpty()
-				&& !classicsActionXBounds.isEmpty()
-				&& !classicsActionYBounds.isEmpty();
+		return classicsKeyBounds.size() > 0;
 	}
 
-	public static Rect getClassicsSoftLeftBounds() {
-		return new Rect(classicsSoftLeftBounds);
+	public static String getClassicsControlStyle() {
+		return classicsControlStyle;
 	}
 
-	public static Rect getClassicsMenuBounds() {
-		return new Rect(classicsMenuBounds);
-	}
-
-	public static Rect getClassicsSoftRightBounds() {
-		return new Rect(classicsSoftRightBounds);
-	}
-
-	public static Rect getClassicsDpadBounds() {
-		return new Rect(classicsDpadBounds);
-	}
-
-	public static Rect getClassicsActionABounds() {
-		return new Rect(classicsActionABounds);
-	}
-
-	public static Rect getClassicsActionBBounds() {
-		return new Rect(classicsActionBBounds);
-	}
-
-	public static Rect getClassicsActionXBounds() {
-		return new Rect(classicsActionXBounds);
-	}
-
-	public static Rect getClassicsActionYBounds() {
-		return new Rect(classicsActionYBounds);
+	public static Rect getClassicsKeyBounds(int keyCode) {
+		Rect rect = classicsKeyBounds.get(keyCode);
+		return rect == null ? new Rect() : new Rect(rect);
 	}
 
 	public static void setCurrentActivity(MicroActivity activity) {
