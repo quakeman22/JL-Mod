@@ -93,6 +93,9 @@
     <string name="pref_classics_view_size_title">Tamanho da tela Classics</string>
     <string name="pref_classics_view_size_default">Padrão</string>
     <string name="pref_classics_view_size_large">Grande</string>
+    <string name="pref_classics_control_style_title">Estilo de controle Classics</string>
+    <string name="pref_classics_control_style_joystick">Joystick</string>
+    <string name="pref_classics_control_style_phone">Celular</string>
     <string name="pref_encoding_title">Codificação</string>
     <string name="PREF_FILTER">Filtro</string>
     <string name="PREF_FONT_ANTI_ALIASING">Anti-Serrilhado</string>
