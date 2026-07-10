@@ -41,6 +41,7 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,6 +56,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -119,6 +122,7 @@ public class MicroActivity extends AppCompatActivity {
 	private String appPath;
 	private ActivityMicroBinding binding;
 	private String classicsControlStyle = "joystick";
+	private AlertDialog gameplayMenuDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -643,8 +647,11 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void openOptionsMenu() {
-		if (!actionBarEnabled &&
-				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
+		if (current instanceof Canvas) {
+			showGameplayMenuDialog();
+			return;
+		}
+		if (!actionBarEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			showSystemUI();
 		}
 		super.openOptionsMenu();
@@ -761,6 +768,90 @@ public class MicroActivity extends AppCompatActivity {
 				case Surface.ROTATION_270 -> SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 				default -> SCREEN_ORIENTATION_UNSPECIFIED;
 			});
+		}
+	}
+
+	private boolean isOrientationLocked() {
+		int requested = getRequestedOrientation();
+		return requested == SCREEN_ORIENTATION_LOCKED
+				|| requested == SCREEN_ORIENTATION_LANDSCAPE
+				|| requested == SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+				|| requested == SCREEN_ORIENTATION_PORTRAIT
+				|| requested == SCREEN_ORIENTATION_REVERSE_PORTRAIT
+				|| requested == SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+				|| requested == SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+	}
+
+	private void unlockOrientation() {
+		setOrientation(microLoader.getOrientation());
+	}
+
+	private void showGameplayMenuDialog() {
+		if (!(current instanceof Canvas)) return;
+		if (gameplayMenuDialog != null && gameplayMenuDialog.isShowing()) {
+			return;
+		}
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog_gameplay_menu, null, false);
+		CheckBox lockCheckBox = view.findViewById(R.id.gameplay_menu_lock_checkbox);
+		lockCheckBox.setChecked(isOrientationLocked());
+		View lockRow = view.findViewById(R.id.gameplay_menu_lock_row);
+		TextView imeRow = view.findViewById(R.id.gameplay_menu_ime);
+		view.findViewById(R.id.gameplay_menu_exit).setOnClickListener(v -> {
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showExitConfirmation();
+		});
+		view.findViewById(R.id.gameplay_menu_save_log).setOnClickListener(v -> {
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			saveLog();
+		});
+		lockRow.setOnClickListener(v -> {
+			boolean locked = isOrientationLocked();
+			if (locked) {
+				unlockOrientation();
+			} else {
+				lockOrientation();
+			}
+			lockCheckBox.setChecked(!locked);
+		});
+		if (inputMethodManager == null) {
+			imeRow.setVisibility(View.GONE);
+		} else {
+			imeRow.setOnClickListener(v -> {
+				if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+				inputMethodManager.toggleSoftInputFromWindow(
+						binding.displayableContainer.getWindowToken(),
+						InputMethodManager.SHOW_FORCED,
+						0);
+			});
+		}
+		view.findViewById(R.id.gameplay_menu_screenshot).setOnClickListener(v -> {
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			takeScreenshot();
+		});
+		view.findViewById(R.id.gameplay_menu_limit_fps).setOnClickListener(v -> {
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showLimitFpsDialog();
+		});
+		gameplayMenuDialog = new AlertDialog.Builder(this, R.style.ClassicsAlertDialogTheme)
+				.setView(view)
+				.create();
+		gameplayMenuDialog.setOnDismissListener(d -> {
+			gameplayMenuDialog = null;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
+				hideSystemUI();
+			}
+		});
+		gameplayMenuDialog.show();
+		if (gameplayMenuDialog.getWindow() != null) {
+			WindowCompat.setDecorFitsSystemWindows(gameplayMenuDialog.getWindow(), false);
+			WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(
+					gameplayMenuDialog.getWindow(),
+					gameplayMenuDialog.getWindow().getDecorView());
+			if (controller != null) {
+				controller.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				controller.hide(WindowInsetsCompat.Type.systemBars());
+			}
 		}
 	}
 
