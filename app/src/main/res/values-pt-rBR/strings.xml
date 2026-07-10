@@ -7,6 +7,8 @@
     <string name="action_context_shortcut">Adicionar atalho</string>
     <string name="action_keyboard_ime">Teclado (IME)</string>
     <string name="action_lock_orientation">Bloquear rotação de tela</string>
+    <string name="action_multiplayer">Multiplayer</string>
+    <string name="action_multiplayer_unavailable">Multiplayer ainda não está disponível</string>
     <string name="action_reinstall">Reinstalar</string>
     <string name="action_settings">Configurações</string>
     <string name="add">Adicionar</string>
