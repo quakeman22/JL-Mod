@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="320dp"
+    android:layout_width="284dp"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_gameplay_menu_panel"
     android:orientation="vertical"
-    android:padding="18dp">
+    android:padding="14dp">
 
     <TextView
         android:id="@+id/gameplay_menu_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="6dp"
         android:gravity="center"
         android:text="@string/cmd_menu"
         android:textColor="@color/settings_title"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
@@ -24,12 +24,12 @@
         android:background="@drawable/bg_gameplay_menu_row"
         android:clickable="true"
         android:focusable="true"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/exit"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/gameplay_menu_save_log"
@@ -39,12 +39,12 @@
         android:background="@drawable/bg_gameplay_menu_row"
         android:clickable="true"
         android:focusable="true"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/save_log"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
     <LinearLayout
         android:id="@+id/gameplay_menu_lock_row"
@@ -55,10 +55,10 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
-        android:minHeight="52dp"
+        android:minHeight="42dp"
         android:orientation="horizontal"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="8dp">
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="6dp">
 
         <TextView
             android:layout_width="0dp"
@@ -66,7 +66,7 @@
             android:layout_weight="1"
             android:text="@string/action_lock_orientation"
             android:textColor="@color/settings_title"
-            android:textSize="20sp" />
+            android:textSize="17sp" />
 
         <CheckBox
             android:id="@+id/gameplay_menu_lock_checkbox"
@@ -85,12 +85,12 @@
         android:background="@drawable/bg_gameplay_menu_row"
         android:clickable="true"
         android:focusable="true"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/action_keyboard_ime"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/gameplay_menu_screenshot"
@@ -100,12 +100,12 @@
         android:background="@drawable/bg_gameplay_menu_row"
         android:clickable="true"
         android:focusable="true"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/take_screenshot"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/gameplay_menu_limit_fps"
@@ -115,12 +115,12 @@
         android:background="@drawable/bg_gameplay_menu_row"
         android:clickable="true"
         android:focusable="true"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/PREF_LIMIT_FPS"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/gameplay_menu_multiplayer"
@@ -130,11 +130,11 @@
         android:alpha="0.55"
         android:background="@drawable/bg_gameplay_menu_row"
         android:enabled="false"
-        android:minHeight="52dp"
-        android:paddingHorizontal="18dp"
-        android:paddingVertical="12dp"
+        android:minHeight="42dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="9dp"
         android:text="@string/action_multiplayer"
         android:textColor="@color/settings_title"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 
 </LinearLayout>
