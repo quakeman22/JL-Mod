@@ -611,20 +611,39 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	public void showExitConfirmation() {
-		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-		DialogInterface.OnClickListener onClickListener = (d, w) -> {
+		View view = getLayoutInflater().inflate(R.layout.dialog_gameplay_confirmation, null);
+		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setView(view)
+				.create();
+		view.findViewById(R.id.gameplay_confirm_ok).setOnClickListener(v -> {
 			hideSoftInput();
-			if (w == DialogInterface.BUTTON_NEUTRAL) {
-				Config.openSettings(this, appName, appPath);
-			}
+			dialog.dismiss();
 			MidletThread.destroyApp();
-		};
-		alertBuilder.setTitle(R.string.CONFIRMATION_REQUIRED)
-				.setMessage(R.string.FORCE_CLOSE_CONFIRMATION)
-				.setPositiveButton(android.R.string.ok, onClickListener)
-				.setNeutralButton(R.string.action_settings, onClickListener)
-				.setNegativeButton(android.R.string.cancel, null);
-		alertBuilder.create().show();
+		});
+		view.findViewById(R.id.gameplay_confirm_settings).setOnClickListener(v -> {
+			hideSoftInput();
+			dialog.dismiss();
+			Config.openSettings(this, appName, appPath);
+			MidletThread.destroyApp();
+		});
+		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> dialog.dismiss());
+		dialog.setOnDismissListener(d -> {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
+				hideSystemUI();
+			}
+		});
+		dialog.show();
+		if (dialog.getWindow() != null) {
+			WindowCompat.setDecorFitsSystemWindows(dialog.getWindow(), false);
+			WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(
+					dialog.getWindow(),
+					dialog.getWindow().getDecorView());
+			if (controller != null) {
+				controller.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				controller.hide(WindowInsetsCompat.Type.systemBars());
+			}
+		}
 	}
 
 	@Override
@@ -832,7 +851,7 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showLimitFpsDialog();
 		});
-		gameplayMenuDialog = new AlertDialog.Builder(this, R.style.ClassicsAlertDialogTheme)
+		gameplayMenuDialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setView(view)
 				.create();
 		gameplayMenuDialog.setOnDismissListener(d -> {
@@ -893,7 +912,7 @@ public class MicroActivity extends AppCompatActivity {
 		final VirtualKeyboard vk = ContextHolder.getVk();
 		boolean[] states = vk.getKeysVisibility();
 		boolean[] changed = states.clone();
-		new AlertDialog.Builder(this)
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.hide_buttons)
 				.setMultiChoiceItems(vk.getKeyNames(), changed, (dialog, which, isChecked) -> {})
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -905,7 +924,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showSaveVkAlert(boolean keepScreenPreferred) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme);
 		builder.setTitle(R.string.CONFIRMATION_REQUIRED);
 		builder.setMessage(R.string.pref_vk_save_alert);
 		builder.setNegativeButton(android.R.string.no, null);
@@ -938,7 +957,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showSetLayoutDialog() {
 		final VirtualKeyboard vk = ContextHolder.getVk();
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.layout_switch)
 				.setSingleChoiceItems(R.array.PREF_VK_TYPE_ENTRIES, vk.getLayout(), null)
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
@@ -960,7 +979,7 @@ public class MicroActivity extends AppCompatActivity {
 		editText.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
 		editText.setMaxLines(1);
 		editText.setSingleLine(true);
-		new AlertDialog.Builder(this)
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.PREF_LIMIT_FPS)
 				.setView(inputLayout)
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
