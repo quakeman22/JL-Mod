@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/midletFrame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_classics_game_background"
+    tools:context="javax.microedition.shell.MicroActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/virtual_display"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_controls_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.18" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_controls_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.92" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:descendantFocusability="blocksDescendants"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/AppTheme.NoActionBar"
+            tools:title="MIDlet Title" />
+
+        <ImageButton
+            android:id="@+id/button_back_overlay"
+            style="@style/ImageButtonStyle"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_launcher_play_button"
+            android:contentDescription="@string/exit"
+            android:elevation="10dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_launcher_arrow_left"
+            android:tint="@android:color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/game_frame"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="18dp"
+            android:background="@drawable/bg_micro_display_frame"
+            android:clipChildren="true"
+            android:clipToPadding="true"
+            android:padding="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/control_top_row"
+            app:layout_constraintDimensionRatio="3:4"
+            app:layout_constraintEnd_toStartOf="@+id/action_cluster"
+            app:layout_constraintHeight_default="percent"
+            app:layout_constraintHeight_max="540dp"
+            app:layout_constraintHeight_percent="0.76"
+            app:layout_constraintStart_toEndOf="@+id/control_pad_shell"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintVertical_bias="0.03">
+
+            <FrameLayout
+                android:id="@+id/game_surface"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FF000000"
+                android:clipChildren="true"
+                android:clipToPadding="true"
+                android:padding="2dp">
+
+                <FrameLayout
+                    android:id="@+id/displayable_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="1dp"
+                    android:background="#FF000000"
+                    android:clipChildren="true"
+                    android:clipToPadding="true" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/control_top_row"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/game_frame"
+            app:layout_constraintStart_toStartOf="@id/game_frame"
+            app:layout_constraintTop_toBottomOf="@id/game_frame">
+
+            <TextView
+                android:id="@+id/button_soft_left_shell"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="L"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/button_menu_shell"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="II"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/button_soft_right_shell"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_micro_control_bar"
+                android:gravity="center"
+                android:text="R"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/control_pad_shell"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="14dp"
+            android:background="@drawable/bg_micro_pad_shell"
+            app:layout_constraintBottom_toBottomOf="@id/game_frame"
+            app:layout_constraintDimensionRatio="1.04:1"
+            app:layout_constraintEnd_toStartOf="@id/game_frame"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/game_frame"
+            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="320dp"
+            app:layout_constraintWidth_percent="0.25">
+
+            <View
+                android:layout_width="76dp"
+                android:layout_height="152dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_micro_dpad_button"
+                android:duplicateParentState="true" />
+
+            <View
+                android:layout_width="152dp"
+                android:layout_height="76dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_micro_dpad_button"
+                android:duplicateParentState="true" />
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/action_cluster"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="18dp"
+            app:layout_constraintBottom_toBottomOf="@id/game_frame"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/game_frame"
+            app:layout_constraintTop_toTopOf="@id/game_frame"
+            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="220dp"
+            app:layout_constraintWidth_percent="0.19">
+
+            <TextView
+                android:id="@+id/button_y_shell"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="Y"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/button_b_shell"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="B"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+
+            <TextView
+                android:id="@+id/button_x_shell"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="X"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+
+            <TextView
+                android:id="@+id/button_a_shell"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_micro_action_button"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/phone_shell_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/game_frame"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/game_frame"
+            app:layout_constraintTop_toTopOf="@id/game_frame">
+
+            <GridLayout
+                android:id="@+id/phone_keypad_shell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="4"
+                android:useDefaultMargins="true">
+
+                <TextView
+                    android:id="@+id/phone_key_1"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_2"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="2"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_3"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="3"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_4"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="4"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_5"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="5"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_6"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="6"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_7"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="7"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_8"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="8"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_9"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="9"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_star"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="*"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_0"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/phone_key_pound"
+                    android:layout_width="74dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_micro_control_bar"
+                    android:gravity="center"
+                    android:text="#"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </GridLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <javax.microedition.lcdui.overlay.OverlayView
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>
