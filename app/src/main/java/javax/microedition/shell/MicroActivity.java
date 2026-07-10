@@ -417,13 +417,13 @@ public class MicroActivity extends AppCompatActivity {
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			if ("large".equals(size)) {
-				params.matchConstraintPercentHeight = 0.82f;
-				params.matchConstraintMaxHeight = dpToPx(560);
-				params.topMargin = dpToPx(8);
+				params.matchConstraintPercentHeight = 0.88f;
+				params.matchConstraintMaxHeight = dpToPx(620);
+				params.topMargin = dpToPx(4);
 			} else {
-				params.matchConstraintPercentHeight = 0.76f;
-				params.matchConstraintMaxHeight = dpToPx(520);
-				params.topMargin = dpToPx(14);
+				params.matchConstraintPercentHeight = 0.82f;
+				params.matchConstraintMaxHeight = dpToPx(580);
+				params.topMargin = dpToPx(8);
 			}
 		} else {
 			if ("large".equals(size)) {
