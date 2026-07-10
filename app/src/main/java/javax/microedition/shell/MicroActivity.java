@@ -125,6 +125,74 @@ public class MicroActivity extends AppCompatActivity {
 		lockNightMode();
 		super.onCreate(savedInstanceState);
 		ContextHolder.setCurrentActivity(this);
+		bindMicroLayout();
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
+		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
+		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
+		if (sp.getBoolean(PREF_KEEP_SCREEN, false)) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
+		ContextHolder.setVibration(sp.getBoolean(PREF_VIBRATION, true));
+		Canvas.setScreenshotRawMode(sp.getBoolean(PREF_SCREENSHOT_SWITCH, false));
+		Intent intent = getIntent();
+		if (BuildConfig.FULL_EMULATOR) {
+			appName = intent.getStringExtra(KEY_MIDLET_NAME);
+			Uri data = intent.getData();
+			if (data == null) {
+				showErrorDialog("Invalid intent: app path is null");
+				return;
+			}
+			appPath = data.toString();
+		} else {
+			appName = getTitle().toString();
+			appPath = getApplicationInfo().dataDir + "/files/converted/midlet";
+			File dir = new File(appPath);
+			if (!dir.exists() && !dir.mkdirs()) {
+				throw new RuntimeException("Can't access file system");
+			}
+		}
+		GameLog.clear();
+		GameLog.i("Session", "Starting MIDlet session for \"" + appName + "\" from " + appPath);
+		microLoader = new MicroLoader(appPath);
+		if (!microLoader.init()) {
+			Config.openSettings(this, appName, appPath);
+			finish();
+			return;
+		}
+		microLoader.applyConfiguration();
+		attachOverlayLayers();
+		SkinLayer skinLayer = SkinLayer.getInstance();
+		if (skinLayer != null) {
+			if (!statusBarEnabled && !actionBarEnabled) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+					WindowManager.LayoutParams attributes = getWindow().getAttributes();
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+						attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+					} else {
+						attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+					}
+					getWindow().setAttributes(attributes);
+				}
+			}
+		}
+		int orientation = microLoader.getOrientation();
+		setOrientation(orientation);
+		menuKey = microLoader.getMenuKeyCode();
+		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
+		getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				// Intentionally overridden by empty due to support for back-key remapping.
+			}
+		});
+		loadMIDlet();
+	}
+
+	private void bindMicroLayout() {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
@@ -175,78 +243,18 @@ public class MicroActivity extends AppCompatActivity {
 				updateCanvasViewport();
 			}
 		});
-		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
-		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
-		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
-		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
-		if (sp.getBoolean(PREF_KEEP_SCREEN, false)) {
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		}
-		ContextHolder.setVibration(sp.getBoolean(PREF_VIBRATION, true));
-		Canvas.setScreenshotRawMode(sp.getBoolean(PREF_SCREENSHOT_SWITCH, false));
-		Intent intent = getIntent();
-		if (BuildConfig.FULL_EMULATOR) {
-			appName = intent.getStringExtra(KEY_MIDLET_NAME);
-			Uri data = intent.getData();
-			if (data == null) {
-				showErrorDialog("Invalid intent: app path is null");
-				return;
-			}
-			appPath = data.toString();
-		} else {
-			appName = getTitle().toString();
-			appPath = getApplicationInfo().dataDir + "/files/converted/midlet";
-			File dir = new File(appPath);
-			if (!dir.exists() && !dir.mkdirs()) {
-				throw new RuntimeException("Can't access file system");
-			}
-		}
-		GameLog.clear();
-		GameLog.i("Session", "Starting MIDlet session for \"" + appName + "\" from " + appPath);
-		microLoader = new MicroLoader(appPath);
-		if (!microLoader.init()) {
-			Config.openSettings(this, appName, appPath);
-			finish();
-			return;
-		}
-		microLoader.applyConfiguration();
+	}
+
+	private void attachOverlayLayers() {
 		SkinLayer skinLayer = SkinLayer.getInstance();
 		if (skinLayer != null) {
 			binding.overlay.addLayer(skinLayer);
-			if (!statusBarEnabled && !actionBarEnabled) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-					WindowManager.LayoutParams attributes = getWindow().getAttributes();
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-						attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
-					} else {
-						attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-					}
-					getWindow().setAttributes(attributes);
-				}
-			}
 		}
 		VirtualKeyboard vk = ContextHolder.getVk();
-		int orientation = microLoader.getOrientation();
 		if (vk != null) {
 			vk.setView(binding.overlay);
 			binding.overlay.addLayer(vk);
-			if (vk.isPhone()) {
-				orientation = ORIENTATION_PORTRAIT;
-			}
 		}
-		setOrientation(orientation);
-		menuKey = microLoader.getMenuKeyCode();
-		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-
-		getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-			@Override
-			public void handleOnBackPressed() {
-				// Intentionally overridden by empty due to support for back-key remapping.
-			}
-		});
-		loadMIDlet();
 	}
 
 	public void lockNightMode() {
@@ -270,6 +278,18 @@ public class MicroActivity extends AppCompatActivity {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		ContextHolder.setCurrentActivity(this);
+		bindMicroLayout();
+		attachOverlayLayers();
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
+		bindDisplayable(current);
 	}
 
 	private void hideSoftInput() {
@@ -395,14 +415,26 @@ public class MicroActivity extends AppCompatActivity {
 	private void applyClassicsViewSize(String size) {
 		ConstraintLayout.LayoutParams params =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
-		if ("large".equals(size)) {
-			params.matchConstraintPercentWidth = 0.91f;
-			params.matchConstraintMaxWidth = dpToPx(420);
-			params.topMargin = dpToPx(8);
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			if ("large".equals(size)) {
+				params.matchConstraintPercentHeight = 0.82f;
+				params.matchConstraintMaxHeight = dpToPx(560);
+				params.topMargin = dpToPx(8);
+			} else {
+				params.matchConstraintPercentHeight = 0.76f;
+				params.matchConstraintMaxHeight = dpToPx(520);
+				params.topMargin = dpToPx(14);
+			}
 		} else {
-			params.matchConstraintPercentWidth = 0.83f;
-			params.matchConstraintMaxWidth = dpToPx(388);
-			params.topMargin = dpToPx(14);
+			if ("large".equals(size)) {
+				params.matchConstraintPercentWidth = 0.91f;
+				params.matchConstraintMaxWidth = dpToPx(420);
+				params.topMargin = dpToPx(8);
+			} else {
+				params.matchConstraintPercentWidth = 0.83f;
+				params.matchConstraintMaxWidth = dpToPx(388);
+				params.topMargin = dpToPx(14);
+			}
 		}
 		binding.gameFrame.setLayoutParams(params);
 	}
@@ -656,9 +688,6 @@ public class MicroActivity extends AppCompatActivity {
 		if (inputMethodManager == null) {
 			menu.findItem(R.id.action_ime_keyboard).setVisible(false);
 		}
-		if (ContextHolder.getVk() == null) {
-			menu.findItem(R.id.action_submenu_vk).setVisible(false);
-		}
 		return true;
 	}
 
@@ -701,6 +730,8 @@ public class MicroActivity extends AppCompatActivity {
 			takeScreenshot();
 		} else if (id == R.id.action_limit_fps) {
 			showLimitFpsDialog();
+		} else if (id == R.id.action_multiplayer) {
+			Toast.makeText(this, R.string.action_multiplayer_unavailable, Toast.LENGTH_SHORT).show();
 		} else if (ContextHolder.getVk() != null) {
 			// Handled only when virtual keyboard is enabled
 			handleVkOptions(id);
@@ -920,63 +951,69 @@ public class MicroActivity extends AppCompatActivity {
 				current.clearDisplayableView();
 			}
 			binding.displayableContainer.removeAllViews();
-			ActionBar actionBar = Objects.requireNonNull(getSupportActionBar());
-			ViewGroup.LayoutParams layoutParams = binding.toolbar.getLayoutParams();
-			int toolbarHeight = 0;
-			if (next instanceof Canvas) {
-				hideSystemUI();
-				binding.buttonBackOverlay.setVisibility(View.VISIBLE);
-				binding.gameFrame.setVisibility(View.VISIBLE);
-				binding.controlTopRow.setVisibility(View.VISIBLE);
-				applyClassicsControlStyle(classicsControlStyle);
-				if (!actionBarEnabled) {
-					actionBar.hide();
-					binding.toolbar.setVisibility(View.GONE);
-				} else {
-					final String title = next.getTitle();
-					actionBar.setTitle(title == null ? appName : title);
-					toolbarHeight = (int) (getToolBarHeight() / 1.5);
-					layoutParams.height = toolbarHeight;
-					binding.toolbar.setVisibility(View.VISIBLE);
-				}
+			bindDisplayable(next);
+		}
+	}
+
+	private void bindDisplayable(Displayable next) {
+		ActionBar actionBar = Objects.requireNonNull(getSupportActionBar());
+		ViewGroup.LayoutParams layoutParams = binding.toolbar.getLayoutParams();
+		int toolbarHeight = 0;
+		if (next instanceof Canvas) {
+			hideSystemUI();
+			binding.buttonBackOverlay.setVisibility(View.VISIBLE);
+			binding.gameFrame.setVisibility(View.VISIBLE);
+			binding.controlTopRow.setVisibility(View.VISIBLE);
+			applyClassicsControlStyle(classicsControlStyle);
+			if (!actionBarEnabled) {
+				actionBar.hide();
+				binding.toolbar.setVisibility(View.GONE);
 			} else {
-				showSystemUI();
-				binding.buttonBackOverlay.setVisibility(View.GONE);
-				binding.gameFrame.setVisibility(View.GONE);
-				binding.controlTopRow.setVisibility(View.GONE);
-				binding.controlPadShell.setVisibility(View.GONE);
-				binding.actionCluster.setVisibility(View.GONE);
-				binding.phoneShellContainer.setVisibility(View.GONE);
-				ContextHolder.clearCanvasViewport();
-				ContextHolder.clearClassicsControlBounds();
-				actionBar.show();
-				final String title = next != null ? next.getTitle() : null;
+				final String title = next.getTitle();
 				actionBar.setTitle(title == null ? appName : title);
-				toolbarHeight = (int) getToolBarHeight();
+				toolbarHeight = (int) (getToolBarHeight() / 1.5);
 				layoutParams.height = toolbarHeight;
 				binding.toolbar.setVisibility(View.VISIBLE);
 			}
-			binding.overlay.setLocation(0, toolbarHeight);
-			binding.toolbar.setLayoutParams(layoutParams);
-			if (next != null) {
-				View displayableView = next.getDisplayableView();
-				ViewParent parent = displayableView.getParent();
-				if (parent instanceof ViewGroup) {
-					((ViewGroup) parent).removeView(displayableView);
-				}
-				FrameLayout.LayoutParams displayLayoutParams = new FrameLayout.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						Gravity.CENTER);
-				displayableView.setLayoutParams(displayLayoutParams);
-				binding.displayableContainer.addView(displayableView, displayLayoutParams);
-				if (next instanceof Canvas) {
-					binding.displayableContainer.post(() -> {
-						updateCanvasViewport();
-						updateClassicsControlBounds();
-					});
-				}
-			}
+		} else {
+			showSystemUI();
+			binding.buttonBackOverlay.setVisibility(View.GONE);
+			binding.gameFrame.setVisibility(View.GONE);
+			binding.controlTopRow.setVisibility(View.GONE);
+			binding.controlPadShell.setVisibility(View.GONE);
+			binding.actionCluster.setVisibility(View.GONE);
+			binding.phoneShellContainer.setVisibility(View.GONE);
+			ContextHolder.clearCanvasViewport();
+			ContextHolder.clearClassicsControlBounds();
+			actionBar.show();
+			final String title = next != null ? next.getTitle() : null;
+			actionBar.setTitle(title == null ? appName : title);
+			toolbarHeight = (int) getToolBarHeight();
+			layoutParams.height = toolbarHeight;
+			binding.toolbar.setVisibility(View.VISIBLE);
+		}
+		binding.overlay.setLocation(0, toolbarHeight);
+		binding.toolbar.setLayoutParams(layoutParams);
+		binding.displayableContainer.removeAllViews();
+		if (next == null) {
+			return;
+		}
+		View displayableView = next.getDisplayableView();
+		ViewParent parent = displayableView.getParent();
+		if (parent instanceof ViewGroup) {
+			((ViewGroup) parent).removeView(displayableView);
+		}
+		FrameLayout.LayoutParams displayLayoutParams = new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				Gravity.CENTER);
+		displayableView.setLayoutParams(displayLayoutParams);
+		binding.displayableContainer.addView(displayableView, displayLayoutParams);
+		if (next instanceof Canvas) {
+			binding.displayableContainer.post(() -> {
+				updateCanvasViewport();
+				updateClassicsControlBounds();
+			});
 		}
 	}
 }
