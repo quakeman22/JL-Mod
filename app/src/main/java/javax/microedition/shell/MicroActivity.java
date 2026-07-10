@@ -695,11 +695,6 @@ public class MicroActivity extends AppCompatActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (current instanceof Canvas) {
 			menu.setGroupVisible(R.id.action_group_canvas, true);
-			VirtualKeyboard vk = ContextHolder.getVk();
-			if (vk != null) {
-				boolean visible = vk.getLayoutEditMode() != VirtualKeyboard.LAYOUT_EOF;
-				menu.findItem(R.id.action_layout_edit_finish).setVisible(visible);
-			}
 		} else {
 			menu.setGroupVisible(R.id.action_group_canvas, false);
 		}
@@ -732,9 +727,6 @@ public class MicroActivity extends AppCompatActivity {
 			showLimitFpsDialog();
 		} else if (id == R.id.action_multiplayer) {
 			Toast.makeText(this, R.string.action_multiplayer_unavailable, Toast.LENGTH_SHORT).show();
-		} else if (ContextHolder.getVk() != null) {
-			// Handled only when virtual keyboard is enabled
-			handleVkOptions(id);
 		}
 		return true;
 	}
@@ -769,25 +761,6 @@ public class MicroActivity extends AppCompatActivity {
 				case Surface.ROTATION_270 -> SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
 				default -> SCREEN_ORIENTATION_UNSPECIFIED;
 			});
-		}
-	}
-
-	private void handleVkOptions(int id) {
-		VirtualKeyboard vk = ContextHolder.getVk();
-		if (id == R.id.action_layout_edit_mode) {
-			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
-			Toast.makeText(this, R.string.layout_edit_mode, Toast.LENGTH_SHORT).show();
-		} else if (id == R.id.action_layout_scale_mode) {
-			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_SCALES);
-			Toast.makeText(this, R.string.layout_scale_mode, Toast.LENGTH_SHORT).show();
-		} else if (id == R.id.action_layout_edit_finish) {
-			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
-			Toast.makeText(this, R.string.layout_edit_finished, Toast.LENGTH_SHORT).show();
-			showSaveVkAlert(false);
-		} else if (id == R.id.action_layout_switch) {
-			showSetLayoutDialog();
-		} else if (id == R.id.action_hide_buttons) {
-			showHideButtonDialog();
 		}
 	}
 
