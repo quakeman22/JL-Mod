@@ -72,6 +72,11 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
+    <style name="ClassicsCompactAlertDialogTheme" parent="ClassicsAlertDialogTheme">
+        <item name="android:windowMinWidthMajor">48%</item>
+        <item name="android:windowMinWidthMinor">64%</item>
+    </style>
+
     <style name="FilePickerTheme" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
