@@ -105,6 +105,7 @@ import ru.playsoftware.j2meloader.databinding.DialogInputBinding;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -752,7 +753,7 @@ public class MicroActivity extends AppCompatActivity {
 		} else if (id == R.id.action_limit_fps) {
 			showLimitFpsDialog();
 		} else if (id == R.id.action_multiplayer) {
-			Toast.makeText(this, R.string.action_multiplayer_unavailable, Toast.LENGTH_SHORT).show();
+			showMultiplayerDialog();
 		}
 		return true;
 	}
@@ -850,6 +851,13 @@ public class MicroActivity extends AppCompatActivity {
 		view.findViewById(R.id.gameplay_menu_limit_fps).setOnClickListener(v -> {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showLimitFpsDialog();
+		});
+		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
+		multiplayerRow.setEnabled(true);
+		multiplayerRow.setAlpha(1f);
+		multiplayerRow.setOnClickListener(v -> {
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showMultiplayerDialog();
 		});
 		gameplayMenuDialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setView(view)
@@ -993,6 +1001,29 @@ public class MicroActivity extends AppCompatActivity {
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.setNeutralButton(R.string.reset, ((d, which) -> Canvas.setLimitFps(-1)))
+				.show();
+	}
+
+	private void showMultiplayerDialog() {
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog_multiplayer, null, false);
+		android.widget.Switch networkSwitch = view.findViewById(R.id.multiplayer_network_switch);
+		com.google.android.material.textfield.TextInputEditText ipInput =
+				view.findViewById(R.id.multiplayer_ip_input);
+
+		boolean enabled = MultiplayerPrefs.isNetworkBtEnabled(this);
+		String savedIp = MultiplayerPrefs.getFriendIp(this);
+		networkSwitch.setChecked(enabled);
+		ipInput.setText(savedIp);
+
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.action_multiplayer)
+				.setView(view)
+				.setPositiveButton(android.R.string.ok, (d, w) -> {
+					boolean useNetwork = networkSwitch.isChecked();
+					String ip = ipInput.getText() != null ? ipInput.getText().toString().trim() : "";
+					MultiplayerPrefs.save(this, useNetwork, ip);
+				})
+				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 	}
 
