@@ -128,6 +128,12 @@ public class LocalDevice implements ActivityResultListener {
 		if (lock || mode == DiscoveryAgent.NOT_DISCOVERABLE)
 			return true;
 
+		if (ru.playsoftware.j2meloader.util.MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			// Modo rede: nao existe "ficar visivel" de verdade, o amigo conecta
+			// direto pelo IP configurado. So finge que deu certo.
+			return true;
+		}
+
 		// --- CORREÇÃO PARA ANDROID 12+ (ANTI-CRASH) ---
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			if (ContextCompat.checkSelfPermission(ContextHolder.getAppContext(), Manifest.permission.BLUETOOTH_CONNECT) 
