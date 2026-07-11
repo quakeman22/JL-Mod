@@ -245,7 +245,7 @@
             app:layout_constraintStart_toEndOf="@id/control_pad_shell"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_min="186dp"
+            app:layout_constraintWidth_min="206dp"
             app:layout_constraintWidth_max="220dp"
             app:layout_constraintWidth_percent="0.36">
 
@@ -276,10 +276,10 @@
                 android:textColor="@android:color/white"
                 android:textSize="29sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/button_a_shell"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.40" />
+                app:layout_constraintTop_toBottomOf="@id/button_y_shell"
+                app:layout_constraintVertical_bias="0.5" />
 
             <TextView
                 android:id="@+id/button_x_shell"
@@ -292,10 +292,10 @@
                 android:textColor="@android:color/white"
                 android:textSize="29sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/button_a_shell"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.40" />
+                app:layout_constraintTop_toBottomOf="@id/button_y_shell"
+                app:layout_constraintVertical_bias="0.5" />
 
             <TextView
                 android:id="@+id/button_a_shell"
