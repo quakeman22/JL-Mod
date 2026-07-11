@@ -102,6 +102,12 @@
     <string name="classics_next">Next game</string>
     <string name="classics_position">%1$d/%2$d</string>
     <string name="classics_game_meta">%1$s • %2$s</string>
+    <string name="splash_subtitle">Preparing your Java classics</string>
+    <string name="preload_title">Preparing Library</string>
+    <string name="preload_subtitle">Checking bundled content</string>
+    <string name="preload_wait">Getting everything ready…</string>
+    <string name="preload_progress">%1$d/%2$d • %3$s</string>
+    <string name="preload_failed">Bundled library setup failed:\n%1$s</string>
     <string name="not_saved_exists">Already exists</string>
     <string name="opt_save_screen_params">save screen params</string>
     <string name="parallel_screen_redrawing">Parallel screen redrawing</string>
