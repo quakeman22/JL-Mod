@@ -173,7 +173,7 @@
                 <View
                     android:id="@+id/dpad_up_visual"
                     android:layout_width="60dp"
-                    android:layout_height="74dp"
+                    android:layout_height="89dp"
                     android:background="@drawable/bg_micro_dpad_button_up"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toTopOf="@+id/dpad_center_anchor"
@@ -184,7 +184,7 @@
 
                 <View
                     android:id="@+id/dpad_left_visual"
-                    android:layout_width="78dp"
+                    android:layout_width="89dp"
                     android:layout_height="60dp"
                     android:background="@drawable/bg_micro_dpad_button_left"
                     android:duplicateParentState="true"
@@ -196,7 +196,7 @@
 
                 <View
                     android:id="@+id/dpad_right_visual"
-                    android:layout_width="78dp"
+                    android:layout_width="89dp"
                     android:layout_height="60dp"
                     android:background="@drawable/bg_micro_dpad_button_right"
                     android:duplicateParentState="true"
@@ -209,7 +209,7 @@
                 <View
                     android:id="@+id/dpad_down_visual"
                     android:layout_width="60dp"
-                    android:layout_height="74dp"
+                    android:layout_height="89dp"
                     android:background="@drawable/bg_micro_dpad_button_down"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toBottomOf="parent"
