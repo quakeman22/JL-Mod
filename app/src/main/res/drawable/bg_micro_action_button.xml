@@ -4,15 +4,30 @@
         <layer-list>
             <item android:top="4dp">
                 <shape android:shape="oval">
-                    <solid android:color="#3A225C" />
+                    <solid android:color="#341F54" />
                 </shape>
             </item>
             <item>
                 <shape android:shape="oval">
                     <gradient
                         android:angle="270"
-                        android:endColor="#6F1196"
-                        android:startColor="#B73DCA" />
+                        android:endColor="#7614A2"
+                        android:startColor="#BE46D5" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="#E7A4F6" />
+                </shape>
+            </item>
+            <item
+                android:bottom="42dp"
+                android:left="16dp"
+                android:right="16dp"
+                android:top="12dp">
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="270"
+                        android:endColor="#00000000"
+                        android:startColor="#2BFFFFFF" />
                 </shape>
             </item>
         </layer-list>
@@ -21,15 +36,30 @@
         <layer-list>
             <item android:top="8dp">
                 <shape android:shape="oval">
-                    <solid android:color="#492C75" />
+                    <solid android:color="#44296D" />
                 </shape>
             </item>
             <item>
                 <shape android:shape="oval">
                     <gradient
                         android:angle="270"
-                        android:endColor="#8B14B9"
-                        android:startColor="#D54BE0" />
+                        android:endColor="#9218C1"
+                        android:startColor="#E355EA" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="#F0B7FB" />
+                </shape>
+            </item>
+            <item
+                android:bottom="46dp"
+                android:left="18dp"
+                android:right="18dp"
+                android:top="12dp">
+                <shape android:shape="oval">
+                    <gradient
+                        android:angle="270"
+                        android:endColor="#00000000"
+                        android:startColor="#30FFFFFF" />
                 </shape>
             </item>
         </layer-list>
