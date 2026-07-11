@@ -166,22 +166,72 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="256dp"
-            app:layout_constraintWidth_percent="0.43">
+            app:layout_constraintWidth_max="264dp"
+            app:layout_constraintWidth_percent="0.45">
 
-            <View
-                android:layout_width="72dp"
-                android:layout_height="144dp"
-                android:layout_gravity="center"
-                android:duplicateParentState="true"
-                android:background="@drawable/bg_micro_dpad_button" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <View
-                android:layout_width="144dp"
-                android:layout_height="72dp"
-                android:layout_gravity="center"
-                android:duplicateParentState="true"
-                android:background="@drawable/bg_micro_dpad_button" />
+                <View
+                    android:id="@+id/dpad_up_visual"
+                    android:layout_width="74dp"
+                    android:layout_height="92dp"
+                    android:background="@drawable/bg_micro_dpad_button_vertical"
+                    android:duplicateParentState="true"
+                    app:layout_constraintBottom_toTopOf="@+id/dpad_center_anchor"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <View
+                    android:id="@+id/dpad_left_visual"
+                    android:layout_width="98dp"
+                    android:layout_height="74dp"
+                    android:background="@drawable/bg_micro_dpad_button_horizontal"
+                    android:duplicateParentState="true"
+                    android:rotation="180"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/dpad_center_anchor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0" />
+
+                <View
+                    android:id="@+id/dpad_right_visual"
+                    android:layout_width="98dp"
+                    android:layout_height="74dp"
+                    android:background="@drawable/bg_micro_dpad_button_horizontal"
+                    android:duplicateParentState="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/dpad_center_anchor"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0" />
+
+                <View
+                    android:id="@+id/dpad_down_visual"
+                    android:layout_width="74dp"
+                    android:layout_height="92dp"
+                    android:background="@drawable/bg_micro_dpad_button_vertical"
+                    android:duplicateParentState="true"
+                    android:rotation="180"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dpad_center_anchor"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <View
+                    android:id="@+id/dpad_center_anchor"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </FrameLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -189,7 +239,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="12dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginEnd="14dp"
             android:layout_marginBottom="14dp"
             app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
             app:layout_constraintDimensionRatio="1:1"
@@ -197,19 +247,19 @@
             app:layout_constraintStart_toEndOf="@id/control_pad_shell"
             app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_min="188dp"
-            app:layout_constraintWidth_max="214dp"
-            app:layout_constraintWidth_percent="0.35">
+            app:layout_constraintWidth_min="198dp"
+            app:layout_constraintWidth_max="228dp"
+            app:layout_constraintWidth_percent="0.37">
 
             <TextView
                 android:id="@+id/button_y_shell"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="Y"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -218,43 +268,43 @@
 
             <TextView
                 android:id="@+id/button_b_shell"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="B"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintVertical_bias="0.46" />
 
             <TextView
                 android:id="@+id/button_x_shell"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="X"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintVertical_bias="0.46" />
 
             <TextView
                 android:id="@+id/button_a_shell"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="A"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
