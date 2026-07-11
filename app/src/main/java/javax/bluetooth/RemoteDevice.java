@@ -76,9 +76,10 @@ public class RemoteDevice {
 		if (conn instanceof org.microemu.cldc.btspp.SPPConnectionImpl) {
 			org.microemu.cldc.btspp.SPPConnectionImpl connection =
 					(org.microemu.cldc.btspp.SPPConnectionImpl) conn;
-			if (connection.socket == null)
-				throw new IOException("socket is null");
-			return new RemoteDevice(connection.socket.getRemoteDevice());
+			BluetoothDevice remote = connection.getRemoteBluetoothDevice();
+			if (remote == null)
+				throw new IOException("remote bluetooth device is unavailable");
+			return new RemoteDevice(remote);
 		} else {
 			org.microemu.cldc.btl2cap.L2CAPConnectionImpl connection =
 					(org.microemu.cldc.btl2cap.L2CAPConnectionImpl) conn;
