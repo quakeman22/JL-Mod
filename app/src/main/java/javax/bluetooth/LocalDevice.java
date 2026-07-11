@@ -92,9 +92,15 @@ public class LocalDevice implements ActivityResultListener {
 		}
 	}
 
+	private static Boolean lastNetworkMode;
+
 	public static LocalDevice getLocalDevice() throws BluetoothStateException {
-		if (dev == null)
+		boolean networkMode = ru.playsoftware.j2meloader.util.MultiplayerPrefs
+				.isNetworkBtEnabled(ContextHolder.getAppContext());
+		if (dev == null || lastNetworkMode == null || lastNetworkMode != networkMode) {
 			dev = new LocalDevice();
+			lastNetworkMode = networkMode;
+		}
 		return dev;
 	}
 
@@ -103,6 +109,9 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public String getFriendlyName() {
+		if (ru.playsoftware.j2meloader.util.MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			return "Voce (Rede)";
+		}
 		return DiscoveryAgent.adapter.getName();
 	}
 
@@ -161,6 +170,9 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public int getDiscoverable() {
+		if (ru.playsoftware.j2meloader.util.MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			return DiscoveryAgent.GIAC;
+		}
 		int scanMode = DiscoveryAgent.adapter.getScanMode();
 		switch (scanMode) {
 			case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
@@ -182,6 +194,9 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public String getBluetoothAddress() {
+		if (ru.playsoftware.j2meloader.util.MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			return "020000000002";
+		}
 		return androidToJavaAddress(DiscoveryAgent.adapter.getAddress());
 	}
 
