@@ -20,7 +20,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import java.util.Hashtable;
 
@@ -116,6 +118,21 @@ public class LocalDevice implements ActivityResultListener {
 
 		if (lock || mode == DiscoveryAgent.NOT_DISCOVERABLE)
 			return true;
+
+		// --- CORREÇÃO PARA ANDROID 12+ (ANTI-CRASH) ---
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			if (ContextCompat.checkSelfPermission(ContextHolder.getAppContext(), Manifest.permission.BLUETOOTH_CONNECT) 
+					!= PackageManager.PERMISSION_GRANTED) {
+				
+				// Se a permissão ainda não foi confirmada pelo usuário, solicita novamente
+				String[] permissions = { Manifest.permission.BLUETOOTH_CONNECT };
+				ContextHolder.requestPermissions(permissions);
+				
+				// Retorna falso de forma segura para o ciclo do J2ME em vez de crashar o app
+				return false;
+			}
+		}
+		// ----------------------------------------------
 
 		Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		lock = true;
