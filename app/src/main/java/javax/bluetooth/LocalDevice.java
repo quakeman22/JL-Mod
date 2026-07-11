@@ -51,8 +51,15 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	private LocalDevice() throws BluetoothStateException {
+		boolean networkMode = ru.playsoftware.j2meloader.util.MultiplayerPrefs
+				.isNetworkBtEnabled(ContextHolder.getAppContext());
 		agent = new DiscoveryAgent();
 		ContextHolder.addActivityResultListener(this);
+		if (networkMode) {
+			// Modo rede: nao precisa de radio Bluetooth nem das permissoes dele,
+			// a conexao vai por TCP (ex: via Tailscale).
+			return;
+		}
 		boolean permissionsGranted;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			String[] permissions = {

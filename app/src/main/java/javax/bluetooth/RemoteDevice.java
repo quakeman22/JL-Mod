@@ -45,6 +45,9 @@ public class RemoteDevice {
 	}
 
 	public String getFriendlyName(boolean alwaysAsk) throws IOException {
+		if (getBluetoothAddress().equalsIgnoreCase(DiscoveryAgent.FAKE_FRIEND_ADDRESS.replace(":", ""))) {
+			return "Amigo (Rede)";
+		}
 		String name = dev.getName();
 		if (name == null) {
 			name =  "";

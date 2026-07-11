@@ -38,6 +38,8 @@ import java.util.Set;
 
 import javax.microedition.util.ContextHolder;
 
+import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
+
 public class DiscoveryAgent {
 	public static final int NOT_DISCOVERABLE = 0;
 	public static final int GIAC = 0x9E8B33;
@@ -46,6 +48,9 @@ public class DiscoveryAgent {
 	public static final int PREKNOWN = 0x01;
 
 	private static int maxID = 1;
+
+	/** Endereco falso, so um "token" - nunca usado pra conectar via radio de verdade. */
+	static final String FAKE_FRIEND_ADDRESS = "02:00:00:00:00:01";
 
 	static BluetoothAdapter adapter;
 
@@ -167,13 +172,17 @@ public class DiscoveryAgent {
 	private LinkedList<Transaction> transList = new LinkedList<>();
 	private HashSet<BluetoothDevice> discoveredList = new HashSet<>();
 
-	DiscoveryAgent() throws BluetoothStateException {
-		adapter = BluetoothAdapter.getDefaultAdapter();
-		if (adapter == null)
-			throw new BluetoothStateException();
-	}
+		DiscoveryAgent() throws BluetoothStateException {
+			adapter = BluetoothAdapter.getDefaultAdapter();
+			boolean networkMode = MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext());
+			if (adapter == null && !networkMode)
+				throw new BluetoothStateException();
+		}
 
 	public RemoteDevice[] retrieveDevices(int option) {
+		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			return new RemoteDevice[]{new RemoteDevice(FAKE_FRIEND_ADDRESS)};
+		}
 		Set<BluetoothDevice> set;
 		if (option == CACHED) {
 			set = discoveredList;
@@ -194,6 +203,16 @@ public class DiscoveryAgent {
 		}
 		if ((accessCode != LIAC) && (accessCode != GIAC) && ((accessCode < 0x9E8B00) || (accessCode > 0x9E8B3F))) {
 			throw new IllegalArgumentException("Invalid accessCode " + accessCode);
+		}
+
+		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			RemoteDevice fakeDev = new RemoteDevice(FAKE_FRIEND_ADDRESS);
+			DeviceClass cod = new DeviceClass();
+			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+				listener.deviceDiscovered(fakeDev, cod);
+				listener.inquiryCompleted(DiscoveryListener.INQUIRY_COMPLETED);
+			}, 600);
+			return true;
 		}
 
 		if (adapter.isDiscovering())
@@ -255,6 +274,10 @@ public class DiscoveryAgent {
 		if (listener == null) {
 			throw new NullPointerException("DiscoveryListener is null");
 		}
+		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			listener.inquiryCompleted(DiscoveryListener.INQUIRY_TERMINATED);
+			return true;
+		}
 		boolean ret = adapter.cancelDiscovery();
 		listener.inquiryCompleted(DiscoveryListener.INQUIRY_TERMINATED);
 		return ret;
@@ -286,6 +309,19 @@ public class DiscoveryAgent {
 			if (attrSet[i] < 0x0000 || attrSet[i] > 0xffff) {
 				throw new IllegalArgumentException("attrSet[" + i + "] not in range");
 			}
+		}
+
+		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+			int transID = maxID++;
+			J2MEServiceRecord[] records = new J2MEServiceRecord[uuidSet.length];
+			for (int i = 0; i < uuidSet.length; i++) {
+				records[i] = new J2MEServiceRecord(btDev, uuidSet[i], false, false);
+			}
+			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+				listener.servicesDiscovered(transID, records);
+				listener.serviceSearchCompleted(transID, DiscoveryListener.SERVICE_SEARCH_COMPLETED);
+			}, 300);
+			return transID;
 		}
 
 		final Transaction curTrans = new Transaction(maxID, attrSet, uuidSet, btDev, listener);
