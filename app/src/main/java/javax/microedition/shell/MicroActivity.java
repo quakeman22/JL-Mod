@@ -468,8 +468,8 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyClassicsControlStyle(String style) {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		classicsHandsetSkin = sp.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		classicsHandsetSkin = prefs.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
 		boolean handsetSelected = "handset".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
@@ -494,8 +494,7 @@ public class MicroActivity extends AppCompatActivity {
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
 
 	private void applyHandsetSkin() {
