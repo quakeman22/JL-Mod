@@ -9,26 +9,37 @@
     android:paddingVertical="8dp"
     tools:showIn="@layout/fragment_appslist">
 
-    <FrameLayout
-        android:id="@+id/card_container"
-        android:layout_width="272dp"
-        android:layout_height="match_parent"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="14dp"
-        android:layout_gravity="center"
-        android:background="@drawable/bg_launcher_card_frame"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/list_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="false"
-            android:background="@drawable/bg_launcher_card_inner"
-            android:padding="0dp"
-            android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher"
-            tools:src="@mipmap/ic_launcher" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/card_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/bg_launcher_card_frame"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            app:layout_constraintDimensionRatio="3:4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintVertical_bias="0.5">
+
+            <ImageView
+                android:id="@+id/list_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:background="@drawable/bg_launcher_card_inner"
+                android:padding="0dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_launcher"
+                tools:src="@mipmap/ic_launcher" />
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ru.playsoftware.j2meloader.applist.AppItemLayout>
