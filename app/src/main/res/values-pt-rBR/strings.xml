@@ -50,6 +50,12 @@
     <string name="help_message">&#8226; Ativando a filtragem em alguns casos pode reduzir muito a performance. Desative esta opção se o jogo estiver muito lento.&lt;BR&gt;&#8226; Problemas de exibição de imagens podem ser corrigidos ao ativar a opção \"Modo de processamento imediato\".</string>
     <string name="hide_buttons">Ocultar botões</string>
     <string name="identity_filter">Rápido (sem filtro)</string>
+    <string name="splash_subtitle">Preparando seus clássicos Java</string>
+    <string name="preload_title">Preparando biblioteca</string>
+    <string name="preload_subtitle">Verificando conteúdo embutido</string>
+    <string name="preload_wait">Deixando tudo pronto…</string>
+    <string name="preload_progress">%1$d/%2$d • %3$s</string>
+    <string name="preload_failed">Falha ao preparar a biblioteca embutida:\n%1$s</string>
     <string name="install">instalar</string>
     <string name="install_done">Aplicativo instalado com sucesso!</string>
     <string name="install_jar_needed">Selecione o arquivo JAR</string>
