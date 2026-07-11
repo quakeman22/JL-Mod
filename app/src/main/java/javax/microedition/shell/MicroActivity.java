@@ -451,13 +451,34 @@ public class MicroActivity extends AppCompatActivity {
 				getResources().getDisplayMetrics()));
 	}
 
+	private boolean isLandscapeUi() {
+		return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+	}
+
 	private void applyClassicsControlStyle(String style) {
-		classicsControlStyle = "phone".equals(style) ? "phone" : "joystick";
-		int joystickVisibility = "phone".equals(classicsControlStyle) ? View.GONE : View.VISIBLE;
+		boolean handsetSelected = "handset".equals(style);
+		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
+		if (handsetAvailable) {
+			classicsControlStyle = "handset";
+		} else if ("phone".equals(style) || handsetSelected) {
+			classicsControlStyle = "phone";
+		} else {
+			classicsControlStyle = "joystick";
+		}
+		int joystickVisibility = "joystick".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		binding.controlPadShell.setVisibility(joystickVisibility);
 		binding.actionCluster.setVisibility(joystickVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
+		binding.handsetShellContainer.setVisibility(handsetVisibility);
+		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
+		ConstraintLayout.LayoutParams gameFrameParams =
+				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
+		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
+				? R.id.handset_shell_container
+				: R.id.control_top_row;
+		binding.gameFrame.setLayoutParams(gameFrameParams);
 	}
 
 	private void updateCanvasViewport() {
@@ -499,6 +520,22 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, Canvas.KEY_STAR, binding.phoneKeyStar);
 			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.phoneKey0);
 			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.phoneKeyPound);
+		} else if ("handset".equals(classicsControlStyle)) {
+			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.handsetSoftLeft);
+			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.handsetMenu);
+			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.handsetSoftRight);
+			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.handsetKey1);
+			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.handsetKey2);
+			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.handsetKey3);
+			addKeyBound(keyBounds, Canvas.KEY_NUM4, binding.handsetKey4);
+			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.handsetKey5);
+			addKeyBound(keyBounds, Canvas.KEY_NUM6, binding.handsetKey6);
+			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.handsetKey7);
+			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.handsetKey8);
+			addKeyBound(keyBounds, Canvas.KEY_NUM9, binding.handsetKey9);
+			addKeyBound(keyBounds, Canvas.KEY_STAR, binding.handsetKeyStar);
+			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.handsetKey0);
+			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.handsetKeyPound);
 		} else {
 			Rect dpad = getViewBounds(binding.controlPadShell);
 			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
@@ -565,35 +602,72 @@ public class MicroActivity extends AppCompatActivity {
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		runOnUiThread(() -> {
 			switch (keyCode) {
-				case Canvas.KEY_SOFT_LEFT -> binding.buttonSoftLeftShell.setPressed(pressed);
-				case Canvas.KEY_SOFT_RIGHT -> binding.buttonSoftRightShell.setPressed(pressed);
-				case KeyMapper.KEY_OPTIONS_MENU -> binding.buttonMenuShell.setPressed(pressed);
+				case Canvas.KEY_SOFT_LEFT -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
+					else binding.buttonSoftLeftShell.setPressed(pressed);
+				}
+				case Canvas.KEY_SOFT_RIGHT -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetSoftRight.setPressed(pressed);
+					else binding.buttonSoftRightShell.setPressed(pressed);
+				}
+				case KeyMapper.KEY_OPTIONS_MENU -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
+					else binding.buttonMenuShell.setPressed(pressed);
+				}
 				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
 						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
-				case Canvas.KEY_NUM1 -> binding.phoneKey1.setPressed(pressed);
-				case Canvas.KEY_NUM2 -> binding.phoneKey2.setPressed(pressed);
-				case Canvas.KEY_NUM3 -> binding.phoneKey3.setPressed(pressed);
-				case Canvas.KEY_NUM4 -> binding.phoneKey4.setPressed(pressed);
+				case Canvas.KEY_NUM1 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
+					else binding.phoneKey1.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM2 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey2.setPressed(pressed);
+					else binding.phoneKey2.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM3 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey3.setPressed(pressed);
+					else binding.phoneKey3.setPressed(pressed);
+				}
+				case Canvas.KEY_NUM4 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey4.setPressed(pressed);
+					else binding.phoneKey4.setPressed(pressed);
+				}
 				case Canvas.KEY_NUM5 -> {
 					if ("phone".equals(classicsControlStyle)) binding.phoneKey5.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey5.setPressed(pressed);
 					else binding.buttonXShell.setPressed(pressed);
 				}
-				case Canvas.KEY_NUM6 -> binding.phoneKey6.setPressed(pressed);
+				case Canvas.KEY_NUM6 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey6.setPressed(pressed);
+					else binding.phoneKey6.setPressed(pressed);
+				}
 				case Canvas.KEY_NUM7 -> {
 					if ("phone".equals(classicsControlStyle)) binding.phoneKey7.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey7.setPressed(pressed);
 					else binding.buttonAShell.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM8 -> {
 					if ("phone".equals(classicsControlStyle)) binding.phoneKey8.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey8.setPressed(pressed);
 					else binding.buttonBShell.setPressed(pressed);
 				}
-				case Canvas.KEY_NUM9 -> binding.phoneKey9.setPressed(pressed);
+				case Canvas.KEY_NUM9 -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey9.setPressed(pressed);
+					else binding.phoneKey9.setPressed(pressed);
+				}
 				case Canvas.KEY_NUM0 -> {
 					if ("phone".equals(classicsControlStyle)) binding.phoneKey0.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey0.setPressed(pressed);
 					else binding.buttonYShell.setPressed(pressed);
 				}
-				case Canvas.KEY_STAR -> binding.phoneKeyStar.setPressed(pressed);
-				case Canvas.KEY_POUND -> binding.phoneKeyPound.setPressed(pressed);
+				case Canvas.KEY_STAR -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKeyStar.setPressed(pressed);
+					else binding.phoneKeyStar.setPressed(pressed);
+				}
+				case Canvas.KEY_POUND -> {
+					if ("handset".equals(classicsControlStyle)) binding.handsetKeyPound.setPressed(pressed);
+					else binding.phoneKeyPound.setPressed(pressed);
+				}
 			}
 		});
 	}
