@@ -206,6 +206,7 @@
     <string name="pref_theme_night">Dark</string>
     <string name="pref_theme_system">Follow system settings</string>
     <string name="pref_theme_title">Theme</string>
+    <string name="pref_ui_sounds_title">Interface sounds</string>
     <string name="pref_title_emulation">Emulation</string>
     <string name="PREF_TOUCH_INPUT">Touch input</string>
     <string name="PREF_UNIT_MS">ms</string>
