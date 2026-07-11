@@ -1,7 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rotate xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/bg_micro_dpad_button_right"
-    android:fromDegrees="180"
-    android:pivotX="50%"
-    android:pivotY="50%"
-    android:toDegrees="180" />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <layer-list>
+            <item android:top="3dp" android:left="1dp" android:right="4dp" android:bottom="4dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#12101E" />
+                    <corners
+                        android:topLeftRadius="20dp"
+                        android:topRightRadius="14dp"
+                        android:bottomLeftRadius="20dp"
+                        android:bottomRightRadius="14dp" />
+                </shape>
+            </item>
+            <item android:top="7dp" android:left="5dp" android:right="4dp" android:bottom="7dp">
+                <shape android:shape="rectangle">
+                    <gradient android:angle="0" android:startColor="#3A3A42" android:endColor="#232228" />
+                    <corners
+                        android:topLeftRadius="20dp"
+                        android:topRightRadius="14dp"
+                        android:bottomLeftRadius="20dp"
+                        android:bottomRightRadius="14dp" />
+                    <stroke android:width="1dp" android:color="#5B4E70" />
+                </shape>
+            </item>
+            <item android:top="18dp" android:bottom="18dp" android:left="19dp" android:right="24dp">
+                <rotate
+                    android:drawable="@drawable/ic_dpad_arrow"
+                    android:fromDegrees="270"
+                    android:pivotX="50%"
+                    android:pivotY="50%" />
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:top="2dp" android:left="0dp" android:right="4dp" android:bottom="4dp">
+                <shape android:shape="rectangle">
+                    <solid android:color="#1B1730" />
+                    <corners
+                        android:topLeftRadius="20dp"
+                        android:topRightRadius="14dp"
+                        android:bottomLeftRadius="20dp"
+                        android:bottomRightRadius="14dp" />
+                </shape>
+            </item>
+            <item android:top="6dp" android:left="6dp" android:right="4dp" android:bottom="8dp">
+                <shape android:shape="rectangle">
+                    <gradient android:angle="0" android:startColor="#6E6E78" android:endColor="#37373D" />
+                    <corners
+                        android:topLeftRadius="20dp"
+                        android:topRightRadius="14dp"
+                        android:bottomLeftRadius="20dp"
+                        android:bottomRightRadius="14dp" />
+                    <stroke android:width="1dp" android:color="#65567C" />
+                </shape>
+            </item>
+            <item android:top="6dp" android:left="9dp" android:right="9dp" android:bottom="34dp">
+                <shape android:shape="rectangle">
+                    <gradient android:angle="90" android:startColor="#40FFFFFF" android:endColor="#00FFFFFF" />
+                    <corners android:radius="14dp" />
+                </shape>
+            </item>
+            <item android:top="15dp" android:bottom="15dp" android:left="19dp" android:right="24dp">
+                <rotate
+                    android:drawable="@drawable/ic_dpad_arrow"
+                    android:fromDegrees="270"
+                    android:pivotX="50%"
+                    android:pivotY="50%" />
+            </item>
+        </layer-list>
+    </item>
+</selector>
