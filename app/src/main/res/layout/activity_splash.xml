@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_classics_menu_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="32dp"
+    android:paddingVertical="48dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/classics_brand"
+        android:textAllCaps="true"
+        android:textColor="#143E8C"
+        android:textSize="28sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/classics_title"
+        android:textAllCaps="true"
+        android:textColor="@android:color/white"
+        android:textSize="58sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:text="@string/splash_subtitle"
+        android:textColor="#EEF2FF"
+        android:textSize="16sp" />
+
+    <ProgressBar
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:indeterminate="true"
+        android:indeterminateTint="#D24CF6" />
+
+</LinearLayout>
