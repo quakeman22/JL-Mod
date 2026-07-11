@@ -174,16 +174,6 @@
                 android:layout_height="match_parent">
 
                 <View
-                    android:id="@+id/dpad_cross_plate"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@drawable/bg_micro_dpad_cross_plate"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <View
                     android:id="@+id/dpad_up_visual"
                     android:layout_width="62dp"
                     android:layout_height="76dp"
