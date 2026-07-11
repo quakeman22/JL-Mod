@@ -12,6 +12,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import ru.playsoftware.j2meloader.util.UiSoundEffects;
+
 public class SplashActivity extends AppCompatActivity {
 	private static final long SPLASH_DELAY_MS = 950L;
 
@@ -26,6 +28,7 @@ public class SplashActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
+		UiSoundEffects.get(this).playOpening();
 		hideSystemBars();
 		handler.postDelayed(launchMainRunnable, SPLASH_DELAY_MS);
 	}
