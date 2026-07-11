@@ -123,6 +123,7 @@ public class MicroActivity extends AppCompatActivity {
 	private String appPath;
 	private ActivityMicroBinding binding;
 	private String classicsControlStyle = "joystick";
+	private String classicsHandsetSkin = "dark";
 	private AlertDialog gameplayMenuDialog;
 
 	@Override
@@ -463,6 +464,8 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyClassicsControlStyle(String style) {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		classicsHandsetSkin = sp.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
 		boolean handsetSelected = "handset".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
@@ -480,12 +483,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
-		binding.midletFrame.setBackgroundResource("handset".equals(classicsControlStyle)
-				? R.drawable.bg_handset_game_background
-				: R.drawable.bg_classics_game_background);
-		binding.gameFrame.setBackgroundResource("handset".equals(classicsControlStyle)
-				? R.drawable.bg_handset_display_frame
-				: R.drawable.bg_micro_display_frame);
+		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
@@ -494,6 +492,46 @@ public class MicroActivity extends AppCompatActivity {
 		binding.gameFrame.setLayoutParams(gameFrameParams);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+	}
+
+	private void applyHandsetSkin() {
+		if (!"handset".equals(classicsControlStyle)) {
+			binding.midletFrame.setBackgroundResource(R.drawable.bg_classics_game_background);
+			binding.gameFrame.setBackgroundResource(R.drawable.bg_micro_display_frame);
+			return;
+		}
+		boolean gold = "gold".equals(classicsHandsetSkin);
+		binding.midletFrame.setBackgroundResource(gold
+				? R.drawable.bg_handset_game_background_gold
+				: R.drawable.bg_handset_game_background);
+		binding.gameFrame.setBackgroundResource(gold
+				? R.drawable.bg_handset_display_frame_gold
+				: R.drawable.bg_handset_display_frame);
+		binding.handsetShellContainer.setBackgroundResource(gold
+				? R.drawable.bg_handset_body_gold
+				: R.drawable.bg_handset_body);
+		binding.handsetSoftLeft.setBackgroundResource(gold
+				? R.drawable.bg_handset_softkey_gold
+				: R.drawable.bg_handset_softkey);
+		binding.handsetMenu.setBackgroundResource(gold
+				? R.drawable.bg_handset_menu_key_gold
+				: R.drawable.bg_handset_menu_key);
+		binding.handsetSoftRight.setBackgroundResource(gold
+				? R.drawable.bg_handset_softkey_right_gold
+				: R.drawable.bg_handset_softkey_right);
+		int handsetKeyBackground = gold ? R.drawable.bg_handset_key_gold : R.drawable.bg_handset_key;
+		binding.handsetKey1.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey2.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey3.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey4.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey5.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey6.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey7.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey8.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey9.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKeyStar.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKey0.setBackgroundResource(handsetKeyBackground);
+		binding.handsetKeyPound.setBackgroundResource(handsetKeyBackground);
 	}
 
 	private void updateCanvasViewport() {
@@ -1110,7 +1148,7 @@ public class MicroActivity extends AppCompatActivity {
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
 					boolean useNetwork = networkSwitch.isChecked();
 					String ip = ipInput.getText() != null ? ipInput.getText().toString().trim() : "";
-					MultiplayerPrefs.save(this, useNetwork, ip);
+					MultiplayerPrefs.save(this, useNetwork, ip, MultiplayerPrefs.getRole(this));
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
