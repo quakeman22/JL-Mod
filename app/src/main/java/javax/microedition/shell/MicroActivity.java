@@ -420,6 +420,13 @@ public class MicroActivity extends AppCompatActivity {
 	private void applyClassicsViewSize(String size) {
 		ConstraintLayout.LayoutParams params =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
+		if ("handset".equals(classicsControlStyle)) {
+			params.matchConstraintPercentWidth = "large".equals(size) ? 0.93f : 0.89f;
+			params.matchConstraintMaxWidth = dpToPx("large".equals(size) ? 430 : 408);
+			params.topMargin = dpToPx(12);
+			binding.gameFrame.setLayoutParams(params);
+			return;
+		}
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			if ("large".equals(size)) {
 				params.matchConstraintPercentHeight = 0.88f;
@@ -473,12 +480,20 @@ public class MicroActivity extends AppCompatActivity {
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
+		binding.midletFrame.setBackgroundResource("handset".equals(classicsControlStyle)
+				? R.drawable.bg_handset_game_background
+				: R.drawable.bg_classics_game_background);
+		binding.gameFrame.setBackgroundResource("handset".equals(classicsControlStyle)
+				? R.drawable.bg_handset_display_frame
+				: R.drawable.bg_micro_display_frame);
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
 
 	private void updateCanvasViewport() {
