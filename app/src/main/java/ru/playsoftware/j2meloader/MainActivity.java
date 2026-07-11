@@ -23,7 +23,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.view.WindowManager;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -43,6 +47,7 @@ import ru.playsoftware.j2meloader.applist.AppsListFragment;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.FileUtils;
+import ru.playsoftware.j2meloader.util.PreloadManager;
 import ru.playsoftware.j2meloader.util.PickDirResultContract;
 import ru.playsoftware.j2meloader.util.StoragePermissionHelper;
 import ru.woesss.j2me.installer.InstallerDialog;
@@ -55,8 +60,14 @@ public class MainActivity extends AppCompatActivity {
 			new PickDirResultContract(),
 			this::onPickDirResult
 	);
+	private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
 	private AppListModel appListModel;
+	private Uri launchUri;
+	private View preloadOverlay;
+	private ProgressBar preloadProgress;
+	private TextView preloadStatus;
+	private boolean launcherAttached;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,17 +77,17 @@ public class MainActivity extends AppCompatActivity {
 			getSupportActionBar().hide();
 		}
 		hideLauncherStatusBar();
+		preloadOverlay = findViewById(R.id.preload_overlay);
+		preloadProgress = findViewById(R.id.preload_progress);
+		preloadStatus = findViewById(R.id.preload_status);
 		storagePermissionHelper.launch(this);
 		appListModel = new ViewModelProvider(this).get(AppListModel.class);
-		if (savedInstanceState == null) {
-			Intent intent = getIntent();
-			Uri uri = null;
-			if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
-				uri = intent.getData();
-			}
-			AppsListFragment fragment = AppsListFragment.newInstance(uri);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.container, fragment).commit();
+		Intent intent = getIntent();
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+			launchUri = intent.getData();
+		}
+		if (savedInstanceState != null) {
+			launcherAttached = getSupportFragmentManager().findFragmentById(R.id.container) != null;
 		}
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
@@ -111,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 		File dir = new File(emulatorDir);
 		if (dir.isDirectory() && dir.canWrite()) {
 			FileUtils.initWorkDir(dir);
-			appListModel.setEmulatorDirectory(emulatorDir);
+			runPostDirectorySetup(emulatorDir);
 			return;
 		}
 		if (dir.exists() || dir.getParentFile() == null || !dir.getParentFile().isDirectory()
@@ -174,10 +185,7 @@ public class MainActivity extends AppCompatActivity {
 			alertDirCannotCreate(path);
 			return;
 		}
-		PreferenceManager.getDefaultSharedPreferences(this)
-				.edit()
-				.putString(Constants.PREF_EMULATOR_DIR, path)
-				.apply();
+		runPostDirectorySetup(path, true);
 	}
 
 	@Override
@@ -187,5 +195,69 @@ public class MainActivity extends AppCompatActivity {
 		if (uri != null) {
 			InstallerDialog.newInstance(uri).show(getSupportFragmentManager(), "installer");
 		}
+	}
+
+	private void runPostDirectorySetup(String emulatorDir) {
+		runPostDirectorySetup(emulatorDir, false);
+	}
+
+	private void runPostDirectorySetup(String emulatorDir, boolean persistDir) {
+		PreloadManager.prepareAsync(this, emulatorDir, new PreloadManager.Listener() {
+			@Override
+			public void onStart(int totalFiles) {
+				mainHandler.post(() -> {
+					preloadOverlay.setVisibility(View.VISIBLE);
+					preloadProgress.setIndeterminate(false);
+					preloadProgress.setMax(Math.max(1, totalFiles));
+					preloadProgress.setProgress(0);
+					preloadStatus.setText(getString(R.string.preload_wait));
+				});
+			}
+
+			@Override
+			public void onProgress(int copiedFiles, int totalFiles, @androidx.annotation.NonNull String relativePath) {
+				mainHandler.post(() -> {
+					preloadProgress.setMax(Math.max(1, totalFiles));
+					preloadProgress.setProgress(copiedFiles);
+					preloadStatus.setText(getString(R.string.preload_progress, copiedFiles, totalFiles, relativePath));
+				});
+			}
+
+			@Override
+			public void onComplete(boolean didWork, @androidx.annotation.NonNull String activeStamp) {
+				mainHandler.post(() -> {
+					if (persistDir) {
+						PreferenceManager.getDefaultSharedPreferences(MainActivity.this)
+								.edit()
+								.putString(Constants.PREF_EMULATOR_DIR, emulatorDir)
+								.apply();
+					}
+					appListModel.setEmulatorDirectory(emulatorDir);
+					if (!launcherAttached) {
+						AppsListFragment fragment = AppsListFragment.newInstance(launchUri);
+						getSupportFragmentManager().beginTransaction()
+								.replace(R.id.container, fragment)
+								.commit();
+						launcherAttached = true;
+						launchUri = null;
+					}
+					preloadOverlay.setVisibility(View.GONE);
+				});
+			}
+
+			@Override
+			public void onError(@androidx.annotation.NonNull Exception exception) {
+				mainHandler.post(() -> {
+					preloadOverlay.setVisibility(View.GONE);
+					new AlertDialog.Builder(MainActivity.this)
+							.setTitle(R.string.error)
+							.setCancelable(false)
+							.setMessage(getString(R.string.preload_failed, exception.getMessage()))
+							.setNegativeButton(R.string.exit, (d, w) -> finish())
+							.setPositiveButton(R.string.retry, (d, w) -> runPostDirectorySetup(emulatorDir, persistDir))
+							.show();
+				});
+			}
+		});
 	}
 }
