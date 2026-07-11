@@ -30,24 +30,38 @@ public class RemoteDevice {
 	}
 
 	static String javaToAndroidAddress(String addr) {
-		StringBuilder sb = new StringBuilder(addr);
+		String normalized = normalizeBluetoothAddress(addr);
+		StringBuilder sb = new StringBuilder(normalized);
 		for (int i = 2; i < sb.length(); i += 3)
 			sb.insert(i, ':');
 		return sb.toString();
 	}
 
-	protected RemoteDevice(String address) {
-		if (address == null) {
+	static String normalizeBluetoothAddress(String addr) {
+		if (addr == null) {
 			throw new NullPointerException("address is null");
 		}
+		String normalized = addr.replace(":", "").replace("-", "").trim();
+		if (normalized.length() != 12) {
+			throw new IllegalArgumentException(addr + " is not a valid Bluetooth address");
+		}
+		for (int i = 0; i < normalized.length(); i++) {
+			char c = normalized.charAt(i);
+			boolean isHex = (c >= '0' && c <= '9')
+					|| (c >= 'a' && c <= 'f')
+					|| (c >= 'A' && c <= 'F');
+			if (!isHex) {
+				throw new IllegalArgumentException(addr + " is not a valid Bluetooth address");
+			}
+		}
+		return normalized.toUpperCase();
+	}
 
+	protected RemoteDevice(String address) {
 		dev = DiscoveryAgent.adapter.getRemoteDevice(javaToAndroidAddress(address));
 	}
 
 	public String getFriendlyName(boolean alwaysAsk) throws IOException {
-		if (getBluetoothAddress().equalsIgnoreCase(DiscoveryAgent.FAKE_FRIEND_ADDRESS.replace(":", ""))) {
-			return "Amigo (Rede)";
-		}
 		String name = dev.getName();
 		if (name == null) {
 			name =  "";
