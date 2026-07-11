@@ -38,6 +38,15 @@
             android:key="pref_classics_control_style"
             android:title="@string/pref_classics_control_style_title"
             app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:defaultValue="dark"
+            android:entries="@array/pref_classics_handset_skin_entries"
+            android:entryValues="@array/pref_classics_handset_skin_values"
+            android:icon="@drawable/ic_setting_default"
+            android:key="pref_classics_handset_skin"
+            android:title="@string/pref_classics_handset_skin_title"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_system">
