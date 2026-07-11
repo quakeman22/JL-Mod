@@ -163,8 +163,8 @@
             app:layout_constraintTop_toTopOf="@id/game_frame"
             app:layout_constraintVertical_bias="0.5"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="312dp"
-            app:layout_constraintWidth_percent="0.22">
+            app:layout_constraintWidth_max="336dp"
+            app:layout_constraintWidth_percent="0.245">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -172,8 +172,8 @@
 
                 <View
                     android:id="@+id/dpad_up_visual"
-                    android:layout_width="68dp"
-                    android:layout_height="84dp"
+                    android:layout_width="60dp"
+                    android:layout_height="74dp"
                     android:background="@drawable/bg_micro_dpad_button_up"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toTopOf="@+id/dpad_center_anchor"
@@ -184,8 +184,8 @@
 
                 <View
                     android:id="@+id/dpad_left_visual"
-                    android:layout_width="92dp"
-                    android:layout_height="68dp"
+                    android:layout_width="78dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_dpad_button_left"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -196,8 +196,8 @@
 
                 <View
                     android:id="@+id/dpad_right_visual"
-                    android:layout_width="92dp"
-                    android:layout_height="68dp"
+                    android:layout_width="78dp"
+                    android:layout_height="60dp"
                     android:background="@drawable/bg_micro_dpad_button_right"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -208,8 +208,8 @@
 
                 <View
                     android:id="@+id/dpad_down_visual"
-                    android:layout_width="68dp"
-                    android:layout_height="84dp"
+                    android:layout_width="60dp"
+                    android:layout_height="74dp"
                     android:background="@drawable/bg_micro_dpad_button_down"
                     android:duplicateParentState="true"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -220,8 +220,8 @@
 
                 <View
                     android:id="@+id/dpad_center_anchor"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -242,14 +242,14 @@
             app:layout_constraintTop_toTopOf="@id/game_frame"
             app:layout_constraintVertical_bias="0.5"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="260dp"
-            app:layout_constraintWidth_percent="0.20">
+            app:layout_constraintWidth_max="292dp"
+            app:layout_constraintWidth_percent="0.23">
 
             <TextView
                 android:id="@+id/button_y_shell"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginTop="4dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="0dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="Y"
@@ -263,9 +263,9 @@
 
             <TextView
                 android:id="@+id/button_b_shell"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginEnd="10dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="16dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="B"
@@ -275,13 +275,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.40" />
+                app:layout_constraintVertical_bias="0.39" />
 
             <TextView
                 android:id="@+id/button_x_shell"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginStart="10dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="16dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="X"
@@ -291,13 +291,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.40" />
+                app:layout_constraintVertical_bias="0.39" />
 
             <TextView
                 android:id="@+id/button_a_shell"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_marginBottom="6dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="0dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="A"
