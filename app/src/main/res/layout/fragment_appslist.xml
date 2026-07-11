@@ -57,40 +57,51 @@
             android:layout_height="0dp"
             android:layout_weight="43">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@android:id/list"
+            <FrameLayout
+                android:id="@+id/carousel_box"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clipToPadding="true"
-                android:layout_gravity="center"
-                android:overScrollMode="never"
-                android:paddingHorizontal="0dp"
-                tools:itemCount="5"
-                tools:listitem="@layout/list_row_carousel_jar" />
+                android:layout_marginStart="68dp"
+                android:layout_marginEnd="68dp"
+                android:clipChildren="true"
+                android:clipToPadding="true">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@android:id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="true"
+                    android:layout_gravity="center"
+                    android:overScrollMode="never"
+                    android:paddingHorizontal="0dp"
+                    tools:itemCount="5"
+                    tools:listitem="@layout/list_row_carousel_jar" />
+            </FrameLayout>
 
             <ImageButton
                 android:id="@+id/button_previous"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="52dp"
+                android:layout_height="104dp"
                 android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="2dp"
-                android:background="@drawable/bg_launcher_arrow_button"
+                android:layout_marginStart="6dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/classics_previous"
-                android:padding="20dp"
-                android:src="@drawable/ic_launcher_arrow_left"
-                app:tint="@android:color/white" />
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher_arrow_chevron" />
 
             <ImageButton
                 android:id="@+id/button_next"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="52dp"
+                android:layout_height="104dp"
                 android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/bg_launcher_arrow_button"
+                android:layout_marginEnd="6dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/classics_next"
-                android:padding="20dp"
-                android:src="@drawable/ic_launcher_arrow_right"
-                app:tint="@android:color/white" />
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                android:scaleX="-1"
+                android:src="@drawable/ic_launcher_arrow_chevron" />
         </FrameLayout>
 
         <LinearLayout
