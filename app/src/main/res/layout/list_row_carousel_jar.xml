@@ -11,8 +11,10 @@
 
     <FrameLayout
         android:id="@+id/card_container"
-        android:layout_width="304dp"
+        android:layout_width="272dp"
         android:layout_height="match_parent"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
         android:layout_gravity="center"
         android:background="@drawable/bg_launcher_card_frame"
         android:foreground="?android:attr/selectableItemBackground"
