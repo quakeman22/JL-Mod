@@ -17,8 +17,6 @@
 
 package org.microemu.cldc.btspp;
 
-import android.bluetooth.BluetoothSocket;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -30,7 +28,7 @@ import javax.microedition.io.StreamConnection;
 public class SPPConnectionImpl implements StreamConnection {
 	private BTInputStream btin = null;
 	private BTOutputStream btout = null;
-	public BluetoothSocket socket;
+	public SppTransport transport;
 	private final boolean skipAfterWrite;
 
 	// Android closes socket when one of streams is closed, we need to workaround it
@@ -120,41 +118,41 @@ public class SPPConnectionImpl implements StreamConnection {
 		}
 	}
 
-	public SPPConnectionImpl(BluetoothSocket socket, boolean skipAfterWrite) throws IOException {
-		this.socket = socket;
+	public SPPConnectionImpl(SppTransport transport, boolean skipAfterWrite) throws IOException {
+		this.transport = transport;
 		this.skipAfterWrite = skipAfterWrite;
 	}
 
 	public void close() throws IOException {
-		if (socket != null)
-			socket.close();
+		if (transport != null)
+			transport.close();
 	}
 
 	public InputStream openInputStream() throws IOException {
 		if (btin != null)
 			return btin;
-		if (socket != null)
-			return btin = new BTInputStream(socket.getInputStream());
-		throw new IOException("socket is null");
+		if (transport != null)
+			return btin = new BTInputStream(transport.getInputStream());
+		throw new IOException("transport is null");
 	}
 
 	public DataInputStream openDataInputStream() throws IOException {
-		if (socket != null)
+		if (transport != null)
 			return new DataInputStream(openInputStream());
-		throw new IOException("socket is null");
+		throw new IOException("transport is null");
 	}
 
 	public OutputStream openOutputStream() throws IOException {
 		if (btout != null)
 			return btout;
-		if (socket != null)
-			return btout = new BTOutputStream(socket.getOutputStream(), skipAfterWrite ? socket.getInputStream() : null);
-		throw new IOException("socket is null");
+		if (transport != null)
+			return btout = new BTOutputStream(transport.getOutputStream(), skipAfterWrite ? transport.getInputStream() : null);
+		throw new IOException("transport is null");
 	}
 
 	public DataOutputStream openDataOutputStream() throws IOException {
-		if (socket != null)
+		if (transport != null)
 			return new DataOutputStream(openOutputStream());
-		throw new IOException("socket is null");
+		throw new IOException("transport is null");
 	}
 }

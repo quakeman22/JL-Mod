@@ -27,15 +27,21 @@ import org.microemu.microedition.io.ConnectionImplementation;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 
 import javax.bluetooth.UUID;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
+import javax.microedition.util.ContextHolder;
+
+import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
 
 public class Connection implements ConnectionImplementation, StreamConnectionNotifier {
 	private static final String TAG = "btspp.Connection";
+	private static final int CONNECT_TIMEOUT_MS = 10000;
 	private BluetoothServerSocket serverSocket = null;
 	private BluetoothServerSocket nameServerSocket = null;
+	private ServerSocket tcpServerSocket = null;
 	public BluetoothSocket socket = null;
 	public javax.bluetooth.UUID connUuid = null;
 	private boolean skipAfterWrite = false;
@@ -77,6 +83,11 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 		String uuid = name.substring(portSepIndex + 1, argsStart);
 		connUuid = new javax.bluetooth.UUID(uuid, false);
 		java.util.UUID btUuid = connUuid.uuid;
+
+		boolean networkMode = MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext());
+		if (networkMode) {
+			return openNetworkConnection(host);
+		}
 
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter.isDiscovering()) {
@@ -135,17 +146,34 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 			} catch (IOException e) {
 				Log.w(TAG, "openConnection: ", e);
 			}
-			return new SPPConnectionImpl(socket, false);
+			return new SPPConnectionImpl(new BluetoothTransport(socket), false);
 		}
+	}
+
+	private javax.microedition.io.Connection openNetworkConnection(String host) throws IOException {
+		if (host.equals("localhost")) {
+			tcpServerSocket = new ServerSocket(TcpTransport.PORT);
+			return this;
+		}
+		String friendIp = MultiplayerPrefs.getFriendIp(ContextHolder.getAppContext());
+		if (friendIp == null || friendIp.isEmpty()) {
+			throw new IOException("Friend IP not configured");
+		}
+		TcpTransport transport = TcpTransport.connect(friendIp, CONNECT_TIMEOUT_MS);
+		return new SPPConnectionImpl(transport, false);
 	}
 
 	@Override
 	public StreamConnection acceptAndOpen() throws IOException {
+		if (tcpServerSocket != null) {
+			TcpTransport transport = TcpTransport.accept(tcpServerSocket);
+			return new SPPConnectionImpl(transport, skipAfterWrite);
+		}
 		if (serverSocket == null) {
 			throw new IOException();
 		}
 		socket = serverSocket.accept();
-		return new SPPConnectionImpl(socket, skipAfterWrite);
+		return new SPPConnectionImpl(new BluetoothTransport(socket), skipAfterWrite);
 	}
 
 	@Override
@@ -155,6 +183,9 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 		}
 		if (nameServerSocket != null) {
 			nameServerSocket.close();
+		}
+		if (tcpServerSocket != null) {
+			tcpServerSocket.close();
 		}
 	}
 }
