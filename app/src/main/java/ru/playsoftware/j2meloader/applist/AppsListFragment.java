@@ -87,6 +87,7 @@ import ru.playsoftware.j2meloader.info.HelpDialogFragment;
 import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.util.UiSoundEffects;
 import ru.woesss.j2me.installer.InstallerDialog;
 
 public class AppsListFragment extends Fragment implements MenuProvider, AppsCarouselAdapter.OnItemActionListener {
@@ -175,12 +176,23 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 				}
 			}
 		});
-		binding.buttonPrevious.setOnClickListener(v -> moveSelection(-1));
-		binding.buttonNext.setOnClickListener(v -> moveSelection(1));
+		binding.buttonPrevious.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playBrowse();
+			moveSelection(-1);
+		});
+		binding.buttonNext.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playBrowse();
+			moveSelection(1);
+		});
 		binding.buttonPlay.setOnClickListener(v -> launchSelectedApp());
-		binding.buttonMoreGames.setOnClickListener(v -> openFileLauncher.launch(null));
-		binding.buttonSettings.setOnClickListener(v ->
-				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+		binding.buttonMoreGames.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playConfirm();
+			openFileLauncher.launch(null);
+		});
+		binding.buttonSettings.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playConfirm();
+			startActivity(new Intent(requireActivity(), SettingsActivity.class));
+		});
 		appListViewModel.getAppList().observe(getViewLifecycleOwner(), this::onDbUpdated);
 	}
 
@@ -224,11 +236,15 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 
 	@Override
 	public void onItemActivated(AppItem item) {
+		UiSoundEffects.get(requireContext()).playPlay();
 		Config.startApp(requireContext(), item.getTitle(), item.getPathExt());
 	}
 
 	@Override
 	public void onItemSelected(int position) {
+		if (position != selectedPosition) {
+			UiSoundEffects.get(requireContext()).playBrowse();
+		}
 		selectPosition(position, true);
 	}
 
