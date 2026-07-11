@@ -55,6 +55,12 @@
         <item name="spinnerStyle">@style/SettingsSpinnerStyle</item>
     </style>
 
+    <style name="AppTheme.Splash" parent="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_classics_menu_background</item>
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
+    </style>
+
     <style name="ClassicsAlertDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">@color/settings_toolbar_end</item>
         <item name="android:background">@drawable/bg_settings_dialog</item>
