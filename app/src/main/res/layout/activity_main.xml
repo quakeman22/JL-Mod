@@ -1,10 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_classics_menu_background"
-    android:orientation="vertical"
     tools:context="ru.playsoftware.j2meloader.MainActivity">
 
     <FrameLayout
@@ -12,4 +11,55 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/preload_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_classics_menu_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="40dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/preload_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:gravity="center"
+            android:text="@string/preload_title"
+            android:textColor="@android:color/white"
+            android:textSize="26sp" />
+
+        <TextView
+            android:id="@+id/preload_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/preload_subtitle"
+            android:textColor="#F0F2FF"
+            android:textSize="16sp" />
+
+        <ProgressBar
+            android:id="@+id/preload_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_marginTop="28dp"
+            android:max="100"
+            android:progressDrawable="@drawable/bg_launcher_progress" />
+
+        <TextView
+            android:id="@+id/preload_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="@string/preload_wait"
+            android:textColor="#D9E0FF"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</FrameLayout>
