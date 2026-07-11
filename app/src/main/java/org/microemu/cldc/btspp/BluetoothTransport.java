@@ -27,4 +27,8 @@ class BluetoothTransport implements SppTransport {
 	public void close() throws IOException {
 		socket.close();
 	}
+
+	BluetoothSocket getSocket() {
+		return socket;
+	}
 }

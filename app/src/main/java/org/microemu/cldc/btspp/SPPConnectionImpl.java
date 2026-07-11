@@ -17,6 +17,8 @@
 
 package org.microemu.cldc.btspp;
 
+import android.bluetooth.BluetoothDevice;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -154,5 +156,12 @@ public class SPPConnectionImpl implements StreamConnection {
 		if (transport != null)
 			return new DataOutputStream(openOutputStream());
 		throw new IOException("transport is null");
+	}
+
+	public BluetoothDevice getRemoteBluetoothDevice() {
+		if (transport instanceof BluetoothTransport bluetoothTransport) {
+			return bluetoothTransport.getSocket().getRemoteDevice();
+		}
+		return null;
 	}
 }
