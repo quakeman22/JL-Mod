@@ -48,9 +48,7 @@ public class DiscoveryAgent {
 	public static final int PREKNOWN = 0x01;
 
 	private static int maxID = 1;
-
-	/** Endereco falso, so um "token" - nunca usado pra conectar via radio de verdade. */
-	static final String FAKE_FRIEND_ADDRESS = "02:00:00:00:00:01";
+	private static final String FAKE_FRIEND_ADDRESS = "020000000001";
 
 	static BluetoothAdapter adapter;
 
@@ -172,17 +170,17 @@ public class DiscoveryAgent {
 	private LinkedList<Transaction> transList = new LinkedList<>();
 	private HashSet<BluetoothDevice> discoveredList = new HashSet<>();
 
-		DiscoveryAgent() throws BluetoothStateException {
-			adapter = BluetoothAdapter.getDefaultAdapter();
-			boolean networkMode = MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext());
-			if (adapter == null && !networkMode)
-				throw new BluetoothStateException();
-		}
+	DiscoveryAgent() throws BluetoothStateException {
+		adapter = BluetoothAdapter.getDefaultAdapter();
+		if (adapter == null)
+			throw new BluetoothStateException();
+	}
 
 	public RemoteDevice[] retrieveDevices(int option) {
-		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
+		if (isNetworkBtMode()) {
 			return new RemoteDevice[]{new RemoteDevice(FAKE_FRIEND_ADDRESS)};
 		}
+
 		Set<BluetoothDevice> set;
 		if (option == CACHED) {
 			set = discoveredList;
@@ -205,18 +203,19 @@ public class DiscoveryAgent {
 			throw new IllegalArgumentException("Invalid accessCode " + accessCode);
 		}
 
-		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
-			RemoteDevice fakeDev = new RemoteDevice(FAKE_FRIEND_ADDRESS);
-			DeviceClass cod = new DeviceClass();
-			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-				listener.deviceDiscovered(fakeDev, cod);
-				listener.inquiryCompleted(DiscoveryListener.INQUIRY_COMPLETED);
-			}, 600);
+		if (isNetworkBtMode()) {
+			RemoteDevice fakeFriend = new RemoteDevice(FAKE_FRIEND_ADDRESS);
+			listener.deviceDiscovered(fakeFriend, new DeviceClass());
+			listener.inquiryCompleted(DiscoveryListener.INQUIRY_COMPLETED);
 			return true;
 		}
 
-		if (adapter.isDiscovering())
-			return false;
+		try {
+			if (adapter.isDiscovering())
+				return false;
+		} catch (SecurityException e) {
+			throw new BluetoothStateException("Bluetooth permission missing: " + e.getMessage());
+		}
 
 		synchronized (transList) {
 			if (!transList.isEmpty())
@@ -234,6 +233,7 @@ public class DiscoveryAgent {
 					if (adapter.isDiscovering())
 						adapter.cancelDiscovery();
 				} catch (InterruptedException e) {
+				} catch (SecurityException e) {
 				}
 			}
 		}).start();
@@ -267,18 +267,23 @@ public class DiscoveryAgent {
 		}, filter);
 
 		discoveredList.clear();
-		return adapter.startDiscovery();
+		try {
+			return adapter.startDiscovery();
+		} catch (SecurityException e) {
+			throw new BluetoothStateException("Bluetooth permission missing: " + e.getMessage());
+		}
 	}
 
 	public boolean cancelInquiry(DiscoveryListener listener) {
 		if (listener == null) {
 			throw new NullPointerException("DiscoveryListener is null");
 		}
-		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
-			listener.inquiryCompleted(DiscoveryListener.INQUIRY_TERMINATED);
-			return true;
+		boolean ret;
+		try {
+			ret = adapter.cancelDiscovery();
+		} catch (SecurityException e) {
+			ret = false;
 		}
-		boolean ret = adapter.cancelDiscovery();
 		listener.inquiryCompleted(DiscoveryListener.INQUIRY_TERMINATED);
 		return ret;
 	}
@@ -311,33 +316,35 @@ public class DiscoveryAgent {
 			}
 		}
 
-		if (MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext())) {
-			int transID = maxID++;
+		if (isNetworkBtMode()) {
 			J2MEServiceRecord[] records = new J2MEServiceRecord[uuidSet.length];
 			for (int i = 0; i < uuidSet.length; i++) {
 				records[i] = new J2MEServiceRecord(btDev, uuidSet[i], false, false);
 			}
-			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-				listener.servicesDiscovered(transID, records);
-				listener.serviceSearchCompleted(transID, DiscoveryListener.SERVICE_SEARCH_COMPLETED);
-			}, 300);
-			return transID;
+			int transId = maxID++;
+			listener.servicesDiscovered(transId, records);
+			listener.serviceSearchCompleted(transId, DiscoveryListener.SERVICE_SEARCH_COMPLETED);
+			return transId;
 		}
 
 		final Transaction curTrans = new Transaction(maxID, attrSet, uuidSet, btDev, listener);
 		transList.add(curTrans);
 		ContextHolder.getActivity().registerReceiver(curTrans, new IntentFilter(BluetoothDevice.ACTION_UUID));
 
-		if (!adapter.isDiscovering()) {
-			synchronized (transList) {
-				for (Transaction t : transList) {
-					if (!t.discovering) {
-						// FIXME: 17.06.2020 requires API15
-						t.dev.dev.fetchUuidsWithSdp();
-						t.discovering = true;
+		try {
+			if (!adapter.isDiscovering()) {
+				synchronized (transList) {
+					for (Transaction t : transList) {
+						if (!t.discovering) {
+							// FIXME: 17.06.2020 requires API15
+							t.dev.dev.fetchUuidsWithSdp();
+							t.discovering = true;
+						}
 					}
 				}
 			}
+		} catch (SecurityException e) {
+			throw new BluetoothStateException("Bluetooth permission missing: " + e.getMessage());
 		}
 		return maxID++;
 	}
@@ -359,6 +366,10 @@ public class DiscoveryAgent {
 	// TODO
 	public String selectService(UUID uuid, int security, boolean master) throws BluetoothStateException {
 		return null;
+	}
+
+	private boolean isNetworkBtMode() {
+		return MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext());
 	}
 
 }
