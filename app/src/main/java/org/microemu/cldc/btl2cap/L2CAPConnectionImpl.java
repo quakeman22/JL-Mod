@@ -25,15 +25,26 @@ import java.io.OutputStream;
 
 import javax.bluetooth.L2CAPConnection;
 
+import org.microemu.cldc.btspp.BluetoothTransport;
+import org.microemu.cldc.btspp.SppTransport;
+
 public class L2CAPConnectionImpl implements L2CAPConnection {
 	public BluetoothSocket socket;
+	private final SppTransport transport;
 	private final OutputStream os;
 	private final InputStream is;
 
 	public L2CAPConnectionImpl(BluetoothSocket socket) throws IOException {
 		this.socket = socket;
-		this.os = socket.getOutputStream();
-		this.is = socket.getInputStream();
+		this.transport = new BluetoothTransport(socket);
+		this.os = transport.getOutputStream();
+		this.is = transport.getInputStream();
+	}
+
+	public L2CAPConnectionImpl(SppTransport transport) throws IOException {
+		this.transport = transport;
+		this.os = transport.getOutputStream();
+		this.is = transport.getInputStream();
 	}
 
 	@Override
@@ -63,7 +74,7 @@ public class L2CAPConnectionImpl implements L2CAPConnection {
 
 	@Override
 	public void close() throws IOException {
-		if (socket != null)
-			socket.close();
+		if (transport != null)
+			transport.close();
 	}
 }

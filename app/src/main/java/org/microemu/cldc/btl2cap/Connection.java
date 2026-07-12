@@ -23,19 +23,28 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import org.microemu.cldc.btspp.TcpTransport;
 import org.microemu.microedition.io.ConnectionImplementation;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 
 import javax.bluetooth.L2CAPConnection;
 import javax.bluetooth.L2CAPConnectionNotifier;
 import javax.bluetooth.UUID;
+import javax.microedition.util.ContextHolder;
+
+import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
 
 public class Connection implements ConnectionImplementation, L2CAPConnectionNotifier {
 	private static final String TAG = "btl2cap.Connection";
+	private static final int CONNECT_TIMEOUT_MS = 10000;
+
 	private BluetoothServerSocket serverSocket = null;
 	private BluetoothServerSocket nameServerSocket = null;
+	private ServerSocket tcpServerSocket = null;
+	private boolean relayAcceptPending = false;
 	public BluetoothSocket socket = null;
 	public javax.bluetooth.UUID connUuid = null;
 	private boolean skipAfterWrite = false;
@@ -78,15 +87,17 @@ public class Connection implements ConnectionImplementation, L2CAPConnectionNoti
 		connUuid = new javax.bluetooth.UUID(uuid, false);
 		java.util.UUID btUuid = connUuid.uuid;
 
+		boolean networkMode = MultiplayerPrefs.isNetworkBtEnabled(ContextHolder.getAppContext());
+		if (networkMode) {
+			return openNetworkConnection(host);
+		}
+
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter.isDiscovering()) {
 			adapter.cancelDiscovery();
 		}
-		// java.util.UUID btUuid = getJavaUUID(uuid);
 		// "localhost" indicates that we are acting as server
 		if (host.equals("localhost")) {
-			// btUuid = new javax.bluetooth.UUID(0x1101).uuid;
-
 			// Android 6.0.1 bug: UUID is reversed
 			// see https://issuetracker.google.com/issues/37075233
 			UUID NameUuid = new UUID(0x1102);
@@ -139,8 +150,53 @@ public class Connection implements ConnectionImplementation, L2CAPConnectionNoti
 		}
 	}
 
+	/**
+	 * "Bluetooth via rede" pro L2CAP - mesma logica da versao SPP:
+	 * modo relay (servidor + codigo de sala) ou modo direto (IP a IP).
+	 */
+	private javax.microedition.io.Connection openNetworkConnection(String host) throws IOException {
+		android.content.Context ctx = ContextHolder.getAppContext();
+		if (MultiplayerPrefs.isUseRelay(ctx)) {
+			String relayHost = MultiplayerPrefs.getRelayHost(ctx);
+			int relayPort = MultiplayerPrefs.getRelayPort(ctx);
+			String roomCode = MultiplayerPrefs.getRoomCode(ctx);
+			if (relayHost == null || relayHost.isEmpty()) {
+				throw new IOException("Servidor relay nao configurado");
+			}
+			if (host.equals("localhost")) {
+				relayAcceptPending = true;
+				return this;
+			}
+			TcpTransport transport = TcpTransport.connectRelay(relayHost, relayPort, roomCode, CONNECT_TIMEOUT_MS);
+			return new L2CAPConnectionImpl(transport);
+		}
+
+		if (host.equals("localhost")) {
+			tcpServerSocket = new ServerSocket(TcpTransport.PORT);
+			return this;
+		}
+		String friendIp = MultiplayerPrefs.getFriendIp(ctx);
+		if (friendIp == null || friendIp.isEmpty()) {
+			throw new IOException("Friend IP not configured");
+		}
+		TcpTransport transport = TcpTransport.connect(friendIp, CONNECT_TIMEOUT_MS);
+		return new L2CAPConnectionImpl(transport);
+	}
+
 	@Override
 	public L2CAPConnection acceptAndOpen() throws IOException {
+		if (relayAcceptPending) {
+			android.content.Context ctx = ContextHolder.getAppContext();
+			String relayHost = MultiplayerPrefs.getRelayHost(ctx);
+			int relayPort = MultiplayerPrefs.getRelayPort(ctx);
+			String roomCode = MultiplayerPrefs.getRoomCode(ctx);
+			TcpTransport transport = TcpTransport.connectRelay(relayHost, relayPort, roomCode, CONNECT_TIMEOUT_MS);
+			return new L2CAPConnectionImpl(transport);
+		}
+		if (tcpServerSocket != null) {
+			TcpTransport transport = TcpTransport.accept(tcpServerSocket);
+			return new L2CAPConnectionImpl(transport);
+		}
 		if (serverSocket == null) {
 			throw new IOException();
 		}
@@ -155,6 +211,9 @@ public class Connection implements ConnectionImplementation, L2CAPConnectionNoti
 		}
 		if (nameServerSocket != null) {
 			nameServerSocket.close();
+		}
+		if (tcpServerSocket != null) {
+			tcpServerSocket.close();
 		}
 	}
 }
