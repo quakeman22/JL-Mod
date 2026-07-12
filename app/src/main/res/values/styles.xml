@@ -118,6 +118,8 @@
     <style name="SwitchStyle">
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?textColorSecondary</item>
+        <item name="thumbTint">@color/switch_thumb_tint</item>
+        <item name="trackTint">@color/switch_track_tint</item>
     </style>
 
     <style name="EditTextStyle">
