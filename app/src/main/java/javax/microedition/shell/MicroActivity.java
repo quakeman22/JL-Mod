@@ -107,7 +107,6 @@ import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
-import ru.playsoftware.j2meloader.util.UiSoundEffects;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -204,10 +203,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
-		binding.buttonBackOverlay.setOnClickListener(v -> {
-			UiSoundEffects.get(this).playBack();
-			showExitConfirmation();
-		});
+		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
 		binding.overlay.setOnTouchListener((v, event) -> {
 			if (!(current instanceof Canvas)) {
 				return false;
@@ -671,9 +667,6 @@ public class MicroActivity extends AppCompatActivity {
 
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		runOnUiThread(() -> {
-			if (pressed) {
-				playClassicsButtonSound(keyCode);
-			}
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
@@ -745,20 +738,6 @@ public class MicroActivity extends AppCompatActivity {
 		});
 	}
 
-	private void playClassicsButtonSound(int keyCode) {
-		UiSoundEffects sounds = UiSoundEffects.get(this);
-		switch (keyCode) {
-			case Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT -> sounds.playLr();
-			case KeyMapper.KEY_OPTIONS_MENU -> sounds.playStart();
-			case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE ->
-					sounds.playDpad();
-			case Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4,
-					Canvas.KEY_NUM5, Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8,
-					Canvas.KEY_NUM9, Canvas.KEY_NUM0, Canvas.KEY_STAR, Canvas.KEY_POUND ->
-					sounds.playAction();
-		}
-	}
-
 	public void setCurrent(Displayable displayable) {
 		ViewHandler.postEvent(new SetCurrentEvent(current, displayable));
 		current = displayable;
@@ -778,22 +757,17 @@ public class MicroActivity extends AppCompatActivity {
 				.setView(view)
 				.create();
 		view.findViewById(R.id.gameplay_confirm_ok).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			MidletThread.destroyApp();
 		});
 		view.findViewById(R.id.gameplay_confirm_settings).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			Config.openSettings(this, appName, appPath);
 			MidletThread.destroyApp();
 		});
-		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playBack();
-			dialog.dismiss();
-		});
+		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> dialog.dismiss());
 		dialog.setOnDismissListener(d -> {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
 				hideSystemUI();
@@ -1175,11 +1149,22 @@ public class MicroActivity extends AppCompatActivity {
 		android.widget.Switch networkSwitch = view.findViewById(R.id.multiplayer_network_switch);
 		com.google.android.material.textfield.TextInputEditText ipInput =
 				view.findViewById(R.id.multiplayer_ip_input);
+		android.widget.Switch relaySwitch = view.findViewById(R.id.multiplayer_relay_switch);
+		com.google.android.material.textfield.TextInputEditText relayHostInput =
+				view.findViewById(R.id.multiplayer_relay_host_input);
+		com.google.android.material.textfield.TextInputEditText roomCodeInput =
+				view.findViewById(R.id.multiplayer_room_code_input);
 
 		boolean enabled = MultiplayerPrefs.isNetworkBtEnabled(this);
 		String savedIp = MultiplayerPrefs.getFriendIp(this);
+		boolean useRelay = MultiplayerPrefs.isUseRelay(this);
+		String relayHost = MultiplayerPrefs.getRelayHost(this);
+		String roomCode = MultiplayerPrefs.getRoomCode(this);
 		networkSwitch.setChecked(enabled);
 		ipInput.setText(savedIp);
+		relaySwitch.setChecked(useRelay);
+		relayHostInput.setText(relayHost);
+		roomCodeInput.setText(roomCode);
 
 		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.action_multiplayer)
@@ -1187,7 +1172,12 @@ public class MicroActivity extends AppCompatActivity {
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
 					boolean useNetwork = networkSwitch.isChecked();
 					String ip = ipInput.getText() != null ? ipInput.getText().toString().trim() : "";
-					MultiplayerPrefs.save(this, useNetwork, ip, MultiplayerPrefs.getRole(this));
+					boolean relay = relaySwitch.isChecked();
+					String host = relayHostInput.getText() != null ? relayHostInput.getText().toString().trim() : "";
+					String code = roomCodeInput.getText() != null ? roomCodeInput.getText().toString().trim() : "";
+					MultiplayerPrefs.saveRelay(this, useNetwork, relay, host,
+							MultiplayerPrefs.getRelayPort(this), code);
+					MultiplayerPrefs.save(this, useNetwork, ip);
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
