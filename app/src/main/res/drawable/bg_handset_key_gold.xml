@@ -7,11 +7,11 @@
                     <corners android:radius="12dp" />
                     <gradient
                         android:angle="90"
-                        android:endColor="#B38E3A"
-                        android:startColor="#FFF0B9" />
+                        android:endColor="#AA8531"
+                        android:startColor="#F6E2A1" />
                     <stroke
-                        android:width="1dp"
-                        android:color="#7E6025" />
+                        android:width="1.5dp"
+                        android:color="#5F4A1A" />
                 </shape>
             </item>
         </layer-list>
@@ -23,11 +23,11 @@
                     <corners android:radius="12dp" />
                     <gradient
                         android:angle="90"
-                        android:endColor="#B39042"
-                        android:startColor="#EEDB9B" />
+                        android:endColor="#B18D3A"
+                        android:startColor="#F4E1A5" />
                     <stroke
-                        android:width="1dp"
-                        android:color="#8B6F34" />
+                        android:width="1.5dp"
+                        android:color="#65501C" />
                 </shape>
             </item>
             <item android:left="1dp" android:right="1dp" android:top="1dp" android:bottom="8dp">
@@ -35,8 +35,11 @@
                     <corners android:radius="10dp" />
                     <gradient
                         android:angle="90"
-                        android:endColor="#D1B86A"
-                        android:startColor="#FFF6D5" />
+                        android:endColor="#D6C06F"
+                        android:startColor="#FFF8D8" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="#857140" />
                 </shape>
             </item>
         </layer-list>

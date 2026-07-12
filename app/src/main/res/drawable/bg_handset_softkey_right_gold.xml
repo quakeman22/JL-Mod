@@ -17,7 +17,13 @@
             <item android:left="10dp" android:right="10dp" android:top="10dp" android:bottom="10dp">
                 <shape android:shape="rectangle">
                     <corners android:radius="7dp" />
-                    <solid android:color="#FF5B50" />
+                    <gradient
+                        android:angle="90"
+                        android:endColor="#8E1F1B"
+                        android:startColor="#D13F36" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="#421212" />
                 </shape>
             </item>
         </layer-list>
@@ -39,10 +45,13 @@
             <item android:left="10dp" android:right="10dp" android:top="9dp" android:bottom="12dp">
                 <shape android:shape="rectangle">
                     <corners android:radius="7dp" />
+                    <gradient
+                        android:angle="90"
+                        android:endColor="#8B211C"
+                        android:startColor="#D34238" />
                     <stroke
-                        android:width="2dp"
-                        android:color="#FF5B50" />
-                    <solid android:color="#10FFF3CD" />
+                        android:width="1.5dp"
+                        android:color="#451111" />
                 </shape>
             </item>
         </layer-list>
