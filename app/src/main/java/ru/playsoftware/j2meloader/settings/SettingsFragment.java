@@ -80,6 +80,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		setDivider(null);
+		setDividerHeight(0);
 		RecyclerView list = getListView();
 		list.setClipToPadding(false);
 		list.setPadding(12, 14, 12, 24);
