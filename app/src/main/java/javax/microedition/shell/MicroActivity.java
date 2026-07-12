@@ -680,8 +680,11 @@ public class MicroActivity extends AppCompatActivity {
 					if ("handset".equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
 					else binding.buttonMenuShell.setPressed(pressed);
 				}
-				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
-						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
+				case Canvas.KEY_UP -> binding.dpadUpVisual.setPressed(pressed);
+				case Canvas.KEY_DOWN -> binding.dpadDownVisual.setPressed(pressed);
+				case Canvas.KEY_LEFT -> binding.dpadLeftVisual.setPressed(pressed);
+				case Canvas.KEY_RIGHT -> binding.dpadRightVisual.setPressed(pressed);
+				case Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
 				case Canvas.KEY_NUM1 -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
 					else binding.phoneKey1.setPressed(pressed);
