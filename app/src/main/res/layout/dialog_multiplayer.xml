@@ -42,12 +42,71 @@
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="?android:attr/listDivider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/multiplayer_use_relay"
+            android:textColor="@color/settings_title"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/multiplayer_relay_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/multiplayer_relay_host_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/multiplayer_relay_host_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/multiplayer_relay_host_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/multiplayer_room_code_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/multiplayer_room_code_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/multiplayer_room_code_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="4"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:alpha="0.7"
-        android:text="@string/multiplayer_network_hint"
+        android:text="@string/multiplayer_relay_hint"
         android:textColor="@color/settings_title"
         android:textSize="12sp" />
 
