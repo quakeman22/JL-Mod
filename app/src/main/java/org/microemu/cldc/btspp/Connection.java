@@ -42,6 +42,7 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 	private BluetoothServerSocket serverSocket = null;
 	private BluetoothServerSocket nameServerSocket = null;
 	private ServerSocket tcpServerSocket = null;
+	private boolean relayAcceptPending = false;
 	public BluetoothSocket socket = null;
 	public javax.bluetooth.UUID connUuid = null;
 	private boolean skipAfterWrite = false;
@@ -151,11 +152,30 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 	}
 
 	private javax.microedition.io.Connection openNetworkConnection(String host) throws IOException {
+		android.content.Context ctx = ContextHolder.getAppContext();
+		if (MultiplayerPrefs.isUseRelay(ctx)) {
+			String relayHost = MultiplayerPrefs.getRelayHost(ctx);
+			int relayPort = MultiplayerPrefs.getRelayPort(ctx);
+			String roomCode = MultiplayerPrefs.getRoomCode(ctx);
+			if (relayHost == null || relayHost.isEmpty()) {
+				throw new IOException("Servidor relay nao configurado");
+			}
+			if (host.equals("localhost")) {
+				// Quem "hospeda" tambem so conecta no relay - a conexao de
+				// verdade acontece em acceptAndOpen(), pra manter o mesmo
+				// contrato bloqueante que o resto do app espera.
+				relayAcceptPending = true;
+				return this;
+			}
+			TcpTransport transport = TcpTransport.connectRelay(relayHost, relayPort, roomCode, CONNECT_TIMEOUT_MS);
+			return new SPPConnectionImpl(transport, false);
+		}
+
 		if (host.equals("localhost")) {
 			tcpServerSocket = new ServerSocket(TcpTransport.PORT);
 			return this;
 		}
-		String friendIp = MultiplayerPrefs.getFriendIp(ContextHolder.getAppContext());
+		String friendIp = MultiplayerPrefs.getFriendIp(ctx);
 		if (friendIp == null || friendIp.isEmpty()) {
 			throw new IOException("Friend IP not configured");
 		}
@@ -165,6 +185,14 @@ public class Connection implements ConnectionImplementation, StreamConnectionNot
 
 	@Override
 	public StreamConnection acceptAndOpen() throws IOException {
+		if (relayAcceptPending) {
+			android.content.Context ctx = ContextHolder.getAppContext();
+			String relayHost = MultiplayerPrefs.getRelayHost(ctx);
+			int relayPort = MultiplayerPrefs.getRelayPort(ctx);
+			String roomCode = MultiplayerPrefs.getRoomCode(ctx);
+			TcpTransport transport = TcpTransport.connectRelay(relayHost, relayPort, roomCode, CONNECT_TIMEOUT_MS);
+			return new SPPConnectionImpl(transport, skipAfterWrite);
+		}
 		if (tcpServerSocket != null) {
 			TcpTransport transport = TcpTransport.accept(tcpServerSocket);
 			return new SPPConnectionImpl(transport, skipAfterWrite);
