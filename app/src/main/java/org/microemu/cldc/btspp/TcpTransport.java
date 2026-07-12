@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class TcpTransport implements SppTransport {
+public class TcpTransport implements SppTransport {
 	public static final int PORT = 17342;
 
 	private final Socket socket;

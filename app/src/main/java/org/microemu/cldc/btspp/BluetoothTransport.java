@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class BluetoothTransport implements SppTransport {
+public class BluetoothTransport implements SppTransport {
 	private final BluetoothSocket socket;
 
 	BluetoothTransport(BluetoothSocket socket) {
