@@ -18,14 +18,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.18" />
+            app:layout_constraintGuide_percent="0.72" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_controls_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.92" />
+            app:layout_constraintGuide_percent="0.96" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -46,8 +46,8 @@
             style="@style/ImageButtonStyle"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
             android:background="@drawable/bg_launcher_play_button"
             android:contentDescription="@string/exit"
             android:elevation="10dp"
@@ -61,22 +61,22 @@
             android:id="@+id/game_frame"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginEnd="24dp"
             android:background="@drawable/bg_micro_display_frame"
             android:clipChildren="true"
             android:clipToPadding="true"
-            android:padding="10dp"
+            android:padding="14dp"
             app:layout_constraintBottom_toTopOf="@+id/control_top_row"
             app:layout_constraintDimensionRatio="3:4"
-            app:layout_constraintEnd_toStartOf="@+id/action_cluster"
-            app:layout_constraintHeight_default="percent"
-            app:layout_constraintHeight_max="580dp"
-            app:layout_constraintHeight_percent="0.80"
-            app:layout_constraintStart_toEndOf="@+id/control_pad_shell"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintVertical_bias="0.03">
+            app:layout_constraintVertical_bias="0.02"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_max="372dp"
+            app:layout_constraintWidth_percent="0.79">
 
             <FrameLayout
                 android:id="@+id/game_surface"
@@ -85,7 +85,7 @@
                 android:background="#FF000000"
                 android:clipChildren="true"
                 android:clipToPadding="true"
-                android:padding="1dp">
+                android:padding="2dp">
 
                 <FrameLayout
                     android:id="@+id/displayable_container"
@@ -101,8 +101,10 @@
         <LinearLayout
             android:id="@+id/control_top_row"
             android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="4dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="12dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/game_frame"
@@ -119,7 +121,7 @@
                 android:gravity="center"
                 android:text="L"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -132,7 +134,7 @@
                 android:gravity="center"
                 android:text="II"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -145,7 +147,7 @@
                 android:gravity="center"
                 android:text="R"
                 android:textColor="@android:color/white"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -153,19 +155,19 @@
             android:id="@+id/control_pad_shell"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/bg_micro_pad_shell"
-            app:layout_constraintBottom_toBottomOf="@id/game_frame"
-            app:layout_constraintDimensionRatio="1.04:1"
-            app:layout_constraintEnd_toStartOf="@id/game_frame"
+            app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
+            app:layout_constraintDimensionRatio="1.08:1"
+            app:layout_constraintEnd_toStartOf="@id/action_cluster"
+            app:layout_constraintHorizontal_bias="0.18"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/game_frame"
-            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="336dp"
-            app:layout_constraintWidth_min="250dp"
-            app:layout_constraintWidth_percent="0.245">
+            app:layout_constraintWidth_max="258dp"
+            app:layout_constraintWidth_percent="0.42">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -173,9 +175,12 @@
 
                 <View
                     android:id="@+id/dpad_up_visual"
-                    android:layout_width="60dp"
-                    android:layout_height="89dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_up"
+                    app:layout_constraintDimensionRatio="158:233"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.34"
                     app:layout_constraintBottom_toTopOf="@+id/dpad_center_anchor"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -184,9 +189,12 @@
 
                 <View
                     android:id="@+id/dpad_left_visual"
-                    android:layout_width="89dp"
-                    android:layout_height="60dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_left"
+                    app:layout_constraintDimensionRatio="239:161"
+                    app:layout_constraintHeight_default="percent"
+                    app:layout_constraintHeight_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/dpad_center_anchor"
                     app:layout_constraintStart_toStartOf="parent"
@@ -195,9 +203,12 @@
 
                 <View
                     android:id="@+id/dpad_right_visual"
-                    android:layout_width="89dp"
-                    android:layout_height="60dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_right"
+                    app:layout_constraintDimensionRatio="239:161"
+                    app:layout_constraintHeight_default="percent"
+                    app:layout_constraintHeight_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/dpad_center_anchor"
@@ -206,9 +217,12 @@
 
                 <View
                     android:id="@+id/dpad_down_visual"
-                    android:layout_width="60dp"
-                    android:layout_height="89dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_down"
+                    app:layout_constraintDimensionRatio="158:233"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -217,8 +231,11 @@
 
                 <View
                     android:id="@+id/dpad_center_anchor"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.19"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -230,22 +247,23 @@
             android:id="@+id/action_cluster"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="@id/game_frame"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="14dp"
+            app:layout_constraintBottom_toBottomOf="@id/guide_controls_bottom"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/game_frame"
-            app:layout_constraintTop_toTopOf="@id/game_frame"
-            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintStart_toEndOf="@id/control_pad_shell"
+            app:layout_constraintTop_toTopOf="@id/guide_controls_top"
             app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_max="292dp"
-            app:layout_constraintWidth_percent="0.23">
+            app:layout_constraintWidth_min="186dp"
+            app:layout_constraintWidth_max="220dp"
+            app:layout_constraintWidth_percent="0.36">
 
             <TextView
                 android:id="@+id/button_y_shell"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
                 android:layout_marginTop="0dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
@@ -260,9 +278,9 @@
 
             <TextView
                 android:id="@+id/button_b_shell"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginEnd="16dp"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
+                android:layout_marginEnd="14dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="B"
@@ -272,13 +290,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.39" />
+                app:layout_constraintVertical_bias="0.40" />
 
             <TextView
                 android:id="@+id/button_x_shell"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginStart="16dp"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="14dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
                 android:text="X"
@@ -288,12 +306,12 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.39" />
+                app:layout_constraintVertical_bias="0.40" />
 
             <TextView
                 android:id="@+id/button_a_shell"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
                 android:layout_marginBottom="0dp"
                 android:background="@drawable/bg_micro_action_button"
                 android:gravity="center"
@@ -311,13 +329,13 @@
             android:id="@+id/phone_shell_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/game_frame"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/game_frame"
-            app:layout_constraintTop_toTopOf="@id/game_frame">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/control_top_row">
 
             <GridLayout
                 android:id="@+id/phone_keypad_shell"
@@ -329,165 +347,166 @@
 
                 <TextView
                     android:id="@+id/phone_key_1"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="1"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_2"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="2"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_3"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="3"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_4"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="4"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_5"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="5"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_6"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="6"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_7"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="7"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_8"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="8"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_9"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="9"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_star"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="*"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_0"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="0"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/phone_key_pound"
-                    android:layout_width="74dp"
-                    android:layout_height="54dp"
+                    android:layout_width="102dp"
+                    android:layout_height="68dp"
                     android:background="@drawable/bg_micro_control_bar"
                     android:gravity="center"
                     android:text="#"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </GridLayout>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/handset_shell_container"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_handset_body"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingStart="10dp"
+            android:paddingStart="14dp"
             android:paddingTop="12dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="14dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="16dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/game_frame"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/game_frame"
-            app:layout_constraintTop_toTopOf="@id/game_frame">
+            app:layout_constraintEnd_toEndOf="@id/game_frame"
+            app:layout_constraintStart_toStartOf="@id/game_frame"
+            app:layout_constraintTop_toBottomOf="@id/game_frame">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/handset_soft_left"
-                    android:layout_width="70dp"
-                    android:layout_height="48dp"
+                    android:layout_width="0dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_handset_softkey"
                     android:gravity="center"
@@ -496,9 +515,8 @@
 
                 <TextView
                     android:id="@+id/handset_menu"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginHorizontal="6dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:background="@drawable/bg_handset_menu_key"
                     android:gravity="center"
                     android:textColor="@android:color/transparent"
@@ -506,8 +524,9 @@
 
                 <TextView
                     android:id="@+id/handset_soft_right"
-                    android:layout_width="70dp"
-                    android:layout_height="48dp"
+                    android:layout_width="0dp"
+                    android:layout_height="34dp"
+                    android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_handset_softkey_right"
                     android:gravity="center"
@@ -517,143 +536,168 @@
 
             <GridLayout
                 android:id="@+id/handset_keypad_shell"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="14dp"
+                android:alignmentMode="alignMargins"
                 android:columnCount="3"
                 android:rowCount="4"
                 android:useDefaultMargins="true">
 
                 <TextView
                     android:id="@+id/handset_key_1"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="1"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_2"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="2"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_3"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="3"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_4"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="4"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_5"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="5"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_6"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="6"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_7"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="7"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_8"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="8"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_9"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="9"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_star"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="*"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_0"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="0"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/handset_key_pound"
-                    android:layout_width="68dp"
-                    android:layout_height="52dp"
+                    android:layout_width="0dp"
+                    android:layout_height="66dp"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_horizontal"
                     android:background="@drawable/bg_handset_key"
                     android:gravity="center"
                     android:text="#"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </GridLayout>
         </LinearLayout>
