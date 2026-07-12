@@ -26,6 +26,22 @@ class TcpTransport implements SppTransport {
 		return new TcpTransport(serverSocket.accept());
 	}
 
+	/**
+	 * Modo relay: conecta no servidor relay e manda o codigo de sala (4
+	 * caracteres). O servidor pareia com quem mandar o mesmo codigo e
+	 * comeca a repassar os bytes crus dos dois lados.
+	 */
+	public static TcpTransport connectRelay(String relayHost, int relayPort, String roomCode, int timeoutMs) throws IOException {
+		if (roomCode == null || roomCode.length() != 4) {
+			throw new IOException("Codigo de sala invalido (precisa ter 4 caracteres): " + roomCode);
+		}
+		Socket socket = new Socket();
+		socket.connect(new InetSocketAddress(relayHost, relayPort), timeoutMs);
+		socket.getOutputStream().write(roomCode.getBytes("US-ASCII"));
+		socket.getOutputStream().flush();
+		return new TcpTransport(socket);
+	}
+
 	@Override
 	public InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
