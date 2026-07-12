@@ -9,7 +9,7 @@ import java.io.OutputStream;
 public class BluetoothTransport implements SppTransport {
 	private final BluetoothSocket socket;
 
-	BluetoothTransport(BluetoothSocket socket) {
+	public BluetoothTransport(BluetoothSocket socket) {
 		this.socket = socket;
 	}
 
@@ -28,7 +28,7 @@ public class BluetoothTransport implements SppTransport {
 		socket.close();
 	}
 
-	BluetoothSocket getSocket() {
+	public BluetoothSocket getSocket() {
 		return socket;
 	}
 }
