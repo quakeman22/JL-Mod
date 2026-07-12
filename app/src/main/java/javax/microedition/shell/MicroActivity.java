@@ -106,7 +106,6 @@ import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
-import ru.playsoftware.j2meloader.util.UiSoundEffects;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -124,7 +123,6 @@ public class MicroActivity extends AppCompatActivity {
 	private String appPath;
 	private ActivityMicroBinding binding;
 	private String classicsControlStyle = "joystick";
-	private String classicsHandsetSkin = "dark";
 	private AlertDialog gameplayMenuDialog;
 
 	@Override
@@ -203,10 +201,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
-		binding.buttonBackOverlay.setOnClickListener(v -> {
-			UiSoundEffects.get(this).playBack();
-			showExitConfirmation();
-		});
+		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
 		binding.overlay.setOnTouchListener((v, event) -> {
 			if (!(current instanceof Canvas)) {
 				return false;
@@ -468,8 +463,6 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyClassicsControlStyle(String style) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		classicsHandsetSkin = prefs.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
 		boolean handsetSelected = "handset".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
@@ -487,54 +480,20 @@ public class MicroActivity extends AppCompatActivity {
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
-		applyHandsetSkin();
+		binding.midletFrame.setBackgroundResource("handset".equals(classicsControlStyle)
+				? R.drawable.bg_handset_game_background
+				: R.drawable.bg_classics_game_background);
+		binding.gameFrame.setBackgroundResource("handset".equals(classicsControlStyle)
+				? R.drawable.bg_handset_display_frame
+				: R.drawable.bg_micro_display_frame);
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
-		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
-	}
-
-	private void applyHandsetSkin() {
-		if (!"handset".equals(classicsControlStyle)) {
-			binding.midletFrame.setBackgroundResource(R.drawable.bg_classics_game_background);
-			binding.gameFrame.setBackgroundResource(R.drawable.bg_micro_display_frame);
-			return;
-		}
-		boolean gold = "gold".equals(classicsHandsetSkin);
-		binding.midletFrame.setBackgroundResource(gold
-				? R.drawable.bg_handset_game_background_gold
-				: R.drawable.bg_handset_game_background);
-		binding.gameFrame.setBackgroundResource(gold
-				? R.drawable.bg_handset_display_frame_gold
-				: R.drawable.bg_handset_display_frame);
-		binding.handsetShellContainer.setBackgroundResource(gold
-				? R.drawable.bg_handset_body_gold
-				: R.drawable.bg_handset_body);
-		binding.handsetSoftLeft.setBackgroundResource(gold
-				? R.drawable.bg_handset_softkey_gold
-				: R.drawable.bg_handset_softkey);
-		binding.handsetMenu.setBackgroundResource(gold
-				? R.drawable.bg_handset_menu_key_gold
-				: R.drawable.bg_handset_menu_key);
-		binding.handsetSoftRight.setBackgroundResource(gold
-				? R.drawable.bg_handset_softkey_right_gold
-				: R.drawable.bg_handset_softkey_right);
-		int handsetKeyBackground = gold ? R.drawable.bg_handset_key_gold : R.drawable.bg_handset_key;
-		binding.handsetKey1.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey2.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey3.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey4.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey5.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey6.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey7.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey8.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey9.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKeyStar.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKey0.setBackgroundResource(handsetKeyBackground);
-		binding.handsetKeyPound.setBackgroundResource(handsetKeyBackground);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
 
 	private void updateCanvasViewport() {
@@ -657,9 +616,6 @@ public class MicroActivity extends AppCompatActivity {
 
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		runOnUiThread(() -> {
-			if (pressed) {
-				playClassicsButtonSound(keyCode);
-			}
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
@@ -731,20 +687,6 @@ public class MicroActivity extends AppCompatActivity {
 		});
 	}
 
-	private void playClassicsButtonSound(int keyCode) {
-		UiSoundEffects sounds = UiSoundEffects.get(this);
-		switch (keyCode) {
-			case Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT -> sounds.playLr();
-			case KeyMapper.KEY_OPTIONS_MENU -> sounds.playStart();
-			case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE ->
-					sounds.playDpad();
-			case Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4,
-					Canvas.KEY_NUM5, Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8,
-					Canvas.KEY_NUM9, Canvas.KEY_NUM0, Canvas.KEY_STAR, Canvas.KEY_POUND ->
-					sounds.playAction();
-		}
-	}
-
 	public void setCurrent(Displayable displayable) {
 		ViewHandler.postEvent(new SetCurrentEvent(current, displayable));
 		current = displayable;
@@ -764,22 +706,17 @@ public class MicroActivity extends AppCompatActivity {
 				.setView(view)
 				.create();
 		view.findViewById(R.id.gameplay_confirm_ok).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			MidletThread.destroyApp();
 		});
 		view.findViewById(R.id.gameplay_confirm_settings).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			Config.openSettings(this, appName, appPath);
 			MidletThread.destroyApp();
 		});
-		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> {
-			UiSoundEffects.get(this).playBack();
-			dialog.dismiss();
-		});
+		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> dialog.dismiss());
 		dialog.setOnDismissListener(d -> {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
 				hideSystemUI();
@@ -1161,11 +1098,22 @@ public class MicroActivity extends AppCompatActivity {
 		android.widget.Switch networkSwitch = view.findViewById(R.id.multiplayer_network_switch);
 		com.google.android.material.textfield.TextInputEditText ipInput =
 				view.findViewById(R.id.multiplayer_ip_input);
+		android.widget.Switch relaySwitch = view.findViewById(R.id.multiplayer_relay_switch);
+		com.google.android.material.textfield.TextInputEditText relayHostInput =
+				view.findViewById(R.id.multiplayer_relay_host_input);
+		com.google.android.material.textfield.TextInputEditText roomCodeInput =
+				view.findViewById(R.id.multiplayer_room_code_input);
 
 		boolean enabled = MultiplayerPrefs.isNetworkBtEnabled(this);
 		String savedIp = MultiplayerPrefs.getFriendIp(this);
+		boolean useRelay = MultiplayerPrefs.isUseRelay(this);
+		String relayHost = MultiplayerPrefs.getRelayHost(this);
+		String roomCode = MultiplayerPrefs.getRoomCode(this);
 		networkSwitch.setChecked(enabled);
 		ipInput.setText(savedIp);
+		relaySwitch.setChecked(useRelay);
+		relayHostInput.setText(relayHost);
+		roomCodeInput.setText(roomCode);
 
 		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.action_multiplayer)
@@ -1173,7 +1121,12 @@ public class MicroActivity extends AppCompatActivity {
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
 					boolean useNetwork = networkSwitch.isChecked();
 					String ip = ipInput.getText() != null ? ipInput.getText().toString().trim() : "";
-					MultiplayerPrefs.save(this, useNetwork, ip, MultiplayerPrefs.getRole(this));
+					boolean relay = relaySwitch.isChecked();
+					String host = relayHostInput.getText() != null ? relayHostInput.getText().toString().trim() : "";
+					String code = roomCodeInput.getText() != null ? roomCodeInput.getText().toString().trim() : "";
+					MultiplayerPrefs.saveRelay(this, useNetwork, relay, host,
+							MultiplayerPrefs.getRelayPort(this), code);
+					MultiplayerPrefs.save(this, useNetwork, ip);
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
