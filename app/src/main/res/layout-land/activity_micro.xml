@@ -172,10 +172,12 @@
 
                 <View
                     android:id="@+id/dpad_up_visual"
-                    android:layout_width="60dp"
-                    android:layout_height="74dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_up"
-                    android:duplicateParentState="true"
+                    app:layout_constraintDimensionRatio="158:233"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.34"
                     app:layout_constraintBottom_toTopOf="@+id/dpad_center_anchor"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -184,10 +186,12 @@
 
                 <View
                     android:id="@+id/dpad_left_visual"
-                    android:layout_width="78dp"
-                    android:layout_height="60dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_left"
-                    android:duplicateParentState="true"
+                    app:layout_constraintDimensionRatio="239:161"
+                    app:layout_constraintHeight_default="percent"
+                    app:layout_constraintHeight_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/dpad_center_anchor"
                     app:layout_constraintStart_toStartOf="parent"
@@ -196,10 +200,12 @@
 
                 <View
                     android:id="@+id/dpad_right_visual"
-                    android:layout_width="78dp"
-                    android:layout_height="60dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_right"
-                    android:duplicateParentState="true"
+                    app:layout_constraintDimensionRatio="239:161"
+                    app:layout_constraintHeight_default="percent"
+                    app:layout_constraintHeight_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/dpad_center_anchor"
@@ -208,10 +214,12 @@
 
                 <View
                     android:id="@+id/dpad_down_visual"
-                    android:layout_width="60dp"
-                    android:layout_height="74dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="@drawable/bg_micro_dpad_button_down"
-                    android:duplicateParentState="true"
+                    app:layout_constraintDimensionRatio="158:233"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.34"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -220,8 +228,11 @@
 
                 <View
                     android:id="@+id/dpad_center_anchor"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.19"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
