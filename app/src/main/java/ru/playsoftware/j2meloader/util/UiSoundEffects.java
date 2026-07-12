@@ -9,6 +9,9 @@ import android.media.SoundPool;
 import androidx.annotation.RawRes;
 import androidx.preference.PreferenceManager;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import ru.playsoftware.j2meloader.R;
 
 public final class UiSoundEffects {
@@ -16,6 +19,7 @@ public final class UiSoundEffects {
 
 	private final Context appContext;
 	private final SoundPool soundPool;
+	private final Set<Integer> loadedSounds = ConcurrentHashMap.newKeySet();
 	private final int openingSound;
 	private final int backSound;
 	private final int browseSound;
@@ -35,6 +39,11 @@ public final class UiSoundEffects {
 						.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
 						.build())
 				.build();
+		soundPool.setOnLoadCompleteListener((pool, sampleId, status) -> {
+			if (status == 0) {
+				loadedSounds.add(sampleId);
+			}
+		});
 		openingSound = load(R.raw.sfx_opening);
 		backSound = load(R.raw.sfx_ui_back);
 		browseSound = load(R.raw.sfx_ui_browse);
@@ -67,7 +76,7 @@ public final class UiSoundEffects {
 	}
 
 	private void play(int soundId) {
-		if (!isEnabled() || soundId == 0) {
+		if (!isEnabled() || soundId == 0 || !loadedSounds.contains(soundId)) {
 			return;
 		}
 		soundPool.play(soundId, 0.85f, 0.85f, 1, 0, 1f);
