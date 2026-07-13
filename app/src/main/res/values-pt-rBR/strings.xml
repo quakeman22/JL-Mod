@@ -30,6 +30,7 @@
     <string name="CLEAR_DATA_CMD">Apagar dados</string>
     <string name="close">Fechar</string>
     <string name="cmd_menu">Menu</string>
+    <string name="config_actions_title">Ações</string>
     <string name="CONFIRMATION_REQUIRED">Confirmação necessária</string>
     <string name="converting_wait">Convertendo JAR…</string>
     <string name="crash_dialog_message">Deseja enviar um relatório de erro ao desenvolvedor?</string>
