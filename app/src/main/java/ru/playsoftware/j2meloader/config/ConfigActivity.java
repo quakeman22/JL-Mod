@@ -175,8 +175,6 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		binding.toolbar.setTitle("");
 		binding.tvToolbarTitle.setText(getTitle());
 		binding.toolbar.setNavigationOnClickListener(v -> finish());
-		binding.btnToolbarStart.setVisibility(isProfile ? View.GONE : View.VISIBLE);
-		binding.btnToolbarStart.setOnClickListener(v -> startMIDlet());
 		binding.btnToolbarMore.setOnClickListener(v -> showActionsPopup());
 		hideSystemUI();
 		display = getWindowManager().getDefaultDisplay();
