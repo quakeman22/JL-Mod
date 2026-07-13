@@ -80,8 +80,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		setDivider(null);
-		setDividerHeight(0);
 		RecyclerView list = getListView();
 		list.setClipToPadding(false);
 		list.setPadding(12, 14, 12, 24);
@@ -107,7 +105,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		LocaleListCompat locales = LocaleListCompat.forLanguageTags(sb.toString());
 		int size = languageTags.length;
 		String[] languageNames = new String[size];
-		languageNames[0] = context.getString(R.string.pref_theme_system);
+		languageNames[0] = context.getString(R.string.pref_language_system_default);
 		for (int i = 1; i < size; i++) {
 			Locale l = locales.get(i);
 			if (l != null) {
