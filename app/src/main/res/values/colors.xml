@@ -4,16 +4,17 @@
     <color name="fab_material_red_500">#f44336</color>
     <color name="file_picker_accent">#ffb62e</color>
 
-    <!--light theme colors-->
-    <color name="primary">#212121</color>
-    <color name="primary_dark">#1c1c1c</color>
-    <color name="accent">#ff2e51</color>
-    <color name="background">#fafafa</color>
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#353535</color>
-    <color name="btn_bg_normal">#2e2e2e</color>
-    <color name="btn_bg_pressed">#707070</color>
-    <color name="config_card">#ffffff</color>
+    <!-- Classics / Material-ish interface colors -->
+    <color name="primary">#0D1B34</color>
+    <color name="primary_dark">#091227</color>
+    <color name="accent">#C43CEB</color>
+    <color name="background">#0A1630</color>
+    <color name="text_primary">#F5F8FF</color>
+    <color name="text_secondary">#C8D7F2</color>
+    <color name="text_hint">#8EA3C8</color>
+    <color name="btn_bg_normal">#B83FE1</color>
+    <color name="btn_bg_pressed">#8B28B3</color>
+    <color name="config_card">#F4262C3D</color>
     <color name="settings_toolbar_start">#0A7DE7</color>
     <color name="settings_toolbar_end">#A221CC</color>
     <color name="settings_panel_bg">#F22A2F45</color>
@@ -24,6 +25,12 @@
     <color name="settings_icon_tint">#FFFFFFFF</color>
     <color name="settings_dialog_bg">#F62A3042</color>
     <color name="settings_dialog_stroke">#40FFFFFF</color>
+    <color name="settings_field_bg">#18202D40</color>
+    <color name="settings_field_stroke">#30FFFFFF</color>
+    <color name="settings_choice_pressed">#36EDF2FF</color>
+    <color name="settings_choice_active">#24EDF2FF</color>
+    <color name="settings_choice_checked">#1DEDF2FF</color>
+    <color name="settings_button_text">#FFFFFFFF</color>
 
     <color name="nnf_separator_color">@color/nnf_light_separator_color</color>
 </resources>
