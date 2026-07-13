@@ -9,6 +9,7 @@ import android.media.SoundPool;
 import androidx.annotation.RawRes;
 import androidx.preference.PreferenceManager;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +21,8 @@ public final class UiSoundEffects {
 	private final Context appContext;
 	private final SoundPool soundPool;
 	private final Set<Integer> loadedSounds = ConcurrentHashMap.newKeySet();
+	private final Set<Integer> pendingSounds = ConcurrentHashMap.newKeySet();
+	private final Map<Integer, Long> lastPlayAtMs = new ConcurrentHashMap<>();
 	private final int openingSound;
 	private final int backSound;
 	private final int browseSound;
@@ -42,6 +45,9 @@ public final class UiSoundEffects {
 		soundPool.setOnLoadCompleteListener((pool, sampleId, status) -> {
 			if (status == 0) {
 				loadedSounds.add(sampleId);
+				if (pendingSounds.remove(sampleId)) {
+					playInternal(sampleId);
+				}
 			}
 		});
 		openingSound = load(R.raw.sfx_opening);
@@ -76,9 +82,23 @@ public final class UiSoundEffects {
 	}
 
 	private void play(int soundId) {
-		if (!isEnabled() || soundId == 0 || !loadedSounds.contains(soundId)) {
+		if (!isEnabled() || soundId == 0) {
 			return;
 		}
+		if (!loadedSounds.contains(soundId)) {
+			pendingSounds.add(soundId);
+			return;
+		}
+		playInternal(soundId);
+	}
+
+	private void playInternal(int soundId) {
+		long now = System.currentTimeMillis();
+		long last = lastPlayAtMs.getOrDefault(soundId, 0L);
+		if (now - last < 35L) {
+			return;
+		}
+		lastPlayAtMs.put(soundId, now);
 		soundPool.play(soundId, 0.85f, 0.85f, 1, 0, 1f);
 	}
 
