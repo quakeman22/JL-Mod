@@ -19,6 +19,7 @@ package javax.microedition.lcdui.game;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.event.EventQueue;
 
 public class GameCanvas extends Canvas {
 
@@ -90,6 +91,9 @@ public class GameCanvas extends Canvas {
 	@Override
 	public void postKeyRepeated(int keyCode) {
 		if (setKeyStates(keyCode)) {
+			return;
+		}
+		if (EventQueue.isImmediateInputEnabled() && convertGameKeyCode(keyCode) != 0) {
 			return;
 		}
 		super.postKeyRepeated(keyCode);
