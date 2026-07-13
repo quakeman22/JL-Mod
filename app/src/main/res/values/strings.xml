@@ -96,6 +96,7 @@
     <string name="more">More</string>
     <string name="msg_error_loading_shader">Unsupported shader, default shader is used!</string>
     <string name="msg_immediate_mode_disabled">Immediate mode disabled due to stack overflow</string>
+    <string name="msg_immediate_input_mode_disabled">Immediate input mode disabled due to stack overflow</string>
     <string name="msg_mascot_capsule" translatable="false">Mascot Capsule 3D!</string>
     <string name="msg_no_matches">No matches for \"%1$s\"</string>
     <string name="msg_press_again_to_close">Press again to close</string>
@@ -169,6 +170,7 @@
     <string name="PREF_HEIGHT">Height</string>
     <string name="PREF_HW_ACCELERATION">HW acceleration (unstable)</string>
     <string name="PREF_IMMEDIATE">Immediate processing mode</string>
+    <string name="PREF_IMMEDIATE_INPUT">Low-latency input compatibility</string>
     <string name="pref_input_devices_title">Input devices</string>
     <string name="PREF_KEEP_ASPECT_RATIO">Keep aspect ratio</string>
     <string name="pref_language">Language</string>
