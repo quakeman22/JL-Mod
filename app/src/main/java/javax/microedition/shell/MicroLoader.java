@@ -265,6 +265,7 @@ public class MicroLoader {
 			Displayable.setVirtualSize(params.screenWidth, params.screenHeight);
 			EventQueue.setImmediate(params.immediateMode);
 			EventQueue.setImmediateInput(params.immediateInputMode);
+			EventQueue.setInputDiagnostics(params.immediateInputMode);
 			ShaderInfo shader = params.shader;
 			if (shader != null) {
 				shader.dir = workDir + Config.SHADERS_DIR;
