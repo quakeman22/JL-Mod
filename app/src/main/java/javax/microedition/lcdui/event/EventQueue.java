@@ -60,6 +60,10 @@ public class EventQueue implements Runnable {
 		immediateInput = value;
 	}
 
+	public static boolean isImmediateInputEnabled() {
+		return immediateInput;
+	}
+
 	/**
 	 * Add event to the queue.
 	 * <p>
