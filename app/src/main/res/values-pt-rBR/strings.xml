@@ -169,6 +169,7 @@
     <string name="pref_screenshot_summary">Desativar escala e filtragem para capturas de tela</string>
     <string name="pref_screenshot_title">Captura de tela em raw</string>
     <string name="PREF_SHOW_FPS">Exibir FPS</string>
+    <string name="PREF_SHOW_KEYBOARD">Mostrar teclado na tela</string>
     <string name="PREF_SYS_PROPS">Propriedades do Sistema</string>
     <string name="pref_theme_auto_battery">Automático, por Economia de Bateria</string>
     <string name="pref_theme_auto_time">Automático, por hora do dia</string>
