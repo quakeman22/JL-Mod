@@ -138,7 +138,7 @@ public class EventQueue implements Runnable {
 
 			if (inputDiagnostics && event.isImmediateInputEvent()) {
 				GameLog.i("InputDiag", "enqueue " + event.debugName()
-						+ " queue=" + queue.size()
+						+ " queue=" + approximateQueueSize()
 						+ " mode=" + (immediateInput ? "priority" : "normal"));
 			}
 		}
@@ -177,6 +177,16 @@ public class EventQueue implements Runnable {
 		}
 		event.markQueued();
 		event.enterQueue();
+	}
+
+	private int approximateQueueSize() {
+		int count = 0;
+		LinkedEntry<Event> entry = queue.firstEntry();
+		while (entry != null && entry.getElement() != null) {
+			count++;
+			entry = entry.nextEntry();
+		}
+		return count;
 	}
 
 	/**
