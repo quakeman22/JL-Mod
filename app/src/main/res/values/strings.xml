@@ -306,5 +306,6 @@
     <string name="virtual_key_star" translatable="false">*</string>
     <string name="virtual_key_up" translatable="false">↑</string>
     <string name="warn_install_from_net">File will be downloaded from Internet</string>
+<string name="PREF_SHOW_KEYBOARD">Mostrar Teclado</string>
     <string name="warning">Warning!</string>
 </resources>
