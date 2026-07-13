@@ -72,4 +72,12 @@ public abstract class Event implements Runnable {
 	 * @return true, if we agree to that
 	 */
 	public abstract boolean placeableAfter(Event event);
+
+	/**
+	 * True when this event is safe to process immediately in the
+	 * low-latency input compatibility mode.
+	 */
+	public boolean isImmediateInputEvent() {
+		return false;
+	}
 }

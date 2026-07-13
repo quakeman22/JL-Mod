@@ -170,4 +170,11 @@ public class CanvasEvent extends Event {
 	public boolean placeableAfter(Event event) {
 		return true;
 	}
+
+	@Override
+	public boolean isImmediateInputEvent() {
+		return eventType == KEY_PRESSED
+				|| eventType == KEY_REPEATED
+				|| eventType == KEY_RELEASED;
+	}
 }

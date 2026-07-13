@@ -28,6 +28,7 @@ import ru.playsoftware.j2meloader.R;
  */
 public class EventQueue implements Runnable {
 	private static boolean immediate;
+	private static boolean immediateInput;
 
 	private final LinkedList<Event> queue = new LinkedList<>();
 	private final Object waiter = new Object();
@@ -55,6 +56,10 @@ public class EventQueue implements Runnable {
 		immediate = value;
 	}
 
+	public static void setImmediateInput(boolean value) {
+		immediateInput = value;
+	}
+
 	/**
 	 * Add event to the queue.
 	 * <p>
@@ -68,13 +73,18 @@ public class EventQueue implements Runnable {
 	 * @param event the added event
 	 */
 	public void postEvent(Event event) {
-
-		if (immediate) { // the immediate processing mode is enabled
+		if (immediate || (immediateInput && event.isImmediateInputEvent())) {
 			Integer integer = loopCounter.get();
 			int loop = (integer != null) ? integer : 0;
 			if (loop > 10) {
-				immediate = false;
-				ContextHolder.getActivity().toast(R.string.msg_immediate_mode_disabled);
+				if (immediate) {
+					immediate = false;
+					ContextHolder.getActivity().toast(R.string.msg_immediate_mode_disabled);
+				}
+				if (immediateInput) {
+					immediateInput = false;
+					ContextHolder.getActivity().toast(R.string.msg_immediate_input_mode_disabled);
+				}
 			} else {
 				event.enterQueue();
 				synchronized (callbackLock) {
