@@ -34,7 +34,7 @@ import java.util.Deque;
 import java.util.Locale;
 
 public final class GameLog {
-	private static final int MAX_LINES = 2000;
+	private static final int MAX_LINES = 5000;
 	private static final Object LOCK = new Object();
 	private static final SimpleDateFormat DATE_FORMAT =
 			new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
