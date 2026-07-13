@@ -22,8 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
-import android.view.ViewConfiguration;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDex;
@@ -60,12 +58,11 @@ public class EmulatorApplication extends Application implements OnSharedPreferen
 				.withPluginConfigurations(AppCenterSender.buildHttpSenderConfiguration(this)));
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		if (!sp.contains(Constants.PREF_TOOLBAR)) {
-			boolean enable = !ViewConfiguration.get(this).hasPermanentMenuKey();
-			sp.edit().putBoolean(Constants.PREF_TOOLBAR, enable).apply();
-		}
-		sp.registerOnSharedPreferenceChangeListener(this);
-		setNightMode(sp.getString(Constants.PREF_THEME, null));
+		sp.edit()
+				.putBoolean(Constants.PREF_TOOLBAR, false)
+				.putBoolean(Constants.PREF_STATUSBAR, false)
+				.apply();
+		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 	}
 
@@ -78,24 +75,7 @@ public class EmulatorApplication extends Application implements OnSharedPreferen
 		}
 	}
 
-	void setNightMode(String theme) {
-		if (theme == null) {
-			theme = getString(R.string.pref_theme_default);
-		}
-		AppCompatDelegate.setDefaultNightMode(switch (theme) {
-			case "light" -> AppCompatDelegate.MODE_NIGHT_NO;
-			case "dark" -> AppCompatDelegate.MODE_NIGHT_YES;
-			case "auto-battery" -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY;
-			case "auto-time" -> //noinspection deprecation
-					AppCompatDelegate.MODE_NIGHT_AUTO_TIME;
-			default -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-		});
-	}
-
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (Constants.PREF_THEME.equals(key)) {
-			setNightMode(sharedPreferences.getString(Constants.PREF_THEME, null));
-		}
 	}
 }
