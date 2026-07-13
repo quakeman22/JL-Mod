@@ -39,6 +39,7 @@
     <string name="CLEAR_DATA_CMD">Clear data</string>
     <string name="close">Close</string>
     <string name="cmd_menu">Menu</string>
+    <string name="config_actions_title">Actions</string>
     <string name="config_virtual_screen_size">virtual screen size (original resolutions of MIDlet):</string>
     <string name="CONFIRMATION_REQUIRED">Confirmation required</string>
     <string name="converting_wait">Converting JAR…</string>
