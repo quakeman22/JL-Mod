@@ -676,10 +676,12 @@ public class MicroActivity extends AppCompatActivity {
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		if (pressed) {
 			switch (keyCode) {
-				case Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT -> uiSounds().playConfirm();
+				case Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT -> uiSounds().playLr();
 				case KeyMapper.KEY_OPTIONS_MENU -> uiSounds().playStart();
-				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE ->
+				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT ->
 						uiSounds().playDpad();
+				case Canvas.KEY_FIRE ->
+						uiSounds().playStart();
 				case Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4,
 						Canvas.KEY_NUM5, Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8,
 						Canvas.KEY_NUM9, Canvas.KEY_NUM0, Canvas.KEY_STAR, Canvas.KEY_POUND ->
@@ -700,8 +702,10 @@ public class MicroActivity extends AppCompatActivity {
 					if ("handset".equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
 					else binding.buttonMenuShell.setPressed(pressed);
 				}
-				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
-						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
+				case Canvas.KEY_UP -> binding.dpadUpVisual.setPressed(pressed);
+				case Canvas.KEY_DOWN -> binding.dpadDownVisual.setPressed(pressed);
+				case Canvas.KEY_LEFT -> binding.dpadLeftVisual.setPressed(pressed);
+				case Canvas.KEY_RIGHT -> binding.dpadRightVisual.setPressed(pressed);
 				case Canvas.KEY_NUM1 -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
 					else binding.phoneKey1.setPressed(pressed);
