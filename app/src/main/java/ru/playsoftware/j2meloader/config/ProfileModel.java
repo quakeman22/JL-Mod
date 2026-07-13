@@ -79,6 +79,9 @@ public class ProfileModel {
 	@SerializedName("ImmediateMode")
 	public boolean immediateMode;
 
+	@SerializedName("ImmediateInputMode")
+	public boolean immediateInputMode;
+
 	@SerializedName("HwAcceleration")
 	public boolean hwAcceleration;
 

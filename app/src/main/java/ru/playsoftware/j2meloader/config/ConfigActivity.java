@@ -628,6 +628,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		binding.etScreenPadding.setText(Integer.toString(params.screenPadding));
 		binding.cxFilter.setChecked(params.screenFilter);
 		binding.cxImmediate.setChecked(params.immediateMode);
+		binding.cxImmediateInput.setChecked(params.immediateInputMode);
 		binding.cxParallel.setChecked(params.parallelRedrawScreen);
 		binding.cxForceFullscreen.setChecked(params.forceFullscreen);
 		binding.spGraphicsMode.setSelection(params.graphicsMode);
@@ -714,6 +715,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			params.screenScaleType = binding.spScaleType.getSelectedItemPosition();
 			params.screenFilter = binding.cxFilter.isChecked();
 			params.immediateMode = binding.cxImmediate.isChecked();
+			params.immediateInputMode = binding.cxImmediateInput.isChecked();
 			int mode = binding.spGraphicsMode.getSelectedItemPosition();
 			params.graphicsMode = mode;
 			if (mode == 1) {
