@@ -43,8 +43,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -172,7 +172,12 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		binding = ActivityConfigBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
+		binding.toolbar.setTitle("");
+		binding.tvToolbarTitle.setText(getTitle());
 		binding.toolbar.setNavigationOnClickListener(v -> finish());
+		binding.btnToolbarStart.setVisibility(isProfile ? View.GONE : View.VISIBLE);
+		binding.btnToolbarStart.setOnClickListener(v -> startMIDlet());
+		binding.btnToolbarMore.setOnClickListener(v -> showActionsPopup());
 		hideSystemUI();
 		display = getWindowManager().getDefaultDisplay();
 
@@ -474,7 +479,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 
 	private void showCharsetPicker(View v) {
 		String[] charsets = Charset.availableCharsets().keySet().toArray(new String[0]);
-		new AlertDialog.Builder(this).setItems(charsets, (d, w) -> {
+		new AlertDialog.Builder(this, R.style.ClassicsAlertDialogTheme).setItems(charsets, (d, w) -> {
 			String text = binding.tfSystemProperties.getText().toString();
 			String key = "microedition.encoding:";
 			int idx = text.lastIndexOf(key);
@@ -750,13 +755,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.config, menu);
-		if (isProfile) {
-			menu.findItem(R.id.action_start).setVisible(false);
-			menu.findItem(R.id.action_clear_data).setVisible(false);
-		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -789,12 +788,61 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 	}
 
 	private void showClearDataDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsAlertDialogTheme)
 				.setTitle(android.R.string.dialog_alert_title)
 				.setMessage(R.string.message_clear_data)
 				.setPositiveButton(android.R.string.ok, (d, w) -> FileUtils.clearDirectory(dataDir))
 				.setNegativeButton(android.R.string.cancel, null);
 		builder.show();
+	}
+
+	private void showActionsPopup() {
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog_config_actions, null, false);
+		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setView(view)
+				.create();
+
+		View startRow = view.findViewById(R.id.config_action_start);
+		View clearDataRow = view.findViewById(R.id.config_action_clear_data);
+
+		view.findViewById(R.id.config_action_reset_settings).setOnClickListener(v -> {
+			dialog.dismiss();
+			params = new ProfileModel(configDir);
+			loadParams(false);
+		});
+		view.findViewById(R.id.config_action_reset_layout).setOnClickListener(v -> {
+			dialog.dismiss();
+			//noinspection ResultOfMethodCallIgnored
+			keylayoutFile.delete();
+			loadKeyLayout();
+		});
+		view.findViewById(R.id.config_action_load_profile).setOnClickListener(v -> {
+			dialog.dismiss();
+			LoadProfileAlert.newInstance(keylayoutFile.getParent())
+					.show(getSupportFragmentManager(), "load_profile");
+		});
+		view.findViewById(R.id.config_action_save_profile).setOnClickListener(v -> {
+			dialog.dismiss();
+			saveParams();
+			SaveProfileAlert.getInstance(keylayoutFile.getParent())
+					.show(getSupportFragmentManager(), "save_profile");
+		});
+
+		if (isProfile) {
+			startRow.setVisibility(View.GONE);
+			clearDataRow.setVisibility(View.GONE);
+		} else {
+			startRow.setOnClickListener(v -> {
+				dialog.dismiss();
+				startMIDlet();
+			});
+			clearDataRow.setOnClickListener(v -> {
+				dialog.dismiss();
+				showClearDataDialog();
+			});
+		}
+
+		dialog.show();
 	}
 
 	private void startMIDlet() {
@@ -817,7 +865,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			binding.tfScreenWidth.setText(binding.tfScreenHeight.getText().toString());
 			binding.tfScreenHeight.setText(tmp);
 		} else if (id == R.id.cmdFontSizePresets) {
-			new AlertDialog.Builder(this)
+			new AlertDialog.Builder(this, R.style.ClassicsAlertDialogTheme)
 					.setTitle(getString(R.string.SIZE_PRESETS))
 					.setItems(fontPresetTitles.toArray(new String[0]),
 							(dialog, which) -> {
@@ -841,7 +889,8 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		ListPopupWindow popup = new ListPopupWindow(this);
 		popup.setAnchorView(v);
 		popup.setModal(true);
-		ArrayAdapter<Size> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, screenPresets);
+		popup.setBackgroundDrawable(getDrawable(R.drawable.bg_settings_dialog));
+		ArrayAdapter<Size> adapter = new ArrayAdapter<>(this, R.layout.dialog_list_item, screenPresets);
 		popup.setAdapter(adapter);
 		final Resources res = getResources();
 		int maxWidth = res.getDisplayMetrics().widthPixels;

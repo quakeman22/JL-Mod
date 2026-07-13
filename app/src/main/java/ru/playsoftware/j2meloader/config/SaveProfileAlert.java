@@ -58,7 +58,7 @@ public class SaveProfileAlert extends DialogFragment {
 		configPath = requireArguments().getString(KEY_CONFIG_PATH);
 		binding = DialogSaveProfileBinding.inflate(getLayoutInflater());
 		binding.editText.setFilters(new InputFilter[]{new FileNameInputFilter()});
-		return new AlertDialog.Builder(requireActivity())
+		return new AlertDialog.Builder(requireActivity(), R.style.ClassicsAlertDialogTheme)
 				.setTitle(R.string.save_profile)
 				.setView(binding.getRoot())
 				.setNegativeButton(android.R.string.cancel, null)
@@ -99,7 +99,7 @@ public class SaveProfileAlert extends DialogFragment {
 	}
 
 	private void alertRewriteExists(String name) {
-		new AlertDialog.Builder(requireContext())
+		new AlertDialog.Builder(requireContext(), R.style.ClassicsAlertDialogTheme)
 				.setMessage(getString(R.string.alert_rewrite_profile, name))
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> save(name))
 				.setNegativeButton(android.R.string.cancel, (dialog, which) -> {

@@ -66,10 +66,10 @@ public class LoadProfileAlert extends DialogFragment {
 		String configPath = requireArguments().getString(KEY_CONFIG_PATH);
 		binding = DialogLoadProfileBinding.inflate(getLayoutInflater());
 		ArrayAdapter<Profile> adapter = new ArrayAdapter<>(requireActivity(),
-				android.R.layout.simple_list_item_single_choice, profiles);
+				R.layout.dialog_choice_item, profiles);
 		binding.list.setOnItemClickListener(this::onItemClick);
 		binding.list.setAdapter(adapter);
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(), R.style.ClassicsAlertDialogTheme);
 		builder.setTitle(R.string.load_profile)
 				.setView(binding.getRoot())
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
