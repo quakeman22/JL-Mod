@@ -22,6 +22,8 @@ import android.util.Log;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.util.ArrayStack;
 
+import ru.playsoftware.j2meloader.util.GameLog;
+
 public class CanvasEvent extends Event {
 	private static final String TAG = "CanvasEvent";
 
@@ -85,6 +87,9 @@ public class CanvasEvent extends Event {
 
 	@Override
 	public void process() {
+		boolean keyEvent = eventType == KEY_PRESSED || eventType == KEY_REPEATED || eventType == KEY_RELEASED;
+		boolean diagnostics = keyEvent && EventQueue.isInputDiagnosticsEnabled();
+		long startedAt = diagnostics ? System.nanoTime() : 0L;
 		switch (eventType) {
 			case KEY_PRESSED -> {
 				try {
@@ -150,6 +155,12 @@ public class CanvasEvent extends Event {
 				}
 			}
 		}
+		if (diagnostics) {
+			long tookMs = (System.nanoTime() - startedAt) / 1_000_000L;
+			GameLog.i("InputDiag", "process " + debugName()
+					+ " wait=" + getQueueWaitMs() + "ms"
+					+ " took=" + tookMs + "ms");
+		}
 	}
 
 	@Override
@@ -176,5 +187,21 @@ public class CanvasEvent extends Event {
 		return eventType == KEY_PRESSED
 				|| eventType == KEY_REPEATED
 				|| eventType == KEY_RELEASED;
+	}
+
+	@Override
+	public String debugName() {
+		return switch (eventType) {
+			case KEY_PRESSED -> "KEY_PRESSED(" + keyCode + ")";
+			case KEY_REPEATED -> "KEY_REPEATED(" + keyCode + ")";
+			case KEY_RELEASED -> "KEY_RELEASED(" + keyCode + ")";
+			case POINTER_PRESSED -> "POINTER_PRESSED";
+			case POINTER_DRAGGED -> "POINTER_DRAGGED";
+			case POINTER_RELEASED -> "POINTER_RELEASED";
+			case SHOW_NOTIFY -> "SHOW_NOTIFY";
+			case HIDE_NOTIFY -> "HIDE_NOTIFY";
+			case SIZE_CHANGED -> "SIZE_CHANGED";
+			default -> super.debugName();
+		};
 	}
 }
