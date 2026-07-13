@@ -62,6 +62,7 @@ import javax.microedition.lcdui.commands.AbstractSoftKeysBar;
 import javax.microedition.lcdui.event.CanvasEvent;
 import javax.microedition.lcdui.event.Event;
 import javax.microedition.lcdui.event.EventFilter;
+import javax.microedition.lcdui.event.EventQueue;
 import javax.microedition.lcdui.event.PointerEvent;
 import javax.microedition.lcdui.graphics.CanvasView;
 import javax.microedition.lcdui.graphics.CanvasWrapper;
@@ -901,6 +902,8 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public synchronized void process() {
+			long waitMs = EventQueue.isInputDiagnosticsEnabled() ? getQueueWaitMs() : 0L;
+			long startedAt = EventQueue.isInputDiagnosticsEnabled() ? System.nanoTime() : 0L;
 			if (!visible) {
 				return;
 			}
@@ -937,6 +940,14 @@ public abstract class Canvas extends Displayable {
 				return;
 			}
 			requestFlushToScreen();
+			if (EventQueue.isInputDiagnosticsEnabled()) {
+				long tookMs = (System.nanoTime() - startedAt) / 1_000_000L;
+				if (waitMs >= 16L || tookMs >= 16L) {
+					GameLog.i("InputDiag", "paint wait=" + waitMs + "ms"
+							+ " took=" + tookMs + "ms"
+							+ " clip=" + l + "," + t + "-" + r + "," + b);
+				}
+			}
 		}
 
 		@Override
@@ -1026,17 +1037,22 @@ public abstract class Canvas extends Displayable {
 		}
 
 		public boolean onKeyDown(int keyCode, KeyEvent event) {
-			keyCode = KeyMapper.convertAndroidKeyCode(keyCode, event);
-			if (keyCode == 0) {
+			int mappedKeyCode = KeyMapper.convertAndroidKeyCode(keyCode, event);
+			if (mappedKeyCode == 0) {
 				return false;
 			}
+			if (EventQueue.isInputDiagnosticsEnabled()) {
+				GameLog.i("InputDiag", "androidDown key=" + keyCode
+						+ " mapped=" + mappedKeyCode
+						+ " repeat=" + event.getRepeatCount());
+			}
 			if (event.getRepeatCount() == 0) {
-				if (overlay == null || !overlay.keyPressed(keyCode)) {
-					postKeyPressed(keyCode);
+				if (overlay == null || !overlay.keyPressed(mappedKeyCode)) {
+					postKeyPressed(mappedKeyCode);
 				}
 			} else {
-				if (overlay == null || !overlay.keyRepeated(keyCode)) {
-					postKeyRepeated(keyCode);
+				if (overlay == null || !overlay.keyRepeated(mappedKeyCode)) {
+					postKeyRepeated(mappedKeyCode);
 				}
 			}
 			return true;
@@ -1046,6 +1062,10 @@ public abstract class Canvas extends Displayable {
 			int midpKeyCode = KeyMapper.convertAndroidKeyCode(keyCode, event);
 			if (midpKeyCode == 0) {
 				return false;
+			}
+			if (EventQueue.isInputDiagnosticsEnabled()) {
+				GameLog.i("InputDiag", "androidUp key=" + keyCode
+						+ " mapped=" + midpKeyCode);
 			}
 			if (overlay == null || !overlay.keyReleased(midpKeyCode)) {
 				postKeyReleased(midpKeyCode);
