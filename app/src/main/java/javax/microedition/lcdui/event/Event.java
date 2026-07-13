@@ -23,6 +23,8 @@ import android.util.Log;
  * The base class for all events.
  */
 public abstract class Event implements Runnable {
+	private long queuedAtNanos;
+
 	/**
 	 * Event handling.
 	 * This is where you need to perform the required actions.
@@ -79,5 +81,20 @@ public abstract class Event implements Runnable {
 	 */
 	public boolean isImmediateInputEvent() {
 		return false;
+	}
+
+	public final void markQueued() {
+		queuedAtNanos = System.nanoTime();
+	}
+
+	public final long getQueueWaitMs() {
+		if (queuedAtNanos == 0L) {
+			return 0L;
+		}
+		return (System.nanoTime() - queuedAtNanos) / 1_000_000L;
+	}
+
+	public String debugName() {
+		return getClass().getSimpleName();
 	}
 }
