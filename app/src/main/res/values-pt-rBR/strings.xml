@@ -139,6 +139,8 @@
     <string name="PREF_HEIGHT">Altura</string>
     <string name="PREF_HW_ACCELERATION">Aceleração de HW (instável)</string>
     <string name="PREF_IMMEDIATE">Modo de processamento imediato</string>
+    <string name="PREF_IMMEDIATE_INPUT">Compatibilidade de input sem atraso</string>
+    <string name="msg_immediate_input_mode_disabled">Modo de input imediato desativado para evitar estouro de pilha</string>
     <string name="pref_input_devices_title">Dispositivos de entrada</string>
     <string name="PREF_KEEP_ASPECT_RATIO">Manter proporção</string>
     <string name="PREF_LIMIT_FPS">Limite de FPS</string>
