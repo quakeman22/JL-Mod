@@ -23,6 +23,7 @@ import javax.microedition.util.LinkedEntry;
 import javax.microedition.util.LinkedList;
 
 import ru.playsoftware.j2meloader.R;
+import ru.playsoftware.j2meloader.util.GameLog;
 
 /**
  * The event queue. A really complicated thing.
@@ -30,6 +31,7 @@ import ru.playsoftware.j2meloader.R;
 public class EventQueue implements Runnable {
 	private static boolean immediate;
 	private static boolean immediateInput;
+	private static boolean inputDiagnostics;
 
 	private final LinkedList<Event> queue = new LinkedList<>();
 	private final Object waiter = new Object();
@@ -63,6 +65,14 @@ public class EventQueue implements Runnable {
 
 	public static boolean isImmediateInputEnabled() {
 		return immediateInput;
+	}
+
+	public static void setInputDiagnostics(boolean value) {
+		inputDiagnostics = value;
+	}
+
+	public static boolean isInputDiagnosticsEnabled() {
+		return inputDiagnostics;
 	}
 
 	/**
@@ -118,11 +128,18 @@ public class EventQueue implements Runnable {
 				 */
 
 				queue.addLast(event);
+				event.markQueued();
 				event.enterQueue();
 			} else {
 				// it is more correct, but additional checks are required
 				// queue.setLast(event).recycle(); // remove the previous event and add the new one.
 				event.recycle(); // more reliable // leave the previous event, recycle the new one.
+			}
+
+			if (inputDiagnostics && event.isImmediateInputEvent()) {
+				GameLog.i("InputDiag", "enqueue " + event.debugName()
+						+ " queue=" + queue.size()
+						+ " mode=" + (immediateInput ? "priority" : "normal"));
 			}
 		}
 
@@ -158,6 +175,7 @@ public class EventQueue implements Runnable {
 		} else {
 			queue.getEntryInstance(event).insertBefore(entry);
 		}
+		event.markQueued();
 		event.enterQueue();
 	}
 
