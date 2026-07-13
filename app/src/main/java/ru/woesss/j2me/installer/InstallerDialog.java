@@ -205,7 +205,11 @@ public class InstallerDialog extends DialogFragment {
 	private void convert() {
 		Descriptor nd = installer.getNewDescriptor();
 		bindDescriptor(nd);
-		binding.tvMessage.setText(nd.getInfo(requireActivity()));
+		if (installer.getJar() == null) {
+			binding.tvMessage.setText(R.string.warn_install_from_net);
+		} else {
+			binding.tvMessage.setText("");
+		}
 		binding.tvStatus.setText(R.string.converting_wait);
 		showProgress();
 		hideButtons();
@@ -258,7 +262,7 @@ public class InstallerDialog extends DialogFragment {
 					convert();
 					return;
 				}
-				message = nd.getInfo(requireActivity());
+				message = new SpannableStringBuilder();
 			}
 			case AppInstaller.STATUS_OLDER -> message = new SpannableStringBuilder(getString(
 					R.string.reinstall_older,
@@ -296,7 +300,10 @@ public class InstallerDialog extends DialogFragment {
 			default -> throw new IllegalStateException("Unexpected value: " + status);
 		}
 		if (installer.getJar() == null) {
-			message.append('\n').append(getString(R.string.warn_install_from_net));
+			if (message.length() > 0) {
+				message.append('\n');
+			}
+			message.append(getString(R.string.warn_install_from_net));
 		}
 		Drawable drawable = Drawable.createFromPath(installer.getIconPath());
 		if (drawable != null) {
