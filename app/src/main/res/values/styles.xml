@@ -7,13 +7,28 @@
         <item name="colorAccent">@color/accent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="alertDialogTheme">@style/ClassicsAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/ClassicsAlertDialogTheme</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/primary</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">?android:colorBackground</item>
         <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+        <item name="android:spinnerStyle">@style/SettingsSpinnerStyle</item>
+        <item name="spinnerStyle">@style/SettingsSpinnerStyle</item>
+        <item name="imageButtonStyle">@style/ImageButtonStyle</item>
         <item name="bg_config_card">@drawable/bg_config_card</item>
         <item name="textColorPrimary">@color/text_primary</item>
         <item name="textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="colorControlNormal">@color/text_secondary</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">#33FFFFFF</item>
+        <item name="colorButtonNormal">@color/btn_bg_normal</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
@@ -23,14 +38,29 @@
         <item name="colorAccent">@color/accent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="alertDialogTheme">@style/ClassicsAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/ClassicsAlertDialogTheme</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/primary</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">?android:colorBackground</item>
         <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+        <item name="android:spinnerStyle">@style/SettingsSpinnerStyle</item>
+        <item name="spinnerStyle">@style/SettingsSpinnerStyle</item>
+        <item name="imageButtonStyle">@style/ImageButtonStyle</item>
         <item name="bg_config_card">@drawable/bg_config_card</item>
         <item name="textColorPrimary">@color/text_primary</item>
         <item name="textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="colorControlNormal">@color/text_secondary</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">#33FFFFFF</item>
+        <item name="colorButtonNormal">@color/btn_bg_normal</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
         <item name="windowActionBar">false</item>
@@ -45,14 +75,24 @@
         <item name="textColorSecondary">@color/settings_summary</item>
         <item name="android:textColorPrimary">@color/settings_title</item>
         <item name="android:textColorSecondary">@color/settings_summary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
         <item name="android:colorBackground">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">#24000000</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@android:color/transparent</item>
         <item name="alertDialogTheme">@style/ClassicsAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/ClassicsAlertDialogTheme</item>
         <item name="bg_config_card">@drawable/bg_settings_config_card</item>
         <item name="android:spinnerStyle">@style/SettingsSpinnerStyle</item>
         <item name="spinnerStyle">@style/SettingsSpinnerStyle</item>
+        <item name="buttonStyle">@style/ButtonStyle</item>
+        <item name="android:editTextStyle">@style/EditTextStyle</item>
+        <item name="editTextStyle">@style/EditTextStyle</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="colorControlNormal">@color/settings_summary</item>
+        <item name="colorControlActivated">@color/settings_toolbar_end</item>
+        <item name="colorControlHighlight">#40FFFFFF</item>
     </style>
 
     <style name="AppTheme.Splash" parent="AppTheme.NoActionBar">
@@ -67,6 +107,7 @@
         <item name="android:windowBackground">@drawable/bg_settings_dialog</item>
         <item name="android:textColorPrimary">@color/settings_title</item>
         <item name="android:textColorSecondary">@color/settings_summary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
         <item name="android:divider">@android:color/transparent</item>
         <item name="android:listDivider">@android:color/transparent</item>
         <item name="listItemLayout">@layout/dialog_list_item</item>
@@ -76,6 +117,14 @@
         <item name="android:windowMinWidthMajor">78%</item>
         <item name="android:windowMinWidthMinor">88%</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+    </style>
+
+    <style name="PreferenceThemeOverlay" parent="@style/PreferenceThemeOverlay.v14.Material">
+        <item name="android:textColorPrimary">@color/settings_title</item>
+        <item name="android:textColorSecondary">@color/settings_summary</item>
+        <item name="colorAccent">@color/settings_toolbar_end</item>
+        <item name="colorControlNormal">@color/settings_summary</item>
+        <item name="colorControlActivated">@color/settings_toolbar_end</item>
     </style>
 
     <style name="ClassicsCompactAlertDialogTheme" parent="ClassicsAlertDialogTheme">
@@ -110,16 +159,16 @@
     <style name="ConfigTitleTextStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">40dp</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">19sp</item>
         <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="SwitchStyle">
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?textColorSecondary</item>
-        <item name="thumbTint">@color/switch_thumb_tint</item>
-        <item name="trackTint">@color/switch_track_tint</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="EditTextStyle">
@@ -128,13 +177,20 @@
         <item name="android:paddingLeft">12dp</item>
         <item name="android:paddingRight">12dp</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColorHint">#b0b0b0</item>
+        <item name="android:textColorHint">@color/text_hint</item>
         <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="ButtonStyle" parent="Widget.AppCompat.Button.Colored">
         <item name="elevation">1dp</item>
         <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textColor">@color/settings_button_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:minHeight">46dp</item>
+        <item name="android:paddingLeft">18dp</item>
+        <item name="android:paddingRight">18dp</item>
     </style>
 
     <style name="SettingsSpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">
@@ -143,6 +199,8 @@
         <item name="android:popupBackground">@drawable/bg_settings_dialog</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>
+        <item name="android:textColor">@color/settings_title</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="ImageButtonStyle" parent="Widget.AppCompat.ImageButton">
