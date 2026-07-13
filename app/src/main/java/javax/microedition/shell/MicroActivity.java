@@ -107,6 +107,7 @@ import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
+import ru.playsoftware.j2meloader.util.UiSoundEffects;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -126,6 +127,10 @@ public class MicroActivity extends AppCompatActivity {
 	private String classicsControlStyle = "joystick";
 	private String classicsHandsetSkin = "dark";
 	private AlertDialog gameplayMenuDialog;
+
+	private UiSoundEffects uiSounds() {
+		return UiSoundEffects.get(this);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -203,7 +208,10 @@ public class MicroActivity extends AppCompatActivity {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		setContentView(binding.getRoot());
 		setSupportActionBar(binding.toolbar);
-		binding.buttonBackOverlay.setOnClickListener(v -> showExitConfirmation());
+		binding.buttonBackOverlay.setOnClickListener(v -> {
+			uiSounds().playBack();
+			showExitConfirmation();
+		});
 		binding.overlay.setOnTouchListener((v, event) -> {
 			if (!(current instanceof Canvas)) {
 				return false;
@@ -666,6 +674,18 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
+		if (pressed) {
+			switch (keyCode) {
+				case Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT -> uiSounds().playConfirm();
+				case KeyMapper.KEY_OPTIONS_MENU -> uiSounds().playStart();
+				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE ->
+						uiSounds().playDpad();
+				case Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4,
+						Canvas.KEY_NUM5, Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8,
+						Canvas.KEY_NUM9, Canvas.KEY_NUM0, Canvas.KEY_STAR, Canvas.KEY_POUND ->
+						uiSounds().playAction();
+			}
+		}
 		runOnUiThread(() -> {
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
@@ -680,11 +700,8 @@ public class MicroActivity extends AppCompatActivity {
 					if ("handset".equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
 					else binding.buttonMenuShell.setPressed(pressed);
 				}
-				case Canvas.KEY_UP -> binding.dpadUpVisual.setPressed(pressed);
-				case Canvas.KEY_DOWN -> binding.dpadDownVisual.setPressed(pressed);
-				case Canvas.KEY_LEFT -> binding.dpadLeftVisual.setPressed(pressed);
-				case Canvas.KEY_RIGHT -> binding.dpadRightVisual.setPressed(pressed);
-				case Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
+				case Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT,
+						Canvas.KEY_FIRE -> binding.controlPadShell.setPressed(pressed);
 				case Canvas.KEY_NUM1 -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
 					else binding.phoneKey1.setPressed(pressed);
@@ -760,17 +777,22 @@ public class MicroActivity extends AppCompatActivity {
 				.setView(view)
 				.create();
 		view.findViewById(R.id.gameplay_confirm_ok).setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			MidletThread.destroyApp();
 		});
 		view.findViewById(R.id.gameplay_confirm_settings).setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			hideSoftInput();
 			dialog.dismiss();
 			Config.openSettings(this, appName, appPath);
 			MidletThread.destroyApp();
 		});
-		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> dialog.dismiss());
+		view.findViewById(R.id.gameplay_confirm_cancel).setOnClickListener(v -> {
+			uiSounds().playBack();
+			dialog.dismiss();
+		});
 		dialog.setOnDismissListener(d -> {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
 				hideSystemUI();
@@ -811,6 +833,7 @@ public class MicroActivity extends AppCompatActivity {
 	@Override
 	public void openOptionsMenu() {
 		if (current instanceof Canvas) {
+			uiSounds().playStart();
 			showGameplayMenuDialog();
 			return;
 		}
@@ -875,10 +898,13 @@ public class MicroActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
 		if (id == R.id.action_exit_midlet) {
+			uiSounds().playBack();
 			showExitConfirmation();
 		} else if (id == R.id.action_save_log) {
+			uiSounds().playConfirm();
 			saveLog();
 		} else if (id == R.id.action_lock_orientation) {
+			uiSounds().playConfirm();
 			if (item.isChecked()) {
 				VirtualKeyboard vk = ContextHolder.getVk();
 				int orientation = vk != null && vk.isPhone() ? ORIENTATION_PORTRAIT : microLoader.getOrientation();
@@ -889,13 +915,17 @@ public class MicroActivity extends AppCompatActivity {
 				item.setChecked(true);
 			}
 		} else if (id == R.id.action_ime_keyboard) {
+			uiSounds().playConfirm();
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
 					InputMethodManager.SHOW_FORCED, 0);
 		} else if (id == R.id.action_take_screenshot) {
+			uiSounds().playConfirm();
 			takeScreenshot();
 		} else if (id == R.id.action_limit_fps) {
+			uiSounds().playConfirm();
 			showLimitFpsDialog();
 		} else if (id == R.id.action_multiplayer) {
+			uiSounds().playConfirm();
 			showMultiplayerDialog();
 		}
 		return true;
@@ -960,14 +990,17 @@ public class MicroActivity extends AppCompatActivity {
 		View lockRow = view.findViewById(R.id.gameplay_menu_lock_row);
 		TextView imeRow = view.findViewById(R.id.gameplay_menu_ime);
 		view.findViewById(R.id.gameplay_menu_exit).setOnClickListener(v -> {
+			uiSounds().playBack();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showExitConfirmation();
 		});
 		view.findViewById(R.id.gameplay_menu_save_log).setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			saveLog();
 		});
 		lockRow.setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			boolean locked = isOrientationLocked();
 			if (locked) {
 				unlockOrientation();
@@ -980,6 +1013,7 @@ public class MicroActivity extends AppCompatActivity {
 			imeRow.setVisibility(View.GONE);
 		} else {
 			imeRow.setOnClickListener(v -> {
+				uiSounds().playConfirm();
 				if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 				inputMethodManager.toggleSoftInputFromWindow(
 						binding.displayableContainer.getWindowToken(),
@@ -988,10 +1022,12 @@ public class MicroActivity extends AppCompatActivity {
 			});
 		}
 		view.findViewById(R.id.gameplay_menu_screenshot).setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			takeScreenshot();
 		});
 		view.findViewById(R.id.gameplay_menu_limit_fps).setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showLimitFpsDialog();
 		});
@@ -999,6 +1035,7 @@ public class MicroActivity extends AppCompatActivity {
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
 		multiplayerRow.setOnClickListener(v -> {
+			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showMultiplayerDialog();
 		});
