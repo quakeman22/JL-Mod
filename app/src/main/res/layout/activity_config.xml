@@ -357,6 +357,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cxFilter" />
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/cxImmediateInput"
+                style="@style/SwitchStyle"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/height_config_row"
+                android:checked="false"
+                android:text="@string/PREF_IMMEDIATE_INPUT"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cxImmediate" />
+
             <TextView
                 android:id="@+id/tvGraphicsMode"
                 android:layout_width="0dp"
@@ -369,7 +380,7 @@
                 android:textSize="15sp"
                 app:layout_constraintEnd_toStartOf="@+id/barrierScreenConfig"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cxImmediate"
+                app:layout_constraintTop_toBottomOf="@+id/cxImmediateInput"
                 app:layout_constraintWidth_min="wrap" />
 
             <Spinner
@@ -382,7 +393,7 @@
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/barrierScreenConfig"
-                app:layout_constraintTop_toBottomOf="@+id/cxImmediate" />
+                app:layout_constraintTop_toBottomOf="@+id/cxImmediateInput" />
 
             <LinearLayout
                 android:id="@+id/shaderContainer"
