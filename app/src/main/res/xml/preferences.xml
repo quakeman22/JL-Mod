@@ -4,15 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
     <PreferenceCategory android:title="@string/pref_category_appearance">
         <ListPreference
-            android:defaultValue="@string/pref_theme_default"
-            android:entries="@array/pref_theme_entries"
-            android:entryValues="@array/pref_theme_values"
-            android:icon="@drawable/ic_setting_theme"
-            android:key="pref_theme"
-            android:title="@string/pref_theme_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
             android:icon="@drawable/ic_setting_translate"
             android:key="pref_language"
             android:title="@string/pref_language"
@@ -50,20 +41,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_system">
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/ic_setting_enable_action_bar"
-            android:key="pref_actionbar_switch"
-            android:summary="@string/pref_enable_actionbar_summary"
-            android:title="@string/pref_enable_actionbar_title" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/ic_setting_enable_statusbar"
-            android:key="pref_statusbar_switch"
-            android:summary="@string/pref_enable_actionbar_summary"
-            android:title="@string/pref_enable_statusbar_title" />
-
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/ic_setting_keep_screen_on"
