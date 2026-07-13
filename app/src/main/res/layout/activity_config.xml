@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_settings_toolbar"
             android:elevation="0dp"
-            android:minHeight="64dp"
+            android:minHeight="56dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             app:navigationIcon="@drawable/ic_launcher_arrow_left"
@@ -35,53 +35,27 @@
 
             <TextView
                 android:id="@+id/tvToolbarTitle"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
+                android:layout_gravity="center_vertical"
                 android:layout_marginStart="56dp"
-                android:layout_marginEnd="132dp"
+                android:layout_marginEnd="56dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textColor="@android:color/white"
-                android:textSize="22sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/btnToolbarMore"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="end|center_vertical"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/btnToolbarStart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_gameplay_menu_row"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:minHeight="38dp"
-                    android:minWidth="80dp"
-                    android:gravity="center"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="7dp"
-                    android:text="@string/START_CMD"
-                    android:textAllCaps="true"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/btnToolbarMore"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/cmd_menu"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_more_vert"
-                    android:tint="@android:color/white" />
-            </LinearLayout>
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cmd_menu"
+                android:padding="8dp"
+                android:src="@drawable/ic_more_vert"
+                android:tint="@android:color/white" />
         </com.google.android.material.appbar.MaterialToolbar>
 
         <ScrollView
