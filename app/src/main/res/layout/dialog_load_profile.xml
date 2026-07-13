@@ -13,6 +13,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:listSelector="@drawable/bg_settings_choice_row"
         tools:listitem="@android:layout/simple_list_item_single_choice" />
 
     <CheckBox
@@ -21,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:checked="true"
+        android:textColor="@color/settings_title"
         android:text="@string/action_settings" />
 
     <CheckBox
@@ -28,5 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="true"
+        android:textColor="@color/settings_title"
         android:text="@string/PREF_VIRTUAL_KEYBOARD_OPTIONS" />
 </LinearLayout>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="248dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_gameplay_menu_panel"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:text="@string/config_actions_title"
+        android:textColor="@color/settings_title"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/config_action_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/START_CMD"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/config_action_clear_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/CLEAR_DATA_CMD"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/config_action_reset_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/RESET_SETTINGS_CMD"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/config_action_reset_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/RESET_LAYOUT_CMD"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/config_action_load_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/load_profile"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/config_action_save_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/save_profile"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+</LinearLayout>

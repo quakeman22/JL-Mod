@@ -17,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="true"
+        android:textColor="@color/settings_title"
         android:text="@string/action_settings" />
 
     <CheckBox
@@ -24,11 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="true"
+        android:textColor="@color/settings_title"
         android:text="@string/PREF_VIRTUAL_KEYBOARD_OPTIONS" />
 
     <CheckBox
         android:id="@+id/cbDefault"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/settings_title"
         android:text="@string/set_as_default" />
 </LinearLayout>
