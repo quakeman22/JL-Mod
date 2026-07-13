@@ -21,6 +21,8 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.event.EventQueue;
 
+import ru.playsoftware.j2meloader.util.GameLog;
+
 public class GameCanvas extends Canvas {
 
 	public static final int UP_PRESSED = 1 << Canvas.UP;
@@ -103,7 +105,14 @@ public class GameCanvas extends Canvas {
 	public void postKeyReleased(int keyCode) {
 		int code = convertGameKeyCode(keyCode);
 		if (code != 0) {
+			int before = currentKeyState;
 			currentKeyState &= ~code;
+			if (EventQueue.isInputDiagnosticsEnabled()) {
+				GameLog.i("InputDiag", "releaseState key=" + keyCode
+						+ " mask=" + code
+						+ " before=" + before
+						+ " after=" + currentKeyState);
+			}
 			if (suppressCommands) {
 				return;
 			}
@@ -116,8 +125,15 @@ public class GameCanvas extends Canvas {
 		if (code == 0) {
 			return false;
 		}
+		int before = currentKeyState;
 		this.keyState |= code;
 		this.currentKeyState |= code;
+		if (EventQueue.isInputDiagnosticsEnabled()) {
+			GameLog.i("InputDiag", "pressState key=" + keyCode
+					+ " mask=" + code
+					+ " before=" + before
+					+ " after=" + currentKeyState);
+		}
 		return suppressCommands;
 	}
 
@@ -139,7 +155,15 @@ public class GameCanvas extends Canvas {
 
 	@SuppressWarnings("WeakerAccess")
 	public void flushGraphics(int x, int y, int width, int height) {
+		long startedAt = EventQueue.isInputDiagnosticsEnabled() ? System.nanoTime() : 0L;
 		flushBuffer(image, x, y, width, height);
+		if (EventQueue.isInputDiagnosticsEnabled()) {
+			long tookMs = (System.nanoTime() - startedAt) / 1_000_000L;
+			if (tookMs >= 16L) {
+				GameLog.i("InputDiag", "flushGraphics took=" + tookMs + "ms"
+						+ " rect=" + x + "," + y + "-" + width + "x" + height);
+			}
+		}
 	}
 
 	@Override
