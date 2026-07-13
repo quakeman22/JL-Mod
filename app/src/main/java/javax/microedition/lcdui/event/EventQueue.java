@@ -91,13 +91,17 @@ public class EventQueue implements Runnable {
 				}
 			} else {
 				event.enterQueue();
-				synchronized (callbackLock) {
-					try {
-						loopCounter.set(loop + 1);
-						event.run(); // process event on the spot
-					} finally {
-						loopCounter.set(loop);
+				try {
+					loopCounter.set(loop + 1);
+					if (immediateInput && event.isImmediateInputEvent() && !immediate) {
+						event.run(); // low-latency key path, avoid repaint callback lock
+					} else {
+						synchronized (callbackLock) {
+							event.run(); // process event on the spot
+						}
 					}
+				} finally {
+					loopCounter.set(loop);
 				}
 				return;      // and nothing to do here
 			}
