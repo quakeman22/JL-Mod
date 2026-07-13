@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -62,9 +62,9 @@ public class InstallerDialog extends DialogFragment {
 	private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 	private FragmentInstallerBinding binding;
-	private Button btnOk;
-	private Button btnClose;
-	private Button btnRun;
+	private TextView btnPrimary;
+	private TextView btnSecondary;
+	private TextView btnTertiary;
 	private AppListModel appListModel;
 	private AppInstaller installer;
 	private AlertDialog dialog;
@@ -110,14 +110,8 @@ public class InstallerDialog extends DialogFragment {
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		binding = FragmentInstallerBinding.inflate(getLayoutInflater());
 		dialog = new AlertDialog.Builder(requireActivity(), getTheme())
-				.setIcon(R.mipmap.ic_launcher)
 				.setView(binding.getRoot())
-				.setTitle("MIDlet installer")
-				.setMessage("")
 				.setCancelable(false)
-				.setPositiveButton(R.string.install, null)
-				.setNegativeButton(android.R.string.cancel, null)
-				.setNeutralButton(R.string.START_CMD, null)
 				.create();
 		return dialog;
 	}
@@ -140,9 +134,12 @@ public class InstallerDialog extends DialogFragment {
 		if (installer != null) {
 			return;
 		}
-		btnOk = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		btnClose = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-		btnRun = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+		btnPrimary = binding.btnActionPrimary;
+		btnSecondary = binding.btnActionSecondary;
+		btnTertiary = binding.btnActionTertiary;
+		binding.ivIcon.setImageResource(R.mipmap.ic_launcher);
+		binding.tvDialogTitle.setText(R.string.midlet_installer_title);
+		binding.tvMessage.setText("");
 		hideButtons();
 		Bundle args = requireArguments();
 		Uri uri = args.getParcelable(ARG_URI);
@@ -156,7 +153,8 @@ public class InstallerDialog extends DialogFragment {
 
 	private void installApp(File jar, Uri uri) {
 		installer = new AppInstaller(jar, uri, appListModel);
-		btnClose.setOnClickListener(v -> {
+		btnSecondary.setText(android.R.string.cancel);
+		btnSecondary.setOnClickListener(v -> {
 			installer.deleteTemp();
 			installer.clearCache();
 			dismiss();
@@ -170,7 +168,8 @@ public class InstallerDialog extends DialogFragment {
 
 	private void reinstallApp(int id) {
 		installer = new AppInstaller(id, appListModel);
-		btnClose.setOnClickListener(v -> {
+		btnSecondary.setText(android.R.string.cancel);
+		btnSecondary.setOnClickListener(v -> {
 			installer.deleteTemp();
 			installer.clearCache();
 			dismiss();
@@ -193,20 +192,20 @@ public class InstallerDialog extends DialogFragment {
 	}
 
 	private void hideButtons() {
-		btnOk.setVisibility(View.GONE);
-		btnClose.setVisibility(View.GONE);
-		btnRun.setVisibility(View.GONE);
+		btnPrimary.setVisibility(View.GONE);
+		btnSecondary.setVisibility(View.GONE);
+		btnTertiary.setVisibility(View.GONE);
 	}
 
 	private void showButtons() {
-		btnOk.setVisibility(View.VISIBLE);
-		btnClose.setVisibility(View.VISIBLE);
+		btnPrimary.setVisibility(View.VISIBLE);
+		btnSecondary.setVisibility(View.VISIBLE);
 	}
 
 	private void convert() {
 		Descriptor nd = installer.getNewDescriptor();
-		SpannableStringBuilder info = nd.getInfo(requireActivity());
-		dialog.setMessage(info);
+		bindDescriptor(nd);
+		binding.tvMessage.setText(nd.getInfo(requireActivity()));
 		binding.tvStatus.setText(R.string.converting_wait);
 		showProgress();
 		hideButtons();
@@ -222,8 +221,8 @@ public class InstallerDialog extends DialogFragment {
 		hideProgress();
 		dialog.setCancelable(false);
 		dialog.setCanceledOnTouchOutside(false);
-		dialog.setMessage(message);
-		btnOk.setOnClickListener(positive);
+		binding.tvMessage.setText(message);
+		btnPrimary.setOnClickListener(positive);
 		showButtons();
 	}
 
@@ -237,14 +236,17 @@ public class InstallerDialog extends DialogFragment {
 			AppItem app = installer.getExistsApp();
 			Drawable drawable = Drawable.createFromPath(app.getImagePathExt());
 			if (drawable != null) {
-				dialog.setIcon(drawable);
+				binding.ivIcon.setImageDrawable(drawable);
 			}
-			btnOk.setText(R.string.START_CMD);
-			btnOk.setOnClickListener(v -> {
+			binding.tvDialogTitle.setText(app.getTitle());
+			binding.tvMessage.setText(R.string.install_done);
+			btnPrimary.setText(R.string.START_CMD);
+			btnPrimary.setOnClickListener(v -> {
 				Config.startApp(v.getContext(), app.getTitle(), app.getPathExt());
 				dismiss();
 			});
-			btnClose.setText(R.string.close);
+			btnSecondary.setText(R.string.close);
+			btnSecondary.setOnClickListener(v -> dismiss());
 			showButtons();
 			return;
 		}
@@ -265,8 +267,8 @@ public class InstallerDialog extends DialogFragment {
 			case AppInstaller.STATUS_EQUAL -> {
 				message = new SpannableStringBuilder(getString(R.string.reinstall));
 				AppItem app = installer.getExistsApp();
-				btnRun.setVisibility(View.VISIBLE);
-				btnRun.setOnClickListener(v -> {
+				btnTertiary.setVisibility(View.VISIBLE);
+				btnTertiary.setOnClickListener(v -> {
 					installer.clearCache();
 					installer.deleteTemp();
 					Config.startApp(v.getContext(), app.getTitle(), app.getPathExt());
@@ -298,15 +300,23 @@ public class InstallerDialog extends DialogFragment {
 		}
 		Drawable drawable = Drawable.createFromPath(installer.getIconPath());
 		if (drawable != null) {
-			dialog.setIcon(drawable);
+			binding.ivIcon.setImageDrawable(drawable);
 		}
-		dialog.setTitle(nd.getName());
+		bindDescriptor(nd);
 		dialog.setCancelable(false);
 		dialog.setCanceledOnTouchOutside(false);
-		dialog.setMessage(message);
-		btnOk.setOnClickListener(v -> convert());
+		binding.tvMessage.setText(message);
+		btnPrimary.setText(R.string.install);
+		btnPrimary.setOnClickListener(v -> convert());
 		hideProgress();
 		showButtons();
+	}
+
+	private void bindDescriptor(@NonNull Descriptor descriptor) {
+		binding.tvDialogTitle.setText(descriptor.getName());
+		binding.tvName.setText(getString(R.string.installer_name_value, descriptor.getName()));
+		binding.tvVendor.setText(getString(R.string.installer_vendor_value, descriptor.getVendor()));
+		binding.tvVersion.setText(getString(R.string.installer_version_value, descriptor.getVersion()));
 	}
 
 	private void onError(Throwable e) {
