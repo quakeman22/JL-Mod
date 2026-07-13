@@ -19,6 +19,7 @@
 package javax.microedition.lcdui.event;
 
 import javax.microedition.util.ContextHolder;
+import javax.microedition.util.LinkedEntry;
 import javax.microedition.util.LinkedList;
 
 import ru.playsoftware.j2meloader.R;
@@ -77,7 +78,7 @@ public class EventQueue implements Runnable {
 	 * @param event the added event
 	 */
 	public void postEvent(Event event) {
-		if (immediate || (immediateInput && event.isImmediateInputEvent())) {
+		if (immediate) {
 			Integer integer = loopCounter.get();
 			int loop = (integer != null) ? integer : 0;
 			if (loop > 10) {
@@ -85,20 +86,12 @@ public class EventQueue implements Runnable {
 					immediate = false;
 					ContextHolder.getActivity().toast(R.string.msg_immediate_mode_disabled);
 				}
-				if (immediateInput) {
-					immediateInput = false;
-					ContextHolder.getActivity().toast(R.string.msg_immediate_input_mode_disabled);
-				}
 			} else {
 				event.enterQueue();
 				try {
 					loopCounter.set(loop + 1);
-					if (immediateInput && event.isImmediateInputEvent() && !immediate) {
-						event.run(); // low-latency key path, avoid repaint callback lock
-					} else {
-						synchronized (callbackLock) {
-							event.run(); // process event on the spot
-						}
+					synchronized (callbackLock) {
+						event.run(); // process event on the spot
 					}
 				} finally {
 					loopCounter.set(loop);
@@ -112,7 +105,9 @@ public class EventQueue implements Runnable {
 		synchronized (queue) {   // all operations with the queue must be synchronized (on itself)
 			empty = queue.isEmpty();
 
-			if (empty || event.placeableAfter(queue.getLast())) {
+			if (immediateInput && event.isImmediateInputEvent()) {
+				insertImmediateInputEvent(event);
+			} else if (empty || event.placeableAfter(queue.getLast())) {
 				/*
 				 * If the queue itself is empty, then this already implies that either
 				 * exactly one event remains and it is now being processed,
@@ -146,6 +141,24 @@ public class EventQueue implements Runnable {
 				}
 			}
 		}
+	}
+
+	private void insertImmediateInputEvent(Event event) {
+		LinkedEntry<Event> entry = queue.firstEntry();
+		while (entry != null) {
+			Event queued = entry.getElement();
+			if (queued == null || !queued.isImmediateInputEvent()) {
+				break;
+			}
+			entry = entry.nextEntry();
+		}
+
+		if (entry == null) {
+			queue.addLast(event);
+		} else {
+			queue.getEntryInstance(event).insertBefore(entry);
+		}
+		event.enterQueue();
 	}
 
 	/**
@@ -244,4 +257,3 @@ public class EventQueue implements Runnable {
 			paintEvent.process();
 		}
 	}
-}
