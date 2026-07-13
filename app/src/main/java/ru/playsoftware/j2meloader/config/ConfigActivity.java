@@ -190,11 +190,6 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		binding.cmdFontSizePresets.setOnClickListener(this);
 		binding.cmdScreenBack.setOnClickListener(this);
 		binding.cmdKeyMappings.setOnClickListener(this);
-		binding.cmdVKBack.setOnClickListener(this);
-		binding.cmdVKFore.setOnClickListener(this);
-		binding.cmdVKSelBack.setOnClickListener(this);
-		binding.cmdVKSelFore.setOnClickListener(this);
-		binding.cmdVKOutline.setOnClickListener(this);
 		binding.btEncoding.setOnClickListener(this::showCharsetPicker);
 		binding.btShaderTune.setOnClickListener(this::showShaderSettings);
 		binding.tfScaleRatioValue.addTextChangedListener(new TextWatcher() {
@@ -277,25 +272,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-		binding.cxIsShowKeyboard.setOnClickListener((b) -> {
-			View.OnLayoutChangeListener onLayoutChangeListener = new View.OnLayoutChangeListener() {
-				@Override
-				public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-					View focus = binding.getRoot().findFocus();
-					if (focus != null) focus.clearFocus();
-					v.scrollTo(0, binding.rootConfigInput.getTop());
-					v.removeOnLayoutChangeListener(this);
-				}
-			};
-			binding.getRoot().addOnLayoutChangeListener(onLayoutChangeListener);
-			binding.groupVkConfig.setVisibility(binding.cxIsShowKeyboard.isChecked() ? View.VISIBLE : View.GONE);
-		});
 		binding.tfScreenBack.addTextChangedListener(new ColorTextWatcher(binding.tfScreenBack));
-		binding.tfVKFore.addTextChangedListener(new ColorTextWatcher(binding.tfVKFore));
-		binding.tfVKBack.addTextChangedListener(new ColorTextWatcher(binding.tfVKBack));
-		binding.tfVKSelFore.addTextChangedListener(new ColorTextWatcher(binding.tfVKSelFore));
-		binding.tfVKSelBack.addTextChangedListener(new ColorTextWatcher(binding.tfVKSelBack));
-		binding.tfVKOutline.addTextChangedListener(new ColorTextWatcher(binding.tfVKOutline));
 		TooltipCompat.setTooltipText(binding.cxSkipResumeCall, getString(R.string.tooltip_skip_resume_call));
 		initSoundBankSpinner();
 		initSkinSpinner();
@@ -648,26 +625,12 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 		binding.tfFontSizeLarge.setText(Integer.toString(params.fontSizeLarge));
 		binding.cxFontSizeInSP.setChecked(params.fontApplyDimensions);
 		binding.cxFontAA.setChecked(params.fontAA);
-		boolean showVk = params.showKeyboard;
-		binding.cxIsShowKeyboard.setChecked(showVk);
-		binding.groupVkConfig.setVisibility(showVk ? View.VISIBLE : View.GONE);
-		binding.cxVKFeedback.setChecked(params.vkFeedback);
-		binding.cxVKForceOpacity.setChecked(params.vkForceOpacity);
+		binding.cxIsShowKeyboard.setChecked(params.showKeyboard);
 		binding.cxTouchInput.setChecked(params.touchInput);
 		int fpsLimit = params.fpsLimit;
 		binding.etFpsLimit.setText(fpsLimit > 0 ? Integer.toString(fpsLimit) : "");
 
 		binding.spLayout.setSelection(params.keyCodesLayout);
-		binding.spButtonsShape.setSelection(params.vkButtonShape);
-		binding.sbVKAlpha.setProgress(params.vkAlpha);
-		int vkHideDelay = params.vkHideDelay;
-		binding.tfVKHideDelay.setText(vkHideDelay > 0 ? Integer.toString(vkHideDelay) : "");
-
-		binding.tfVKBack.setText(String.format("%06X", params.vkBgColor));
-		binding.tfVKFore.setText(String.format("%06X", params.vkFgColor));
-		binding.tfVKSelBack.setText(String.format("%06X", params.vkBgColorSelected));
-		binding.tfVKSelFore.setText(String.format("%06X", params.vkFgColorSelected));
-		binding.tfVKOutline.setText(String.format("%06X", params.vkOutlineColor));
 
 		binding.cxSkipResumeCall.setChecked(params.skipResumeCall);
 		setSpinnerSelection(binding.spSoundBank, params.soundBank);
@@ -751,38 +714,9 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			params.fontApplyDimensions = binding.cxFontSizeInSP.isChecked();
 			params.fontAA = binding.cxFontAA.isChecked();
 			params.showKeyboard = binding.cxIsShowKeyboard.isChecked();
-			params.vkFeedback = binding.cxVKFeedback.isChecked();
-			params.vkForceOpacity = binding.cxVKForceOpacity.isChecked();
 			params.touchInput = binding.cxTouchInput.isChecked();
 
 			params.keyCodesLayout = binding.spLayout.getSelectedItemPosition();
-			params.vkButtonShape = binding.spButtonsShape.getSelectedItemPosition();
-			params.vkAlpha = binding.sbVKAlpha.getProgress();
-			try {
-				params.vkHideDelay = Integer.parseInt(binding.tfVKHideDelay.getText().toString());
-			} catch (NumberFormatException e) {
-				params.vkHideDelay = 0;
-			}
-			try {
-				params.vkBgColor = Integer.parseInt(binding.tfVKBack.getText().toString(), 16);
-			} catch (Exception ignored) {
-			}
-			try {
-				params.vkFgColor = Integer.parseInt(binding.tfVKFore.getText().toString(), 16);
-			} catch (Exception ignored) {
-			}
-			try {
-				params.vkBgColorSelected = Integer.parseInt(binding.tfVKSelBack.getText().toString(), 16);
-			} catch (Exception ignored) {
-			}
-			try {
-				params.vkFgColorSelected = Integer.parseInt(binding.tfVKSelFore.getText().toString(), 16);
-			} catch (Exception ignored) {
-			}
-			try {
-				params.vkOutlineColor = Integer.parseInt(binding.tfVKOutline.getText().toString(), 16);
-			} catch (Exception ignored) {
-			}
 			params.skipResumeCall = binding.cxSkipResumeCall.isChecked();
 			params.soundBank = binding.spSoundBank.getSelectedItemPosition() > 0 ? (String) binding.spSoundBank.getSelectedItem() : null;
 			params.systemProperties = getSystemProperties(binding.tfSystemProperties.getText().toString());
@@ -895,16 +829,6 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 					.show();
 		} else if (id == R.id.cmdScreenBack) {
 			showColorPicker(binding.tfScreenBack);
-		} else if (id == R.id.cmdVKBack) {
-			showColorPicker(binding.tfVKBack);
-		} else if (id == R.id.cmdVKFore) {
-			showColorPicker(binding.tfVKFore);
-		} else if (id == R.id.cmdVKSelFore) {
-			showColorPicker(binding.tfVKSelFore);
-		} else if (id == R.id.cmdVKSelBack) {
-			showColorPicker(binding.tfVKSelBack);
-		} else if (id == R.id.cmdVKOutline) {
-			showColorPicker(binding.tfVKOutline);
 		} else if (id == R.id.cmdKeyMappings) {
 			Intent i = new Intent(getIntent().getAction(), Uri.parse(configDir.getPath()),
 					this, KeyMapperActivity.class);
