@@ -177,6 +177,7 @@
     <string name="pref_theme_system">Seguir as configurações do sistema</string>
     <string name="pref_theme_title">Tema</string>
     <string name="pref_ui_sounds_title">Sons da interface</string>
+    <string name="pref_language_system_default">Padrão do sistema</string>
     <string name="PREF_TOUCH_INPUT">Entrada por toque</string>
     <string name="pref_vibration_title">Ativar vibração</string>
     <string name="PREF_VIRTUAL_KEYBOARD_OPTIONS">Teclado virtual</string>
