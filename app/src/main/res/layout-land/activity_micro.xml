@@ -149,24 +149,13 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/dpad_console_backdrop"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/classic_dpad_control_bg_land"
-            app:layout_constraintBottom_toBottomOf="@id/control_pad_shell"
-            app:layout_constraintDimensionRatio="768:201"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/control_pad_shell"
-            app:layout_constraintWidth_max="420dp" />
-
         <FrameLayout
             android:id="@+id/control_pad_shell"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_micro_pad_shell"
             app:layout_constraintBottom_toBottomOf="@id/game_frame"
             app:layout_constraintDimensionRatio="1.04:1"
             app:layout_constraintEnd_toStartOf="@id/game_frame"
@@ -257,7 +246,6 @@
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/classic_dpad_button_bg"
             app:layout_constraintBottom_toBottomOf="@id/game_frame"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
