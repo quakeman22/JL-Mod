@@ -48,7 +48,7 @@ public class AudioClip {
 		}
 		InputStream stream = AppClassLoader.getResourceAsStream(null, filename);
 		try {
-			player = Manager.createPlayer(stream, "audio/midi");
+			player = Manager.createPlayer(stream, resolveFormat(type));
 		} catch (MediaException e) {
 			throw new RuntimeException(e);
 		}
@@ -67,7 +67,7 @@ public class AudioClip {
 		}
 		ByteArrayInputStream stream = new ByteArrayInputStream(audioData, audioOffset, audioLength);
 		try {
-			player = Manager.createPlayer(stream, "audio/midi");
+			player = Manager.createPlayer(stream, resolveFormat(type));
 		} catch (IOException e) {
 			Log.e(TAG, "AudioClip: ", e);
 		} catch (MediaException e) {
@@ -120,5 +120,12 @@ public class AudioClip {
 		} catch (MediaException e) {
 			Log.e(TAG, "pause: ", e);
 		}
+	}
+
+	private String resolveFormat(int type) {
+		if (type >= 1 && type <= FORMATS.length) {
+			return FORMATS[type - 1];
+		}
+		return "audio/midi";
 	}
 }
