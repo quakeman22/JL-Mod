@@ -509,25 +509,42 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		boolean gold = "gold".equals(classicsHandsetSkin);
-		binding.midletFrame.setBackgroundResource(gold
-				? R.drawable.bg_handset_game_background_gold
-				: R.drawable.bg_handset_game_background);
-		binding.gameFrame.setBackgroundResource(gold
-				? R.drawable.bg_handset_display_frame_gold
-				: R.drawable.bg_handset_display_frame);
-		binding.handsetShellContainer.setBackgroundResource(gold
-				? R.drawable.bg_handset_body_gold
-				: R.drawable.bg_handset_body);
-		binding.handsetSoftLeft.setBackgroundResource(gold
-				? R.drawable.bg_handset_softkey_gold
-				: R.drawable.bg_handset_softkey);
-		binding.handsetMenu.setBackgroundResource(gold
-				? R.drawable.bg_handset_menu_key_gold
-				: R.drawable.bg_handset_menu_key);
-		binding.handsetSoftRight.setBackgroundResource(gold
-				? R.drawable.bg_handset_softkey_right_gold
-				: R.drawable.bg_handset_softkey_right);
-		int handsetKeyBackground = gold ? R.drawable.bg_handset_key_gold : R.drawable.bg_handset_key;
+		boolean blue = "blue".equals(classicsHandsetSkin);
+		boolean silver = "silver".equals(classicsHandsetSkin);
+		int gameBackground = gold ? R.drawable.bg_handset_game_background_gold
+				: blue ? R.drawable.bg_handset_game_background_blue
+				: silver ? R.drawable.bg_handset_game_background_silver
+				: R.drawable.bg_handset_game_background;
+		int displayFrame = gold ? R.drawable.bg_handset_display_frame_gold
+				: blue ? R.drawable.bg_handset_display_frame_blue
+				: silver ? R.drawable.bg_handset_display_frame_silver
+				: R.drawable.bg_handset_display_frame;
+		int bodyBackground = gold ? R.drawable.bg_handset_body_gold
+				: blue ? R.drawable.bg_handset_body_blue
+				: silver ? R.drawable.bg_handset_body_silver
+				: R.drawable.bg_handset_body;
+		int softLeftBackground = gold ? R.drawable.bg_handset_softkey_gold
+				: blue ? R.drawable.bg_handset_softkey_blue
+				: silver ? R.drawable.bg_handset_softkey_silver
+				: R.drawable.bg_handset_softkey;
+		int menuBackground = gold ? R.drawable.bg_handset_menu_key_gold
+				: blue ? R.drawable.bg_handset_menu_key_blue
+				: silver ? R.drawable.bg_handset_menu_key_silver
+				: R.drawable.bg_handset_menu_key;
+		int softRightBackground = gold ? R.drawable.bg_handset_softkey_right_gold
+				: blue ? R.drawable.bg_handset_softkey_right_blue
+				: silver ? R.drawable.bg_handset_softkey_right_silver
+				: R.drawable.bg_handset_softkey_right;
+		int handsetKeyBackground = gold ? R.drawable.bg_handset_key_gold
+				: blue ? R.drawable.bg_handset_key_blue
+				: silver ? R.drawable.bg_handset_key_silver
+				: R.drawable.bg_handset_key;
+		binding.midletFrame.setBackgroundResource(gameBackground);
+		binding.gameFrame.setBackgroundResource(displayFrame);
+		binding.handsetShellContainer.setBackgroundResource(bodyBackground);
+		binding.handsetSoftLeft.setBackgroundResource(softLeftBackground);
+		binding.handsetMenu.setBackgroundResource(menuBackground);
+		binding.handsetSoftRight.setBackgroundResource(softRightBackground);
 		binding.handsetKey1.setBackgroundResource(handsetKeyBackground);
 		binding.handsetKey2.setBackgroundResource(handsetKeyBackground);
 		binding.handsetKey3.setBackgroundResource(handsetKeyBackground);
@@ -540,7 +557,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.handsetKeyStar.setBackgroundResource(handsetKeyBackground);
 		binding.handsetKey0.setBackgroundResource(handsetKeyBackground);
 		binding.handsetKeyPound.setBackgroundResource(handsetKeyBackground);
-		int handsetTextColor = Color.parseColor(gold ? "#121212" : "#FFFFFF");
+		int handsetTextColor = (gold || silver) ? Color.parseColor("#121212") : Color.parseColor("#FFFFFF");
 		binding.handsetKey1.setTextColor(handsetTextColor);
 		binding.handsetKey2.setTextColor(handsetTextColor);
 		binding.handsetKey3.setTextColor(handsetTextColor);
