@@ -16,6 +16,7 @@
 
 package ru.woesss.j2me.installer;
 
+import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -52,6 +54,7 @@ import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.applist.AppListModel;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.databinding.FragmentInstallerBinding;
+import ru.playsoftware.j2meloader.databinding.RowInstallerStepBinding;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.FileUtils;
 import ru.woesss.j2me.jar.Descriptor;
@@ -68,6 +71,9 @@ public class InstallerDialog extends DialogFragment {
 	private AppListModel appListModel;
 	private AppInstaller installer;
 	private AlertDialog dialog;
+	private RowInstallerStepBinding[] stepRows;
+	private ValueAnimator convertAnimator;
+	private long installStartTime;
 
 	/**
 	 * @param uri original uri from intent.
@@ -141,6 +147,29 @@ public class InstallerDialog extends DialogFragment {
 		binding.tvDialogTitle.setText(R.string.midlet_installer_title);
 		binding.tvMessage.setText("");
 		hideButtons();
+		stepRows = new RowInstallerStepBinding[]{
+				binding.stepExtract, binding.stepManifest, binding.stepConvert,
+				binding.stepCache, binding.stepFinalize
+		};
+		int[] stepLabels = {
+				R.string.installer_step_extract, R.string.installer_step_manifest,
+				R.string.installer_step_convert, R.string.installer_step_cache,
+				R.string.installer_step_finalize
+		};
+		for (int i = 0; i < stepRows.length; i++) {
+			stepRows[i].label.setText(stepLabels[i]);
+		}
+		binding.btnClose.setOnClickListener(v -> {
+			compositeDisposable.clear();
+			if (convertAnimator != null) {
+				convertAnimator.cancel();
+			}
+			if (installer != null) {
+				installer.deleteTemp();
+				installer.clearCache();
+			}
+			dismiss();
+		});
 		Bundle args = requireArguments();
 		Uri uri = args.getParcelable(ARG_URI);
 		if (uri != null) {
@@ -182,13 +211,19 @@ public class InstallerDialog extends DialogFragment {
 	}
 
 	private void hideProgress() {
-		binding.progress.setVisibility(View.GONE);
-		binding.tvStatus.setVisibility(View.GONE);
+		binding.progressGroup.setVisibility(View.GONE);
+		binding.stepsCard.setVisibility(View.GONE);
+		binding.tipCard.setVisibility(View.GONE);
+		if (convertAnimator != null) {
+			convertAnimator.cancel();
+			convertAnimator = null;
+		}
 	}
 
 	private void showProgress() {
-		binding.progress.setVisibility(View.VISIBLE);
-		binding.tvStatus.setVisibility(View.VISIBLE);
+		binding.progressGroup.setVisibility(View.VISIBLE);
+		binding.stepsCard.setVisibility(View.VISIBLE);
+		binding.tipCard.setVisibility(View.VISIBLE);
 	}
 
 	private void hideButtons() {
@@ -205,14 +240,24 @@ public class InstallerDialog extends DialogFragment {
 	private void convert() {
 		Descriptor nd = installer.getNewDescriptor();
 		bindDescriptor(nd);
-		if (installer.getJar() == null) {
-			binding.tvMessage.setText(R.string.warn_install_from_net);
+		binding.tvMessage.setVisibility(View.GONE);
+		binding.tvDialogTitle.setText(R.string.installer_title_installing);
+		File jar = installer.getJar();
+		if (jar != null && jar.exists()) {
+			binding.rowSize.setVisibility(View.VISIBLE);
+			binding.tvSize.setText(getString(R.string.installer_size_value, formatSize(jar.length())));
 		} else {
-			binding.tvMessage.setText("");
+			binding.rowSize.setVisibility(View.GONE);
 		}
-		binding.tvStatus.setText(R.string.converting_wait);
-		showProgress();
+		resetSteps();
+		binding.progressGroup.setVisibility(View.VISIBLE);
+		binding.stepsCard.setVisibility(View.VISIBLE);
+		binding.tipCard.setVisibility(View.VISIBLE);
+		binding.progress.setProgress(0);
+		binding.tvPercent.setText("0%");
+		installStartTime = System.currentTimeMillis();
 		hideButtons();
+		installer.setProgressListener(this::onInstallStep);
 		Disposable disposable = Single.create(installer::install)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -220,11 +265,104 @@ public class InstallerDialog extends DialogFragment {
 		compositeDisposable.add(disposable);
 	}
 
+	private String formatSize(long bytes) {
+		double mb = bytes / (1024.0 * 1024.0);
+		if (mb < 0.1) {
+			return String.format(Locale.getDefault(), "%.0f KB", bytes / 1024.0);
+		}
+		return String.format(Locale.getDefault(), "%.2f MB", mb);
+	}
+
+	private void resetSteps() {
+		for (RowInstallerStepBinding row : stepRows) {
+			row.dotBg.setBackgroundResource(R.drawable.bg_installer_step_dot_pending);
+			row.dotCheck.setVisibility(View.GONE);
+			row.label.setTextColor(0xFF7B84A6);
+			row.status.setText(R.string.installer_status_pending);
+			row.status.setTextColor(0xFF7B84A6);
+		}
+	}
+
+	private void onInstallStep(int stepIndex, int percent) {
+		if (!isAdded() || binding == null) {
+			return;
+		}
+		requireActivity().runOnUiThread(() -> {
+			if (binding == null) {
+				return;
+			}
+			if (convertAnimator != null) {
+				convertAnimator.cancel();
+				convertAnimator = null;
+			}
+			applyStepUi(stepIndex, percent);
+			if (stepIndex == InstallProgressListener.STEP_CONVERT) {
+				// The JAR->DEX conversion doesn't expose granular progress, so we
+				// animate an estimate between this step's start and the next one's
+				// start; it gets cancelled/snapped the moment the real next step arrives.
+				convertAnimator = ValueAnimator.ofInt(percent, 84);
+				convertAnimator.setDuration(12000);
+				convertAnimator.addUpdateListener(a -> {
+					if (binding == null) return;
+					applyProgressValue((int) a.getAnimatedValue());
+				});
+				convertAnimator.start();
+			}
+		});
+	}
+
+	private void applyStepUi(int stepIndex, int percent) {
+		for (int i = 0; i < stepRows.length; i++) {
+			RowInstallerStepBinding row = stepRows[i];
+			if (i < stepIndex) {
+				row.dotBg.setBackgroundResource(R.drawable.bg_installer_step_dot_done);
+				row.dotCheck.setVisibility(View.VISIBLE);
+				row.label.setTextColor(0xFFC9D0E8);
+				row.status.setText(R.string.installer_status_done);
+				row.status.setTextColor(0xFFA221CC);
+			} else if (i == stepIndex) {
+				row.dotBg.setBackgroundResource(R.drawable.bg_installer_step_dot_active);
+				row.dotCheck.setVisibility(View.GONE);
+				row.label.setTextColor(0xFFFFFFFF);
+				row.status.setText(R.string.installer_status_active);
+				row.status.setTextColor(0xFF4F8CFF);
+			} else {
+				row.dotBg.setBackgroundResource(R.drawable.bg_installer_step_dot_pending);
+				row.dotCheck.setVisibility(View.GONE);
+				row.label.setTextColor(0xFF7B84A6);
+				row.status.setText(R.string.installer_status_pending);
+				row.status.setTextColor(0xFF7B84A6);
+			}
+		}
+		binding.tvStatus.setText(stepIndex == InstallProgressListener.STEP_CONVERT
+				? getString(R.string.installer_converting_files)
+				: stepRows[stepIndex].label.getText());
+		applyProgressValue(percent);
+	}
+
+	private void applyProgressValue(int percent) {
+		if (binding == null) {
+			return;
+		}
+		binding.progress.setProgress(percent);
+		binding.tvPercent.setText(percent + "%");
+		long elapsed = System.currentTimeMillis() - installStartTime;
+		if (percent > 2 && elapsed > 300) {
+			double total = elapsed / (percent / 100.0);
+			long remainingSec = Math.max(0, (long) ((total - elapsed) / 1000));
+			binding.tvTimeRemaining.setText(getString(R.string.installer_time_remaining,
+					String.format(Locale.getDefault(), "%02d:%02d", remainingSec / 60, remainingSec % 60)));
+		} else {
+			binding.tvTimeRemaining.setText(getString(R.string.installer_time_remaining, "--:--"));
+		}
+	}
+
 	private void alertConfirm(SpannableStringBuilder message,
 							  View.OnClickListener positive) {
 		hideProgress();
 		dialog.setCancelable(false);
 		dialog.setCanceledOnTouchOutside(false);
+		binding.tvMessage.setVisibility(View.VISIBLE);
 		binding.tvMessage.setText(message);
 		btnPrimary.setOnClickListener(positive);
 		showButtons();
@@ -235,14 +373,15 @@ public class InstallerDialog extends DialogFragment {
 			return;
 		}
 		if (status == AppInstaller.STATUS_SUCCESS) {
-			binding.progress.setVisibility(View.GONE);
-			binding.tvStatus.setText(getString(R.string.install_done));
+			hideProgress();
+			binding.tvDialogTitle.setText(R.string.midlet_installer_title);
 			AppItem app = installer.getExistsApp();
 			Drawable drawable = Drawable.createFromPath(app.getImagePathExt());
 			if (drawable != null) {
 				binding.ivIcon.setImageDrawable(drawable);
 			}
-			binding.tvDialogTitle.setText(app.getTitle());
+			binding.tvName.setText(app.getTitle());
+			binding.tvMessage.setVisibility(View.VISIBLE);
 			binding.tvMessage.setText(R.string.install_done);
 			btnPrimary.setText(R.string.START_CMD);
 			btnPrimary.setOnClickListener(v -> {
@@ -262,7 +401,7 @@ public class InstallerDialog extends DialogFragment {
 					convert();
 					return;
 				}
-				message = new SpannableStringBuilder();
+				message = nd.getInfo(requireActivity());
 			}
 			case AppInstaller.STATUS_OLDER -> message = new SpannableStringBuilder(getString(
 					R.string.reinstall_older,
@@ -300,10 +439,7 @@ public class InstallerDialog extends DialogFragment {
 			default -> throw new IllegalStateException("Unexpected value: " + status);
 		}
 		if (installer.getJar() == null) {
-			if (message.length() > 0) {
-				message.append('\n');
-			}
-			message.append(getString(R.string.warn_install_from_net));
+			message.append('\n').append(getString(R.string.warn_install_from_net));
 		}
 		Drawable drawable = Drawable.createFromPath(installer.getIconPath());
 		if (drawable != null) {
@@ -312,6 +448,7 @@ public class InstallerDialog extends DialogFragment {
 		bindDescriptor(nd);
 		dialog.setCancelable(false);
 		dialog.setCanceledOnTouchOutside(false);
+		binding.tvMessage.setVisibility(View.VISIBLE);
 		binding.tvMessage.setText(message);
 		btnPrimary.setText(R.string.install);
 		btnPrimary.setOnClickListener(v -> convert());
@@ -320,9 +457,8 @@ public class InstallerDialog extends DialogFragment {
 	}
 
 	private void bindDescriptor(@NonNull Descriptor descriptor) {
-		binding.tvDialogTitle.setText(descriptor.getName());
-		binding.tvName.setText(getString(R.string.installer_name_value, descriptor.getName()));
-		binding.tvVendor.setText(getString(R.string.installer_vendor_value, descriptor.getVendor()));
+		binding.tvName.setText(descriptor.getName());
+		binding.tvVendor.setText(descriptor.getVendor());
 		binding.tvVersion.setText(getString(R.string.installer_version_value, descriptor.getVersion()));
 	}
 

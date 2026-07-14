@@ -62,9 +62,13 @@ public class AppInstaller {
 	static final int STATUS_SUCCESS = 4;
 	static final int STATUS_SAME = 5;
 
+	private static final int[] STEP_PERCENTS = {5, 15, 25, 85, 95};
+
 	private final int id;
 	private final AppListModel appListModel;
 	private final File cacheDir = new File(EmulatorApplication.getInstance().getCacheDir(), "installer");
+
+	private InstallProgressListener progressListener;
 
 	private Uri uri;
 	private Descriptor manifest;
@@ -75,6 +79,16 @@ public class AppInstaller {
 	private File tmpDir;
 	private AppItem currentApp;
 	private File srcFile;
+
+	void setProgressListener(InstallProgressListener progressListener) {
+		this.progressListener = progressListener;
+	}
+
+	private void notifyStep(int stepIndex) {
+		if (progressListener != null) {
+			progressListener.onStep(stepIndex, STEP_PERCENTS[stepIndex]);
+		}
+	}
 
 	AppInstaller(File jar, Uri uri, AppListModel appListModel) {
 		id = -1;
@@ -260,6 +274,7 @@ public class AppInstaller {
 		if (!tmpDir.isDirectory() && !tmpDir.mkdirs()) {
 			throw new ConverterException("Can't create directory: '" + targetDir + "'");
 		}
+		notifyStep(InstallProgressListener.STEP_EXTRACT);
 		if (srcJar == null) {
 			srcJar = new File(cacheDir, "tmp.jar");
 			downloadJar();
@@ -269,6 +284,8 @@ public class AppInstaller {
 				return;
 			}
 		}
+		notifyStep(InstallProgressListener.STEP_MANIFEST);
+		notifyStep(InstallProgressListener.STEP_CONVERT);
 		try {
 			Main.main(new String[]{"--no-optimize",
 					"--output=" + tmpDir + Config.MIDLET_DEX_ARCH,
@@ -276,6 +293,7 @@ public class AppInstaller {
 		} catch (Throwable e) {
 			throw new ConverterException("Dexing error", e);
 		}
+		notifyStep(InstallProgressListener.STEP_CACHE);
 		if (manifest != null) {
 			manifest.merge(newDesc);
 			newDesc = manifest;
@@ -298,6 +316,7 @@ public class AppInstaller {
 		if (!tmpDir.renameTo(targetDir)) {
 			throw new ConverterException("Can't move '" + tmpDir + "' to '" + targetDir + "'");
 		}
+		notifyStep(InstallProgressListener.STEP_FINALIZE);
 		String name = newDesc.getName();
 		String vendor = newDesc.getVendor();
 		AppItem app = new AppItem(appDirName, name, vendor, newDesc.getVersion());
