@@ -138,6 +138,22 @@
         <item name="colorAccent">@color/settings_toolbar_end</item>
         <item name="colorControlNormal">@color/settings_summary</item>
         <item name="colorControlActivated">@color/settings_toolbar_end</item>
+        <item name="preferenceStyle">@style/AppPreferenceRowStyle</item>
+        <item name="dialogPreferenceStyle">@style/AppPreferenceRowStyle</item>
+        <item name="preferenceCategoryStyle">@style/AppPreferenceCategoryStyle</item>
+        <item name="switchPreferenceCompatStyle">@style/AppPreferenceSwitchStyle</item>
+    </style>
+
+    <style name="AppPreferenceRowStyle" parent="Preference">
+        <item name="android:layout">@layout/pref_row_nav</item>
+    </style>
+
+    <style name="AppPreferenceSwitchStyle" parent="Preference.SwitchPreferenceCompat">
+        <item name="android:layout">@layout/pref_row_switch</item>
+    </style>
+
+    <style name="AppPreferenceCategoryStyle" parent="Preference.Category">
+        <item name="android:layout">@layout/pref_category_header</item>
     </style>
 
     <style name="ClassicsCompactAlertDialogTheme" parent="ClassicsAlertDialogTheme">
