@@ -81,6 +81,10 @@
     <string name="loading_info">loading info…</string>
     <string name="midlet_installer_title">MIDlet installer</string>
     <string name="installer_tip_keep_browsing">You can keep browsing. We will let you know when it is done.</string>
+    <string name="preload_title">Preparing files</string>
+    <string name="preload_subtitle">This may take a moment</string>
+    <string name="preload_wait">Loading resources...</string>
+    <string name="splash_subtitle">Gameloft Classics</string>
     <string name="log_saved">Log has been saved</string>
     <string name="mapping_dialog_key_not_specified">not specified</string>
     <string name="mapping_dialog_message">Current mapping:\n%1$s</string>
