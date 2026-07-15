@@ -34,6 +34,18 @@
         <item>phone</item>
         <item>handset</item>
     </string-array>
+    <string-array name="pref_classics_handset_skin_entries">
+        <item>@string/pref_classics_handset_skin_dark</item>
+        <item>@string/pref_classics_handset_skin_gold</item>
+        <item>@string/pref_classics_handset_skin_blue</item>
+        <item>@string/pref_classics_handset_skin_silver</item>
+    </string-array>
+    <string-array name="pref_classics_handset_skin_values" translatable="false">
+        <item>dark</item>
+        <item>gold</item>
+        <item>blue</item>
+        <item>silver</item>
+    </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
         <item>@string/pref_app_sort_date</item>
