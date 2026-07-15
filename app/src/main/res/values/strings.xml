@@ -135,6 +135,11 @@
     <string name="pref_classics_control_style_title">Classics control style</string>
     <string name="pref_classics_control_style_joystick">Joystick</string>
     <string name="pref_classics_control_style_phone">Phone</string>
+    <string name="pref_classics_control_style_handset">Handset</string>
+    <string name="pref_classics_handset_skin_dark">Handset Dark</string>
+    <string name="pref_classics_handset_skin_gold">Handset Gold</string>
+    <string name="pref_classics_handset_skin_blue">Handset Blue</string>
+    <string name="pref_classics_handset_skin_silver">Handset Silver</string>
     <string name="pref_encoding_title">Encoding</string>
     <string name="PREF_FILTER">Filter</string>
     <string name="PREF_FONT_ANTI_ALIASING">Anti-Aliasing</string>
