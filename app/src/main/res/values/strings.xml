@@ -83,6 +83,7 @@
     <string name="installer_name_value">Name: %1$s</string>
     <string name="installer_vendor_value">Vendor: %1$s</string>
     <string name="installer_version_value">Version: %1$s</string>
+    <string name="installer_tip_keep_browsing">You can keep browsing, we&apos;ll let you know when it&apos;s done.</string>
     <string name="log_saved">Log has been saved</string>
     <string name="mapping_dialog_key_not_specified">not specified</string>
     <string name="mapping_dialog_message">Current mapping:\n%1$s</string>
