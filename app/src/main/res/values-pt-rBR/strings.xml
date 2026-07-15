@@ -10,12 +10,8 @@
     <string name="action_multiplayer">Multiplayer</string>
     <string name="action_multiplayer_unavailable">Multiplayer ainda não está disponível</string>
     <string name="multiplayer_use_network">Usar rede em vez de Bluetooth</string>
-    <string name="multiplayer_use_relay">Usar servidor relay</string>
     <string name="multiplayer_friend_ip_hint">IP do amigo (ex: Tailscale)</string>
-    <string name="multiplayer_relay_host_hint">Host do relay</string>
-    <string name="multiplayer_room_code_hint">Código da sala</string>
     <string name="multiplayer_network_hint">Os dois aparelhos precisam estar na mesma rede ou VPN. Quem cria a sala deixa o campo de IP vazio.</string>
-    <string name="multiplayer_relay_hint">Use um host relay e um código de sala compartilhado quando a conexão direta por IP não for possível.</string>
     <string name="action_reinstall">Reinstalar</string>
     <string name="action_settings">Configurações</string>
     <string name="add">Adicionar</string>
@@ -30,7 +26,6 @@
     <string name="CLEAR_DATA_CMD">Apagar dados</string>
     <string name="close">Fechar</string>
     <string name="cmd_menu">Menu</string>
-    <string name="config_actions_title">Ações</string>
     <string name="CONFIRMATION_REQUIRED">Confirmação necessária</string>
     <string name="converting_wait">Convertendo JAR…</string>
     <string name="crash_dialog_message">Deseja enviar um relatório de erro ao desenvolvedor?</string>
@@ -55,12 +50,6 @@
     <string name="help_message">&#8226; Ativando a filtragem em alguns casos pode reduzir muito a performance. Desative esta opção se o jogo estiver muito lento.&lt;BR&gt;&#8226; Problemas de exibição de imagens podem ser corrigidos ao ativar a opção \"Modo de processamento imediato\".</string>
     <string name="hide_buttons">Ocultar botões</string>
     <string name="identity_filter">Rápido (sem filtro)</string>
-    <string name="splash_subtitle">Preparando seus clássicos Java</string>
-    <string name="preload_title">Preparando biblioteca</string>
-    <string name="preload_subtitle">Verificando conteúdo embutido</string>
-    <string name="preload_wait">Deixando tudo pronto…</string>
-    <string name="preload_progress">%1$d/%2$d • %3$s</string>
-    <string name="preload_failed">Falha ao preparar a biblioteca embutida:\n%1$s</string>
     <string name="install">instalar</string>
     <string name="install_done">Aplicativo instalado com sucesso!</string>
     <string name="install_jar_needed">Selecione o arquivo JAR</string>
@@ -74,10 +63,6 @@
     <string name="licenses">Licenças</string>
     <string name="load_profile">Carregar perfil</string>
     <string name="loading_info">Carregando informações…</string>
-    <string name="midlet_installer_title">Instalador MIDlet</string>
-    <string name="installer_name_value">Nome: %1$s</string>
-    <string name="installer_vendor_value">Fabricante: %1$s</string>
-    <string name="installer_version_value">Versão: %1$s</string>
     <string name="installer_tip_keep_browsing">Você pode continuar navegando. Avisaremos quando terminar.</string>
     <string name="log_saved">Log foi salvo</string>
     <string name="mapping_dialog_key_not_specified">não especificado</string>
@@ -121,12 +106,6 @@
     <string name="pref_classics_control_style_title">Estilo de controle Classics</string>
     <string name="pref_classics_control_style_joystick">Joystick</string>
     <string name="pref_classics_control_style_phone">Celular</string>
-    <string name="pref_classics_control_style_handset">Celular retrô</string>
-    <string name="pref_classics_handset_skin_title">Skin do celular retrô</string>
-    <string name="pref_classics_handset_skin_dark">Celular retrô escuro</string>
-    <string name="pref_classics_handset_skin_gold">Celular retrô dourado</string>
-    <string name="pref_classics_handset_skin_blue">Celular retrô azul</string>
-    <string name="pref_classics_handset_skin_silver">Celular retrô prata</string>
     <string name="pref_encoding_title">Codificação</string>
     <string name="PREF_FILTER">Filtro</string>
     <string name="PREF_FONT_ANTI_ALIASING">Anti-Serrilhado</string>
@@ -143,8 +122,6 @@
     <string name="PREF_HEIGHT">Altura</string>
     <string name="PREF_HW_ACCELERATION">Aceleração de HW (instável)</string>
     <string name="PREF_IMMEDIATE">Modo de processamento imediato</string>
-    <string name="PREF_IMMEDIATE_INPUT">Compatibilidade de input sem atraso</string>
-    <string name="msg_immediate_input_mode_disabled">Modo de input imediato desativado para evitar estouro de pilha</string>
     <string name="pref_input_devices_title">Dispositivos de entrada</string>
     <string name="PREF_KEEP_ASPECT_RATIO">Manter proporção</string>
     <string name="PREF_LIMIT_FPS">Limite de FPS</string>
@@ -173,7 +150,6 @@
     <string name="pref_screenshot_summary">Desativar escala e filtragem para capturas de tela</string>
     <string name="pref_screenshot_title">Captura de tela em raw</string>
     <string name="PREF_SHOW_FPS">Exibir FPS</string>
-    <string name="PREF_SHOW_KEYBOARD">Mostrar teclado na tela</string>
     <string name="PREF_SYS_PROPS">Propriedades do Sistema</string>
     <string name="pref_theme_auto_battery">Automático, por Economia de Bateria</string>
     <string name="pref_theme_auto_time">Automático, por hora do dia</string>
@@ -181,8 +157,6 @@
     <string name="pref_theme_night">Escuro</string>
     <string name="pref_theme_system">Seguir as configurações do sistema</string>
     <string name="pref_theme_title">Tema</string>
-    <string name="pref_ui_sounds_title">Sons da interface</string>
-    <string name="pref_language_system_default">Padrão do sistema</string>
     <string name="PREF_TOUCH_INPUT">Entrada por toque</string>
     <string name="pref_vibration_title">Ativar vibração</string>
     <string name="PREF_VIRTUAL_KEYBOARD_OPTIONS">Teclado virtual</string>
