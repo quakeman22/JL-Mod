@@ -10,10 +10,15 @@
     <string name="action_multiplayer">Multiplayer</string>
     <string name="action_multiplayer_unavailable">Multiplayer ainda não está disponível</string>
     <string name="multiplayer_use_network">Usar rede em vez de Bluetooth</string>
+    <string name="multiplayer_use_relay">Usar servidor relay</string>
     <string name="multiplayer_friend_ip_hint">IP do amigo (ex: Tailscale)</string>
+    <string name="multiplayer_relay_host_hint">Host do relay</string>
+    <string name="multiplayer_room_code_hint">Código da sala</string>
     <string name="multiplayer_network_hint">Os dois aparelhos precisam estar na mesma rede ou VPN. Quem cria a sala deixa o campo de IP vazio.</string>
+    <string name="multiplayer_relay_hint">Use um host relay e um código de sala compartilhado quando a conexão direta por IP não for possível.</string>
     <string name="action_reinstall">Reinstalar</string>
     <string name="action_settings">Configurações</string>
+    <string name="config_actions_title">Ações</string>
     <string name="add">Adicionar</string>
     <string name="add_profile_description">Criar novo perfil</string>
     <string name="alert_map_menu">Tecla de menu (M) não está atribuída!\nIsto pode impossibilitar o acesso às opções do emulador</string>
@@ -63,6 +68,7 @@
     <string name="licenses">Licenças</string>
     <string name="load_profile">Carregar perfil</string>
     <string name="loading_info">Carregando informações…</string>
+    <string name="midlet_installer_title">Instalador MIDlet</string>
     <string name="installer_tip_keep_browsing">Você pode continuar navegando. Avisaremos quando terminar.</string>
     <string name="log_saved">Log foi salvo</string>
     <string name="mapping_dialog_key_not_specified">não especificado</string>
@@ -107,6 +113,7 @@
     <string name="pref_classics_control_style_joystick">Joystick</string>
     <string name="pref_classics_control_style_phone">Celular</string>
     <string name="pref_classics_control_style_handset">Celular retrô</string>
+    <string name="pref_classics_handset_skin_title">Skin do celular retrô</string>
     <string name="pref_classics_handset_skin_dark">Celular retrô escuro</string>
     <string name="pref_classics_handset_skin_gold">Celular retrô dourado</string>
     <string name="pref_classics_handset_skin_blue">Celular retrô azul</string>
@@ -126,6 +133,7 @@
     <string name="pref_graphics_mode_title">Modos de gráfico:</string>
     <string name="PREF_HEIGHT">Altura</string>
     <string name="PREF_HW_ACCELERATION">Aceleração de HW (instável)</string>
+    <string name="PREF_IMMEDIATE_INPUT">Compatibilidade de input sem atraso</string>
     <string name="PREF_IMMEDIATE">Modo de processamento imediato</string>
     <string name="pref_input_devices_title">Dispositivos de entrada</string>
     <string name="PREF_KEEP_ASPECT_RATIO">Manter proporção</string>
@@ -184,6 +192,7 @@
     <string name="PREF_VK_SIZE_HINT">Tamanho</string>
     <string name="PREF_VK_SOFT_KEYS">Teclas de função: </string>
     <string name="PREF_VK_TYPE">Tipo de teclado</string>
+    <string name="PREF_SHOW_KEYBOARD">Mostrar teclado na tela</string>
     <string name="pref_vk_type_arrows">Setas</string>
     <string name="pref_vk_type_arrows_numbers">Setas &amp; números</string>
     <string name="pref_vk_type_custom">Personalizar</string>
@@ -194,6 +203,7 @@
     <string name="pref_wakelock_title">Manter a tela ligada</string>
     <string name="PREF_WIDTH">Largura</string>
     <string name="profiles">Perfis</string>
+    <string name="pref_ui_sounds_title">Sons da interface</string>
     <string name="reinstall">Aplicativo já instalado.\n\nVocê deseja reinstalá-lo?\nTodos os dados serão salvos.</string>
     <string name="reinstall_newest">Atualizar esta aplicação para a versão %1$s?\n\nAtualmente instalado: %2$s\nTodos os dados serão salvos.</string>
     <string name="reinstall_older">Substituir este aplicativo pela versão %1$s?\n\nInstalada atualmente: %2$s\nA versão mais antiga pode não funcionar corretamente com os dados registrados.</string>
