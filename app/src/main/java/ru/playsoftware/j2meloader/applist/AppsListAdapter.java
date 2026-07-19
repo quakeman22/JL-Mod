@@ -81,7 +81,11 @@ class AppsListAdapter extends ListAdapter<AppItem, AppsListAdapter.AppViewHolder
 	}
 
 	void setLayout(int layout) {
+		if (this.layout == layout) {
+			return;
+		}
 		this.layout = layout;
+		notifyDataSetChanged();
 	}
 
 	static class AppViewHolder extends RecyclerView.ViewHolder {

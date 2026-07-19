@@ -59,6 +59,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,6 +67,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.nononsenseapps.filepicker.FilePickerActivity;
 
+import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -87,10 +89,12 @@ import ru.playsoftware.j2meloader.info.HelpDialogFragment;
 import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
-import ru.playsoftware.j2meloader.util.UiSoundEffects;
 import ru.woesss.j2me.installer.InstallerDialog;
 
-public class AppsListFragment extends Fragment implements MenuProvider, AppsCarouselAdapter.OnItemActionListener {
+public class AppsListFragment extends Fragment implements MenuProvider,
+		AppsCarouselAdapter.OnItemActionListener, AppsListAdapter.OnItemClickListener {
+	private static final String APPS_VIEW_CAROUSEL = "carousel";
+	private static final String APPS_VIEW_GRID = "grid";
 
 	private final ActivityResultLauncher<Void> openFileLauncher = registerForActivityResult(
 			new ActivityResultContract<Void, Uri>() {
@@ -122,13 +126,23 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 				}
 			},
 			this::onActivityResult);
-	private final AppsCarouselAdapter adapter = new AppsCarouselAdapter(this);
+	private final AppsCarouselAdapter carouselAdapter = new AppsCarouselAdapter(this);
+	private final AppsListAdapter gridAdapter = new AppsListAdapter(this);
 	private Uri appUri;
 	private SharedPreferences preferences;
 	private AppListModel appListViewModel;
 	private Disposable searchViewDisposable;
 	private LinearLayoutManager layoutManager;
 	private PagerSnapHelper snapHelper;
+	private final RecyclerView.OnScrollListener carouselScrollListener = new RecyclerView.OnScrollListener() {
+		@Override
+		public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+			if (!isGridMode() && newState == RecyclerView.SCROLL_STATE_IDLE) {
+				updateSelectionFromSnap();
+			}
+		}
+	};
+	private boolean gridMode;
 	private FragmentAppslistBinding binding;
 	private List<AppItem> currentItems = List.of();
 	private int selectedPosition = RecyclerView.NO_POSITION;
@@ -163,37 +177,22 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		MenuHost menuHost = requireActivity();
 		menuHost.addMenuProvider(this, getViewLifecycleOwner());
-		layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-		binding.list.setLayoutManager(layoutManager);
-		binding.list.setAdapter(adapter);
-		snapHelper = new PagerSnapHelper();
-		snapHelper.attachToRecyclerView(binding.list);
-		binding.list.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-				if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-					updateSelectionFromSnap();
-				}
-			}
-		});
-		binding.buttonPrevious.setOnClickListener(v -> {
-			UiSoundEffects.get(requireContext()).playBrowse();
-			moveSelection(-1);
-		});
-		binding.buttonNext.setOnClickListener(v -> {
-			UiSoundEffects.get(requireContext()).playBrowse();
-			moveSelection(1);
-		});
+		binding.buttonPrevious.setOnClickListener(v -> moveSelection(-1));
+		binding.buttonNext.setOnClickListener(v -> moveSelection(1));
 		binding.buttonPlay.setOnClickListener(v -> launchSelectedApp());
-		binding.buttonMoreGames.setOnClickListener(v -> {
-			UiSoundEffects.get(requireContext()).playConfirm();
-			openFileLauncher.launch(null);
-		});
-		binding.buttonSettings.setOnClickListener(v -> {
-			UiSoundEffects.get(requireContext()).playConfirm();
-			startActivity(new Intent(requireActivity(), SettingsActivity.class));
-		});
+		binding.buttonMoreGames.setOnClickListener(v -> openFileLauncher.launch(null));
+		binding.buttonSettings.setOnClickListener(v ->
+				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+		applyAppsViewMode(true);
 		appListViewModel.getAppList().observe(getViewLifecycleOwner(), this::onDbUpdated);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (binding != null) {
+			applyAppsViewMode(false);
+		}
 	}
 
 	@Override
@@ -202,6 +201,15 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 			searchViewDisposable.dispose();
 		}
 		super.onDestroy();
+	}
+
+	@Override
+	public void onDestroyView() {
+		if (snapHelper != null) {
+			snapHelper.attachToRecyclerView(null);
+		}
+		binding = null;
+		super.onDestroyView();
 	}
 
 	private void alertRename(AppItem item) {
@@ -236,16 +244,17 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 
 	@Override
 	public void onItemActivated(AppItem item) {
-		UiSoundEffects.get(requireContext()).playPlay();
 		Config.startApp(requireContext(), item.getTitle(), item.getPathExt());
 	}
 
 	@Override
 	public void onItemSelected(int position) {
-		if (position != selectedPosition) {
-			UiSoundEffects.get(requireContext()).playBrowse();
-		}
 		selectPosition(position, true);
+	}
+
+	@Override
+	public void onClick(AppItem item) {
+		onItemActivated(item);
 	}
 
 	@Override
@@ -304,11 +313,15 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 								emitter.onNext(newText);
 								return true;
 							}
-						})).debounce(300, TimeUnit.MILLISECONDS)
+				})).debounce(300, TimeUnit.MILLISECONDS)
 				.map(String::toLowerCase)
 				.distinctUntilChanged()
 				.subscribe(appListViewModel::setAppListFilter);
-		menu.findItem(R.id.action_view).setVisible(false);
+		MenuItem viewItem = menu.findItem(R.id.action_view);
+		viewItem.setVisible(true);
+		viewItem.setIcon(isGridMode()
+				? R.drawable.ic_action_apps_view_list
+				: R.drawable.ic_action_apps_view_grid);
 	}
 
 	@SuppressLint("NotifyDataSetChanged")
@@ -343,11 +356,20 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 		} else if (itemId == R.id.action_sort) {
 			showSortDialog();
 		} else if (itemId == R.id.action_view) {
+			toggleAppsView();
 			return true;
 		} else {
 			return false;
 		}
 		return true;
+	}
+
+	private void toggleAppsView() {
+		preferences.edit()
+				.putString(PREF_APPS_VIEW, isGridMode() ? APPS_VIEW_CAROUSEL : APPS_VIEW_GRID)
+				.apply();
+		applyAppsViewMode(true);
+		requireActivity().invalidateOptionsMenu();
 	}
 
 	private void showSortDialog() {
@@ -369,8 +391,9 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 	private void onDbUpdated(List<AppItem> items) {
 		AppItem previousSelected = selectedPosition != RecyclerView.NO_POSITION && selectedPosition < currentItems.size()
 				? currentItems.get(selectedPosition) : null;
-		currentItems = items;
-		adapter.submitList(items);
+		currentItems = new ArrayList<>(items);
+		carouselAdapter.submitList(new ArrayList<>(currentItems));
+		gridAdapter.submitList(new ArrayList<>(currentItems));
 		if (items.isEmpty()) {
 			String filter = appListViewModel.getAppFilter();
 			if (filter.isEmpty()) {
@@ -380,14 +403,16 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 			}
 			binding.empty.setVisibility(View.VISIBLE);
 			selectedPosition = RecyclerView.NO_POSITION;
-			adapter.setSelectedPosition(RecyclerView.NO_POSITION);
+			carouselAdapter.setSelectedPosition(RecyclerView.NO_POSITION);
 			updateSelectedViews(null, 0, 0);
 			setButtonsEnabled(false);
 		} else {
 			binding.empty.setVisibility(View.GONE);
-			int resolvedPosition = resolveSelectedPosition(items, previousSelected);
-			selectPosition(resolvedPosition, false);
 			setButtonsEnabled(true);
+			if (!isGridMode()) {
+				int resolvedPosition = resolveSelectedPosition(items, previousSelected);
+				selectPosition(resolvedPosition, false);
+			}
 		}
 		if (appUri != null) {
 			InstallerDialog.newInstance(appUri).show(getParentFragmentManager(), "installer");
@@ -450,6 +475,9 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 	}
 
 	private void updateSelectionFromSnap() {
+		if (isGridMode() || layoutManager == null || snapHelper == null) {
+			return;
+		}
 		View snapped = snapHelper.findSnapView(layoutManager);
 		if (snapped == null) {
 			return;
@@ -479,11 +507,11 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 	}
 
 	private void selectPosition(int position, boolean smoothScroll) {
-		if (position == RecyclerView.NO_POSITION || position >= currentItems.size()) {
+		if (isGridMode() || position == RecyclerView.NO_POSITION || position >= currentItems.size()) {
 			return;
 		}
 		selectedPosition = position;
-		adapter.setSelectedPosition(position);
+		carouselAdapter.setSelectedPosition(position);
 		updateSelectedViews(currentItems.get(position), position + 1, currentItems.size());
 		if (smoothScroll) {
 			binding.list.smoothScrollToPosition(position);
@@ -513,5 +541,73 @@ public class AppsListFragment extends Fragment implements MenuProvider, AppsCaro
 		binding.buttonPlay.setEnabled(enabled);
 		binding.buttonPrevious.setEnabled(enabled);
 		binding.buttonNext.setEnabled(enabled);
+	}
+
+	private void applyAppsViewMode(boolean force) {
+		if (binding == null) {
+			return;
+		}
+		boolean newGridMode = isGridMode();
+		if (!force && gridMode == newGridMode) {
+			return;
+		}
+		gridMode = newGridMode;
+		selectedPosition = gridMode ? RecyclerView.NO_POSITION : selectedPosition;
+
+		ViewGroup.MarginLayoutParams boxParams = (ViewGroup.MarginLayoutParams) binding.carouselBox.getLayoutParams();
+		int sideMargin = dp(gridMode ? 16 : 54);
+		boxParams.setMarginStart(sideMargin);
+		boxParams.setMarginEnd(sideMargin);
+		binding.carouselBox.setLayoutParams(boxParams);
+
+		binding.buttonPrevious.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.buttonNext.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.buttonPlay.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.selectedTitle.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.selectedSubtitle.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.positionBadge.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.progress.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		float headerOffset = gridMode ? dp(6) : 0;
+		binding.headerBrand.setTranslationY(headerOffset);
+		binding.headerTitle.setTranslationY(headerOffset);
+
+		if (gridMode) {
+			gridAdapter.setLayout(AppsListAdapter.LAYOUT_TYPE_GRID);
+			carouselAdapter.setSelectedPosition(RecyclerView.NO_POSITION);
+			binding.list.clearOnScrollListeners();
+			if (snapHelper != null) {
+				snapHelper.attachToRecyclerView(null);
+			}
+			GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), 3);
+			binding.list.setLayoutManager(gridLayoutManager);
+			binding.list.setAdapter(gridAdapter);
+			gridAdapter.submitList(new ArrayList<>(currentItems));
+		} else {
+			carouselAdapter.setSelectedPosition(selectedPosition);
+			binding.list.clearOnScrollListeners();
+			layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+			binding.list.setLayoutManager(layoutManager);
+			binding.list.setAdapter(carouselAdapter);
+			snapHelper = new PagerSnapHelper();
+			snapHelper.attachToRecyclerView(binding.list);
+			binding.list.addOnScrollListener(carouselScrollListener);
+			if (selectedPosition == RecyclerView.NO_POSITION && !currentItems.isEmpty()) {
+				selectedPosition = resolveSelectedPosition(currentItems, null);
+			}
+			carouselAdapter.submitList(new ArrayList<>(currentItems));
+			if (selectedPosition != RecyclerView.NO_POSITION) {
+				selectPosition(selectedPosition, false);
+			}
+		}
+
+		setButtonsEnabled(!currentItems.isEmpty());
+	}
+
+	private boolean isGridMode() {
+		return APPS_VIEW_GRID.equals(preferences.getString(PREF_APPS_VIEW, APPS_VIEW_CAROUSEL));
+	}
+
+	private int dp(int value) {
+		return Math.round(value * getResources().getDisplayMetrics().density);
 	}
 }
