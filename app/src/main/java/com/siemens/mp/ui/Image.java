@@ -164,8 +164,8 @@ public class Image extends com.siemens.mp.misc.NativeMem {
 		int[] tmp = new int[width * height];
 		IntBuffer buffer = IntBuffer.wrap(tmp);
 		bitmap.copyPixelsToBuffer(buffer);
-		for (int i = 0; i < height; ) {
-			for (int f = i * width, s = ++i * width; f < s; f++, s--) {
+		for (int i = 0; i < height; i++) {
+			for (int f = i * width, s = f + width - 1; f < s; f++, s--) {
 				int c = tmp[f];
 				tmp[f] = tmp[s];
 				tmp[s] = c;
@@ -175,7 +175,22 @@ public class Image extends com.siemens.mp.misc.NativeMem {
 		bitmap.copyPixelsFromBuffer(buffer);
 	}
 
-	public static void mirrorImageVertically(javax.microedition.lcdui.Image image) {}
+	public static void mirrorImageVertically(javax.microedition.lcdui.Image image) {
+		Bitmap bitmap = image.getBitmap();
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		int[] tmp = new int[width * height];
+		IntBuffer buffer = IntBuffer.wrap(tmp);
+		bitmap.copyPixelsToBuffer(buffer);
+		int[] rowBuffer = new int[width];
+		for (int top = 0, bottom = height - 1; top < bottom; top++, bottom--) {
+			System.arraycopy(tmp, top * width, rowBuffer, 0, width);
+			System.arraycopy(tmp, bottom * width, tmp, top * width, width);
+			System.arraycopy(rowBuffer, 0, tmp, bottom * width, width);
+		}
+		buffer.rewind();
+		bitmap.copyPixelsFromBuffer(buffer);
+	}
 
 	protected static void setNativeImage(javax.microedition.lcdui.Image img, Image simg) {}
 
