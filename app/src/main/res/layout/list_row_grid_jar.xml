@@ -7,31 +7,31 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:background="?android:selectableItemBackground"
-    android:paddingVertical="10dp"
-    android:paddingHorizontal="6dp"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp"
     android:focusable="true"
     tools:showIn="@layout/fragment_appslist">
 
     <ImageView
         android:id="@+id/list_image"
-        android:layout_width="112dp"
-        android:layout_height="132dp"
+        android:layout_width="118dp"
+        android:layout_height="154dp"
         android:adjustViewBounds="false"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         tools:src="@mipmap/ic_launcher" />
 
     <TextView
         android:id="@+id/list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:textAppearance="?android:textAppearance"
         android:gravity="center"
         android:ellipsize="end"
         android:maxLines="2"
-        android:minHeight="42dp"
+        android:minHeight="38dp"
         android:textColor="@android:color/white"
-        android:textSize="14sp"
+        android:textSize="13sp"
         android:textStyle="bold"
         tools:text="Example MIDlet Name" />
 
