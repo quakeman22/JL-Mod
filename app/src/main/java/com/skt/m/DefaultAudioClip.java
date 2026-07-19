@@ -98,7 +98,7 @@ final class DefaultAudioClip implements AudioClip {
 			}
 			try {
 				player.close();
-			} catch (MediaException e) {
+			} catch (IOException e) {
 				Log.e(TAG, "close", e);
 			}
 			player = null;
