@@ -138,6 +138,9 @@
     <string name="pref_app_sort_title">App sort order</string>
     <string name="pref_app_sort_vendor">Vendor</string>
     <string name="pref_apps_view">view</string>
+    <string name="pref_apps_view_title">Library view</string>
+    <string name="pref_apps_view_carousel">Carousel</string>
+    <string name="pref_apps_view_grid">Grid</string>
     <string name="pref_audio_title">Audio</string>
     <string name="PREF_BACKGROUND">Background</string>
     <string name="pref_button_shape_oval">Oval</string>

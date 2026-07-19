@@ -46,6 +46,14 @@
         <item>blue</item>
         <item>silver</item>
     </string-array>
+    <string-array name="pref_apps_view_entries">
+        <item>@string/pref_apps_view_carousel</item>
+        <item>@string/pref_apps_view_grid</item>
+    </string-array>
+    <string-array name="pref_apps_view_values" translatable="false">
+        <item>carousel</item>
+        <item>grid</item>
+    </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
         <item>@string/pref_app_sort_date</item>
