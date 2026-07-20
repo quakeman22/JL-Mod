@@ -11,7 +11,7 @@
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/action_view"
-        android:title="@string/pref_apps_view_title"
+        android:title="@string/pref_apps_view"
         android:icon="@drawable/ic_action_apps_view_list"
         app:showAsAction="always"
         android:orderInCategory="1">
