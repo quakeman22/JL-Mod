@@ -126,6 +126,7 @@ public class MicroActivity extends AppCompatActivity {
 	private ActivityMicroBinding binding;
 	private String classicsControlStyle = "joystick";
 	private String classicsHandsetSkin = "dark";
+	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
 
 	private UiSoundEffects uiSounds() {
@@ -141,6 +142,7 @@ public class MicroActivity extends AppCompatActivity {
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
 		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
@@ -292,6 +294,7 @@ public class MicroActivity extends AppCompatActivity {
 		super.onResume();
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 	}
 
@@ -303,6 +306,7 @@ public class MicroActivity extends AppCompatActivity {
 		attachOverlayLayers();
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		bindDisplayable(current);
 	}
@@ -502,6 +506,53 @@ public class MicroActivity extends AppCompatActivity {
 		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
 
+	private void applyClassicsKeyMode(String mode) {
+		classicsKeyMode = switch (mode) {
+			case "arrows", "numbers" -> mode;
+			default -> "mixed";
+		};
+		updateClassicsControlBounds();
+	}
+
+	private int getJoystickDpadUpKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM2 : Canvas.KEY_UP;
+	}
+
+	private int getJoystickDpadLeftKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM4 : Canvas.KEY_LEFT;
+	}
+
+	private int getJoystickDpadFireKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM5 : Canvas.KEY_FIRE;
+	}
+
+	private int getJoystickDpadRightKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM6 : Canvas.KEY_RIGHT;
+	}
+
+	private int getJoystickDpadDownKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM8 : Canvas.KEY_DOWN;
+	}
+
+	private int getJoystickActionAKey() {
+		return switch (classicsKeyMode) {
+			case "arrows", "numbers" -> Canvas.KEY_FIRE;
+			default -> Canvas.KEY_NUM7;
+		};
+	}
+
+	private int getJoystickActionBKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM9 : Canvas.KEY_NUM8;
+	}
+
+	private int getJoystickActionXKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM7 : Canvas.KEY_NUM5;
+	}
+
+	private int getJoystickActionYKey() {
+		return Canvas.KEY_NUM0;
+	}
+
 	private void applyHandsetSkin() {
 		if (!"handset".equals(classicsControlStyle)) {
 			binding.midletFrame.setBackgroundResource(R.drawable.bg_classics_game_background);
@@ -629,15 +680,15 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.handsetKeyPound);
 		} else {
 			Rect dpad = getViewBounds(binding.controlPadShell);
-			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, subdivideRect(dpad, 0, 1));
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, subdivideRect(dpad, 1, 1));
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, subdivideRect(dpad, 2, 1));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, subdivideRect(dpad, 1, 2));
-			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.buttonAShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.buttonBShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.buttonXShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.buttonYShell);
+			addKeyBound(keyBounds, getJoystickDpadUpKey(), subdivideRect(dpad, 1, 0));
+			addKeyBound(keyBounds, getJoystickDpadLeftKey(), subdivideRect(dpad, 0, 1));
+			addKeyBound(keyBounds, getJoystickDpadFireKey(), subdivideRect(dpad, 1, 1));
+			addKeyBound(keyBounds, getJoystickDpadRightKey(), subdivideRect(dpad, 2, 1));
+			addKeyBound(keyBounds, getJoystickDpadDownKey(), subdivideRect(dpad, 1, 2));
+			addKeyBound(keyBounds, getJoystickActionAKey(), binding.buttonAShell);
+			addKeyBound(keyBounds, getJoystickActionBKey(), binding.buttonBShell);
+			addKeyBound(keyBounds, getJoystickActionXKey(), binding.buttonXShell);
+			addKeyBound(keyBounds, getJoystickActionYKey(), binding.buttonYShell);
 		}
 		if (keyBounds.get(Canvas.KEY_SOFT_LEFT) == null
 				|| keyBounds.get(KeyMapper.KEY_OPTIONS_MENU) == null
@@ -690,6 +741,46 @@ public class MicroActivity extends AppCompatActivity {
 		return rect;
 	}
 
+	private boolean updateJoystickPressedVisual(int keyCode, boolean pressed) {
+		if (!"joystick".equals(classicsControlStyle)) {
+			return false;
+		}
+		boolean handled = false;
+		if (keyCode == getJoystickDpadUpKey()) {
+			binding.dpadUpVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadDownKey()) {
+			binding.dpadDownVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadLeftKey()) {
+			binding.dpadLeftVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadRightKey()) {
+			binding.dpadRightVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionAKey()) {
+			binding.buttonAShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionBKey()) {
+			binding.buttonBShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionXKey()) {
+			binding.buttonXShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionYKey()) {
+			binding.buttonYShell.setPressed(pressed);
+			handled = true;
+		}
+		return handled;
+	}
+
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		if (pressed) {
 			switch (keyCode) {
@@ -706,6 +797,9 @@ public class MicroActivity extends AppCompatActivity {
 			}
 		}
 		runOnUiThread(() -> {
+			if (updateJoystickPressedVisual(keyCode, pressed)) {
+				return;
+			}
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
@@ -1052,6 +1146,11 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showLimitFpsDialog();
 		});
+		view.findViewById(R.id.gameplay_menu_key_mode).setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showClassicsKeyModeDialog();
+		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1202,6 +1301,31 @@ public class MicroActivity extends AppCompatActivity {
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.setNeutralButton(R.string.reset, ((d, which) -> Canvas.setLimitFps(-1)))
+				.show();
+	}
+
+	private void showClassicsKeyModeDialog() {
+		String[] values = getResources().getStringArray(R.array.pref_classics_key_mode_values);
+		int checked = 0;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i].equals(classicsKeyMode)) {
+				checked = i;
+				break;
+			}
+		}
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.pref_classics_key_mode_title)
+				.setSingleChoiceItems(R.array.pref_classics_key_mode_entries, checked, (dialog, which) -> {
+					String mode = values[which];
+					PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+							.edit()
+							.putString(PREF_CLASSICS_KEY_MODE, mode)
+							.apply();
+					applyClassicsKeyMode(mode);
+					uiSounds().playConfirm();
+					dialog.dismiss();
+				})
+				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 	}
 
