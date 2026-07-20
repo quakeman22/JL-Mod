@@ -165,6 +165,10 @@
     <string name="pref_classics_control_style_joystick">Joystick</string>
     <string name="pref_classics_control_style_phone">Phone</string>
     <string name="pref_classics_control_style_handset">Handset</string>
+    <string name="pref_classics_key_mode_title">Classics key mode</string>
+    <string name="pref_classics_key_mode_mixed">Arrows + numbers</string>
+    <string name="pref_classics_key_mode_arrows">Arrows / FIRE</string>
+    <string name="pref_classics_key_mode_numbers">Numbers</string>
     <string name="pref_classics_handset_skin_title">Handset skin</string>
     <string name="pref_classics_handset_skin_dark">Handset Dark</string>
     <string name="pref_classics_handset_skin_gold">Handset Gold</string>
