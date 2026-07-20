@@ -89,6 +89,7 @@ import ru.playsoftware.j2meloader.info.HelpDialogFragment;
 import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.util.UiSoundEffects;
 import ru.woesss.j2me.installer.InstallerDialog;
 
 public class AppsListFragment extends Fragment implements MenuProvider,
@@ -177,12 +178,23 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		MenuHost menuHost = requireActivity();
 		menuHost.addMenuProvider(this, getViewLifecycleOwner());
-		binding.buttonPrevious.setOnClickListener(v -> moveSelection(-1));
-		binding.buttonNext.setOnClickListener(v -> moveSelection(1));
+		binding.buttonPrevious.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playBrowse();
+			moveSelection(-1);
+		});
+		binding.buttonNext.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playBrowse();
+			moveSelection(1);
+		});
 		binding.buttonPlay.setOnClickListener(v -> launchSelectedApp());
-		binding.buttonMoreGames.setOnClickListener(v -> openFileLauncher.launch(null));
-		binding.buttonSettings.setOnClickListener(v ->
-				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+		binding.buttonMoreGames.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playConfirm();
+			openFileLauncher.launch(null);
+		});
+		binding.buttonSettings.setOnClickListener(v -> {
+			UiSoundEffects.get(requireContext()).playConfirm();
+			startActivity(new Intent(requireActivity(), SettingsActivity.class));
+		});
 		applyAppsViewMode(true);
 		appListViewModel.getAppList().observe(getViewLifecycleOwner(), this::onDbUpdated);
 	}
@@ -244,11 +256,15 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 
 	@Override
 	public void onItemActivated(AppItem item) {
+		UiSoundEffects.get(requireContext()).playPlay();
 		Config.startApp(requireContext(), item.getTitle(), item.getPathExt());
 	}
 
 	@Override
 	public void onItemSelected(int position) {
+		if (position != selectedPosition) {
+			UiSoundEffects.get(requireContext()).playBrowse();
+		}
 		selectPosition(position, true);
 	}
 
@@ -560,13 +576,19 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 		boxParams.setMarginEnd(sideMargin);
 		binding.carouselBox.setLayoutParams(boxParams);
 
+		setLayoutWeight(binding.headerContainer, gridMode ? 13 : 15);
+		setLayoutWeight(binding.libraryContentContainer, gridMode ? 77 : 43);
+		setLayoutWeight(binding.bottomActionsContainer, gridMode ? 10 : 10);
+
 		binding.buttonPrevious.setVisibility(gridMode ? View.GONE : View.VISIBLE);
 		binding.buttonNext.setVisibility(gridMode ? View.GONE : View.VISIBLE);
 		binding.buttonPlay.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.selectedTitle.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.selectedSubtitle.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.positionBadge.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.progress.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.selectedInfoContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.progressContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		binding.selectedTitle.setVisibility(View.VISIBLE);
+		binding.selectedSubtitle.setVisibility(View.VISIBLE);
+		binding.positionBadge.setVisibility(View.VISIBLE);
+		binding.progress.setVisibility(View.VISIBLE);
 		float headerOffset = gridMode ? dp(6) : 0;
 		binding.headerBrand.setTranslationY(headerOffset);
 		binding.headerTitle.setTranslationY(headerOffset);
@@ -609,5 +631,15 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 
 	private int dp(int value) {
 		return Math.round(value * getResources().getDisplayMetrics().density);
+	}
+
+	private void setLayoutWeight(View view, float weight) {
+		ViewGroup.LayoutParams params = view.getLayoutParams();
+		if (params instanceof android.widget.LinearLayout.LayoutParams) {
+			android.widget.LinearLayout.LayoutParams linearParams =
+					(android.widget.LinearLayout.LayoutParams) params;
+			linearParams.weight = weight;
+			view.setLayoutParams(linearParams);
+		}
 	}
 }
