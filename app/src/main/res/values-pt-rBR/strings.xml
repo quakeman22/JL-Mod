@@ -137,6 +137,10 @@
     <string name="pref_classics_control_style_joystick">Joystick</string>
     <string name="pref_classics_control_style_phone">Celular</string>
     <string name="pref_classics_control_style_handset">Celular retrô</string>
+    <string name="pref_classics_key_mode_title">Tipo de tecla Classics</string>
+    <string name="pref_classics_key_mode_mixed">Setas + números</string>
+    <string name="pref_classics_key_mode_arrows">Setas / FIRE</string>
+    <string name="pref_classics_key_mode_numbers">Números</string>
     <string name="pref_classics_handset_skin_title">Skin do celular retrô</string>
     <string name="pref_classics_handset_skin_dark">Celular retrô escuro</string>
     <string name="pref_classics_handset_skin_gold">Celular retrô dourado</string>
