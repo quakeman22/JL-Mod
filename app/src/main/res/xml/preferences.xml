@@ -31,6 +31,15 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            android:defaultValue="mixed"
+            android:entries="@array/pref_classics_key_mode_entries"
+            android:entryValues="@array/pref_classics_key_mode_values"
+            android:icon="@drawable/ic_setting_default"
+            android:key="pref_classics_key_mode"
+            android:title="@string/pref_classics_key_mode_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
             android:defaultValue="dark"
             android:entries="@array/pref_classics_handset_skin_entries"
             android:entryValues="@array/pref_classics_handset_skin_values"
