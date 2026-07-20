@@ -329,12 +329,13 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 								emitter.onNext(newText);
 								return true;
 							}
-				})).debounce(300, TimeUnit.MILLISECONDS)
+						})).debounce(300, TimeUnit.MILLISECONDS)
 				.map(String::toLowerCase)
 				.distinctUntilChanged()
 				.subscribe(appListViewModel::setAppListFilter);
 		MenuItem viewItem = menu.findItem(R.id.action_view);
 		viewItem.setVisible(true);
+		viewItem.setTitle(R.string.pref_apps_view_title);
 		viewItem.setIcon(isGridMode()
 				? R.drawable.ic_action_apps_view_list
 				: R.drawable.ic_action_apps_view_grid);
@@ -576,15 +577,20 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 		boxParams.setMarginEnd(sideMargin);
 		binding.carouselBox.setLayoutParams(boxParams);
 
-		setLayoutWeight(binding.headerContainer, gridMode ? 13 : 15);
-		setLayoutWeight(binding.libraryContentContainer, gridMode ? 77 : 43);
-		setLayoutWeight(binding.bottomActionsContainer, gridMode ? 10 : 10);
+		View headerContainer = (View) binding.headerBrand.getParent();
+		View libraryContentContainer = (View) binding.carouselBox.getParent();
+		View selectedInfoContainer = (View) binding.selectedTitle.getParent();
+		View progressContainer = (View) binding.positionBadge.getParent();
+		View bottomActionsContainer = (View) binding.buttonMoreGames.getParent();
+		setLayoutWeight(headerContainer, gridMode ? 13 : 15);
+		setLayoutWeight(libraryContentContainer, gridMode ? 77 : 43);
+		setLayoutWeight(bottomActionsContainer, 10);
 
 		binding.buttonPrevious.setVisibility(gridMode ? View.GONE : View.VISIBLE);
 		binding.buttonNext.setVisibility(gridMode ? View.GONE : View.VISIBLE);
 		binding.buttonPlay.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.selectedInfoContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
-		binding.progressContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		selectedInfoContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
+		progressContainer.setVisibility(gridMode ? View.GONE : View.VISIBLE);
 		binding.selectedTitle.setVisibility(View.VISIBLE);
 		binding.selectedSubtitle.setVisibility(View.VISIBLE);
 		binding.positionBadge.setVisibility(View.VISIBLE);
@@ -600,8 +606,7 @@ public class AppsListFragment extends Fragment implements MenuProvider,
 			if (snapHelper != null) {
 				snapHelper.attachToRecyclerView(null);
 			}
-			GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), 3);
-			binding.list.setLayoutManager(gridLayoutManager);
+			binding.list.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 			binding.list.setAdapter(gridAdapter);
 			gridAdapter.submitList(new ArrayList<>(currentItems));
 		} else {
