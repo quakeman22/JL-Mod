@@ -29,6 +29,7 @@ public class Constants {
 	public static final String PREF_APPS_VIEW = "pref_apps_view";
 	public static final String PREF_CLASSICS_CONTROL_STYLE = "pref_classics_control_style";
 	public static final String PREF_CLASSICS_HANDSET_SKIN = "pref_classics_handset_skin";
+	public static final String PREF_CLASSICS_KEY_MODE = "pref_classics_key_mode";
 	public static final String PREF_DEFAULT_PROFILE = "default_profile";
 	public static final String PREF_EMULATOR_DIR = "emulator_dir";
 	public static final String PREF_CLASSICS_VIEW_SIZE = "pref_classics_view_size";
