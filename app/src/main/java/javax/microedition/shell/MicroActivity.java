@@ -61,6 +61,8 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -128,6 +130,22 @@ public class MicroActivity extends AppCompatActivity {
 	private String classicsHandsetSkin = "dark";
 	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
+	private int pendingIconKeyIndex = -1;
+	private final ActivityResultLauncher<String[]> iconPickerLauncher = registerForActivityResult(
+			new ActivityResultContracts.OpenDocument(), uri -> {
+				if (uri == null || pendingIconKeyIndex < 0) {
+					return;
+				}
+				try {
+					getContentResolver().takePersistableUriPermission(uri,
+							Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				} catch (SecurityException ignored) {
+				}
+				VirtualKeyboard vk = ContextHolder.getVk();
+				vk.setKeyIcon(pendingIconKeyIndex, uri.toString());
+				vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
+				pendingIconKeyIndex = -1;
+			});
 
 	private UiSoundEffects uiSounds() {
 		return UiSoundEffects.get(this);
@@ -483,6 +501,8 @@ public class MicroActivity extends AppCompatActivity {
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
 			classicsControlStyle = "handset";
+		} else if ("custom".equals(style)) {
+			classicsControlStyle = "custom";
 		} else if ("phone".equals(style) || handsetSelected) {
 			classicsControlStyle = "phone";
 		} else {
@@ -497,6 +517,17 @@ public class MicroActivity extends AppCompatActivity {
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
 		applyHandsetSkin();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) {
+			if ("custom".equals(classicsControlStyle)) {
+				vk.setLayout(VirtualKeyboard.TYPE_CUSTOM);
+				vk.show();
+			} else if (vk.isPhone()) {
+				// Classics skins draw their own buttons; keep the legacy
+				// virtual keyboard's own key rendering out of the way.
+				vk.hide();
+			}
+		}
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
 		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
@@ -1151,6 +1182,15 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showClassicsKeyModeDialog();
 		});
+		TextView editControlsRow = view.findViewById(R.id.gameplay_menu_edit_controls);
+		VirtualKeyboard vkForMenu = ContextHolder.getVk();
+		boolean isEditingControls = vkForMenu != null && vkForMenu.getLayoutEditMode() != VirtualKeyboard.LAYOUT_EOF;
+		editControlsRow.setText(isEditingControls ? R.string.edit_controls_done : R.string.gameplay_menu_edit_controls);
+		editControlsRow.setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showEditControlsEntry();
+		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1228,6 +1268,50 @@ public class MicroActivity extends AppCompatActivity {
 						vk.setKeysVisibility(changed);
 						showSaveVkAlert(true);
 					}
+				}).show();
+	}
+
+	private void showEditControlsEntry() {
+		if (!"custom".equals(classicsControlStyle)) {
+			Toast.makeText(this, R.string.gameplay_menu_edit_controls_not_custom, Toast.LENGTH_LONG).show();
+			return;
+		}
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk.getLayoutEditMode() == VirtualKeyboard.LAYOUT_EOF) {
+			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
+			Toast.makeText(this, R.string.edit_controls_dialog_message, Toast.LENGTH_LONG).show();
+		} else {
+			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+			showSaveVkAlert(false);
+			showChooseIconKeyDialog();
+		}
+	}
+
+	private void showChooseIconKeyDialog() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		String[] names = vk.getKeyNames();
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.edit_controls_choose_icon)
+				.setItems(names, (dialog, which) -> {
+					pendingIconKeyIndex = which;
+					String existing = vk.getKeyIconUri(which);
+					if (existing == null) {
+						iconPickerLauncher.launch(new String[]{"image/*"});
+						return;
+					}
+					new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+							.setItems(new CharSequence[]{
+									getString(R.string.edit_controls_choose_icon),
+									getString(R.string.edit_controls_clear_icon)
+							}, (d2, w2) -> {
+								if (w2 == 0) {
+									iconPickerLauncher.launch(new String[]{"image/*"});
+								} else {
+									vk.setKeyIcon(which, null);
+									vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
+									pendingIconKeyIndex = -1;
+								}
+							}).show();
 				}).show();
 	}
 
