@@ -23,27 +23,22 @@ import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_
 import android.graphics.Rect;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.graphics.CanvasWrapper;
 import javax.microedition.lcdui.overlay.Overlay;
 import javax.microedition.shell.MicroActivity;
@@ -66,14 +61,13 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final String ARROW_DOWN_RIGHT = "↘";
 
 	private static final int LAYOUT_SIGNATURE = 0x564B4C00;
-	private static final int LAYOUT_VERSION = 4;
+	private static final int LAYOUT_VERSION = 3;
 	public static final int LAYOUT_EOF = -1;
 	public static final int LAYOUT_KEYS = 0;
 	public static final int LAYOUT_SCALES = 1;
 	@SuppressWarnings("unused")
 	public static final int LAYOUT_COLORS = 2;
 	public static final int LAYOUT_TYPE = 3;
-	public static final int LAYOUT_ICONS = 4;
 
 	private static final int SHAPE_OVAL = 0;
 	private static final int SHAPE_RECT = 1;
@@ -90,6 +84,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final float PHONE_KEY_ROWS = 5;
 	private static final float PHONE_KEY_SCALE_X = 2.0f;
 	private static final float PHONE_KEY_SCALE_Y = 0.75f;
+	private static final float CUSTOM_LAYOUT_SCALE_FACTOR = 1.12f;
 	private static final long[] REPEAT_INTERVALS = {200, 400, 128, 128, 128, 128, 128};
 
 	private static final int SCREEN = -1;
@@ -519,6 +514,24 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 	}
 
+	public void resetCustomLayout() {
+		if (layoutVariant != TYPE_CUSTOM) {
+			return;
+		}
+		resetLayout(TYPE_NUM_ARR);
+		layoutVariant = TYPE_CUSTOM;
+		onLayoutChanged(TYPE_CUSTOM);
+		for (int group = 0; group < keyScaleGroups.length; group++) {
+			resizeKeyGroup(group);
+		}
+		snapKeys();
+		saveLayout();
+		overlayView.postInvalidate();
+		if (target != null && target.isShown()) {
+			target.updateSize();
+		}
+	}
+
 	private void saveLayout() {
 		try (RandomAccessFile raf = new RandomAccessFile(saveFile, "rw")) {
 			int variant = layoutVariant;
@@ -591,25 +604,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			raf.writeInt(keyScales.length);
 			for (float keyScale : keyScales) {
 				raf.writeFloat(keyScale);
-			}
-			int iconCount = 0;
-			for (VirtualKey key : keypad) {
-				if (key.iconUri != null) iconCount++;
-			}
-			if (iconCount > 0) {
-				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-				DataOutputStream dos = new DataOutputStream(bos);
-				dos.writeInt(iconCount);
-				for (VirtualKey key : keypad) {
-					if (key.iconUri != null) {
-						dos.writeInt(key.hashCode());
-						dos.writeUTF(key.iconUri);
-					}
-				}
-				byte[] iconBytes = bos.toByteArray();
-				raf.writeInt(LAYOUT_ICONS);
-				raf.writeInt(iconBytes.length);
-				raf.write(iconBytes);
 			}
 			raf.writeInt(LAYOUT_EOF);
 			raf.writeInt(0);
@@ -726,19 +720,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 							dis.skipBytes(count * 4);
 						}
 					}
-					case LAYOUT_ICONS -> {
-						count = dis.readInt();
-						for (int i = 0; i < count; i++) {
-							int hash = dis.readInt();
-							String uri = dis.readUTF();
-							for (VirtualKey key : keypad) {
-								if (key.hashCode() == hash) {
-									key.setIconUri(uri);
-									break;
-								}
-							}
-						}
-					}
 					default -> dis.skipBytes(length);
 				}
 			}
@@ -766,21 +747,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			keypad[i].visible = !states[i];
 		}
 		overlayView.postInvalidate();
-	}
-
-	/**
-	 * Sets (or clears, if uri is null) a custom PNG icon for the key at the
-	 * given index. Persist via {@link #saveLayout()} to keep it across
-	 * sessions; call after {@link #getKeyNames()} to know valid indices.
-	 */
-	public void setKeyIcon(int index, @Nullable String uriString) {
-		keypad[index].setIconUri(uriString);
-		overlayView.postInvalidate();
-	}
-
-	@Nullable
-	public String getKeyIconUri(int index) {
-		return keypad[index].iconUri;
 	}
 
 	@Override
@@ -912,6 +878,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 
 		float keySize = getKeySize(screen.width(), screen.height());
+		if (layoutVariant == TYPE_CUSTOM) {
+			keySize *= CUSTOM_LAYOUT_SCALE_FACTOR;
+		}
 		snapRadius = keySize * snapRadius / 8;
 		this.keySize = keySize;
 		for (int group = 0; group < keyScaleGroups.length; group++) {
@@ -947,7 +916,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	@Override
 	public void paint(CanvasWrapper g) {
 		boolean hasViewportOverride = !ContextHolder.getCanvasViewport().isEmpty();
-		if (hasViewportOverride && layoutEditMode == LAYOUT_EOF) {
+		if (hasViewportOverride && !ContextHolder.isClassicsCustomControlActive()
+				&& layoutEditMode == LAYOUT_EOF) {
 			return;
 		}
 		if (visible && (layoutEditMode != LAYOUT_EOF || settings.vkAlpha > 0)) {
@@ -1060,6 +1030,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						}
 					}
 					snapKey(editedIndex, 0);
+					saveLayout();
 					overlayView.postInvalidate();
 					return true;
 				}
@@ -1103,6 +1074,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				keyScales[index] = scale;
 				resizeKeyGroup(editedIndex);
 				snapKeys();
+				saveLayout();
 				overlayView.postInvalidate();
 				return true;
 			}
@@ -1345,41 +1317,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		int corners;
 		private final int hashCode;
 		private int repeatCount;
-		String iconUri;
-		private Image iconImage;
-		private boolean iconLoadFailed;
 
 		VirtualKey(int keyCode, String label) {
 			this.keyCode = keyCode;
 			this.label = label;
 			hashCode = 31 * (31 + this.keyCode);
-		}
-
-		void setIconUri(@Nullable String uri) {
-			this.iconUri = uri;
-			this.iconImage = null;
-			this.iconLoadFailed = false;
-		}
-
-		@Nullable
-		private Image getIconImage() {
-			if (iconUri == null || iconLoadFailed) {
-				return null;
-			}
-			if (iconImage == null) {
-				try (InputStream in = ContextHolder.getAppContext()
-						.getContentResolver().openInputStream(Uri.parse(iconUri))) {
-					if (in == null) {
-						throw new IOException("Unable to open icon stream");
-					}
-					iconImage = Image.createImage(in);
-				} catch (Exception e) {
-					Log.w(TAG, "Failed to load custom key icon: " + iconUri, e);
-					iconLoadFailed = true;
-					return null;
-				}
-			}
-			return iconImage;
 		}
 
 		void resize(float width, float height) {
@@ -1392,37 +1334,69 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 
 		void paint(CanvasWrapper g) {
-			Image icon = getIconImage();
-			if (icon != null) {
-				g.drawImage(icon, rect);
-				return;
-			}
-			int bgColor;
-			int fgColor;
-			if (selected) {
-				bgColor = settings.vkBgColorSelected;
-				fgColor = settings.vkFgColorSelected;
-			} else {
-				bgColor = settings.vkBgColor;
-				fgColor = settings.vkFgColor;
-			}
 			int alpha = (opaque || layoutEditMode != LAYOUT_EOF ? 0xFF : settings.vkAlpha) << 24;
-			g.setFillColor((layoutEditMode != LAYOUT_EOF ? (0xFF / 3) << 24 : alpha) | bgColor);
-			g.setTextColor(alpha | fgColor);
-			g.setDrawColor(alpha | settings.vkOutlineColor);
+			if (layoutVariant == TYPE_CUSTOM) {
+				int fillColor = selected ? 0xFF5B6070 : 0xFF2F3138;
+				int innerColor = selected ? 0xFF7C8195 : 0xFF3D4049;
+				int outlineColor = selected ? 0xFFE0E5FF : 0xFFBFC6D9;
+				int textColor = 0xFFFFFFFF;
+				float inset = Math.max(2f, Math.min(rect.width(), rect.height()) * 0.08f);
+				RectF outer = rect;
+				RectF inner = new RectF(rect.left + inset, rect.top + inset,
+						rect.right - inset, rect.bottom - inset);
+				int fillAlpha = layoutEditMode != LAYOUT_EOF ? 0x88 : (alpha >>> 24);
+				int innerAlpha = layoutEditMode != LAYOUT_EOF ? 0x66 : (alpha >>> 24);
+				g.setFillColor((fillAlpha << 24) | (fillColor & 0x00FFFFFF));
+				g.setDrawColor((alpha & 0xFF000000) | (outlineColor & 0x00FFFFFF));
+				switch (settings.vkButtonShape) {
+					case SHAPE_OVAL -> {
+						g.fillArc(outer, 0, 360);
+						g.drawArc(outer, 0, 360);
+						g.setFillColor((innerAlpha << 24) | (innerColor & 0x00FFFFFF));
+						g.fillArc(inner, 0, 360);
+					}
+					case SHAPE_RECT -> {
+						g.fillRect(outer);
+						g.drawRect(outer);
+						g.setFillColor((innerAlpha << 24) | (innerColor & 0x00FFFFFF));
+						g.fillRect(inner);
+					}
+					case SHAPE_ROUND_RECT -> {
+						int round = Math.max(8, corners);
+						g.fillRoundRect(outer, round, round);
+						g.drawRoundRect(outer, round, round);
+						g.setFillColor((innerAlpha << 24) | (innerColor & 0x00FFFFFF));
+						g.fillRoundRect(inner, round, round);
+					}
+				}
+				g.setTextColor((alpha & 0xFF000000) | (textColor & 0x00FFFFFF));
+			} else {
+				int bgColor;
+				int fgColor;
+				if (selected) {
+					bgColor = settings.vkBgColorSelected;
+					fgColor = settings.vkFgColorSelected;
+				} else {
+					bgColor = settings.vkBgColor;
+					fgColor = settings.vkFgColor;
+				}
+				g.setFillColor((layoutEditMode != LAYOUT_EOF ? (0xFF / 3) << 24 : alpha) | bgColor);
+				g.setTextColor(alpha | fgColor);
+				g.setDrawColor(alpha | settings.vkOutlineColor);
 
-			switch (settings.vkButtonShape) {
-				case SHAPE_ROUND_RECT -> {
-					g.fillRoundRect(rect, corners, corners);
-					g.drawRoundRect(rect, corners, corners);
-				}
-				case SHAPE_RECT -> {
-					g.fillRect(rect);
-					g.drawRect(rect);
-				}
-				case SHAPE_OVAL -> {
-					g.fillArc(rect, 0, 360);
-					g.drawArc(rect, 0, 360);
+				switch (settings.vkButtonShape) {
+					case SHAPE_ROUND_RECT -> {
+						g.fillRoundRect(rect, corners, corners);
+						g.drawRoundRect(rect, corners, corners);
+					}
+					case SHAPE_RECT -> {
+						g.fillRect(rect);
+						g.drawRect(rect);
+					}
+					case SHAPE_OVAL -> {
+						g.fillArc(rect, 0, 360);
+						g.drawArc(rect, 0, 360);
+					}
 				}
 			}
 			g.drawString(label, rect.centerX(), rect.centerY());
