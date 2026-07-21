@@ -1178,11 +1178,6 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showHideButtonDialog();
 		});
-		view.findViewById(R.id.gameplay_menu_layout_switch).setOnClickListener(v -> {
-			uiSounds().playConfirm();
-			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
-			showSetLayoutDialog();
-		});
 		view.findViewById(R.id.gameplay_menu_edit_buttons).setOnClickListener(v -> {
 			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
@@ -1303,22 +1298,6 @@ public class MicroActivity extends AppCompatActivity {
 					ContextHolder.getVk().onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM));
 		}
 		dialog.show();
-	}
-
-	private void showSetLayoutDialog() {
-		final VirtualKeyboard vk = ContextHolder.getVk();
-		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
-				.setTitle(R.string.layout_switch)
-				.setSingleChoiceItems(R.array.PREF_VK_TYPE_ENTRIES, vk.getLayout(), null)
-				.setPositiveButton(android.R.string.ok, (d, w) -> {
-					vk.setLayout(((AlertDialog) d).getListView().getCheckedItemPosition());
-					if (vk.isPhone()) {
-						setOrientation(ORIENTATION_PORTRAIT);
-					} else {
-						setOrientation(microLoader.getOrientation());
-					}
-				});
-		builder.show();
 	}
 
 	private void showCustomKeyboardEditDialog() {
