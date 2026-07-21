@@ -520,8 +520,10 @@ public class MicroActivity extends AppCompatActivity {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) {
 			if ("custom".equals(classicsControlStyle)) {
-				vk.setLayout(VirtualKeyboard.TYPE_CUSTOM);
-				vk.show();
+				binding.overlay.post(() -> {
+					vk.setLayout(VirtualKeyboard.TYPE_CUSTOM);
+					vk.show();
+				});
 			} else if (vk.isPhone()) {
 				// Classics skins draw their own buttons; keep the legacy
 				// virtual keyboard's own key rendering out of the way.
