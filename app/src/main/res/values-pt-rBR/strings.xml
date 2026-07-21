@@ -69,6 +69,7 @@
     <string name="layout_edit_finish">Finalizar modo de edição</string>
     <string name="layout_edit_finished">Modo de edição concluído</string>
     <string name="layout_edit_mode">Modo de edição do teclado</string>
+    <string name="custom_keyboard_edit_title">Editar teclado personalizado</string>
     <string name="layout_scale_mode">Editar tamanho dos botões</string>
     <string name="layout_switch">Alterar layout dos botões</string>
     <string name="licenses">Licenças</string>
@@ -100,6 +101,10 @@
     <string name="pref_app_sort_name">Nome</string>
     <string name="pref_app_sort_title">Ordem de classificação</string>
     <string name="pref_app_sort_vendor">Fabricante</string>
+    <string name="pref_apps_view">view</string>
+    <string name="pref_apps_view_title">Modo de exibição</string>
+    <string name="pref_apps_view_list">Lista</string>
+    <string name="pref_apps_view_grid">Grade</string>
     <string name="PREF_BACKGROUND">Cor de fundo</string>
     <string name="pref_button_shape_oval">Redondo</string>
     <string name="pref_button_shape_rect">Quadrado</string>
@@ -123,6 +128,11 @@
     <string name="pref_classics_control_style_phone">Celular</string>
     <string name="pref_classics_control_style_handset">Celular retrô</string>
     <string name="pref_classics_control_style_custom">Personalizado</string>
+    <string name="pref_classics_key_mode_title">Modo de teclas Classics</string>
+    <string name="pref_classics_key_mode_numbers">Números</string>
+    <string name="pref_classics_key_mode_arrows">Setas</string>
+    <string name="pref_classics_key_mode_numbers_arrows">Números &amp; setas</string>
+    <string name="pref_classics_key_mode_arrows_numbers">Setas &amp; números</string>
     <string name="pref_classics_handset_skin_title">Skin do celular retrô</string>
     <string name="pref_classics_handset_skin_dark">Celular retrô escuro</string>
     <string name="pref_classics_handset_skin_gold">Celular retrô dourado</string>
