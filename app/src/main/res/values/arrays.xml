@@ -36,16 +36,6 @@
         <item>handset</item>
         <item>custom</item>
     </string-array>
-    <string-array name="pref_classics_key_mode_entries">
-        <item>@string/pref_classics_key_mode_mixed</item>
-        <item>@string/pref_classics_key_mode_arrows</item>
-        <item>@string/pref_classics_key_mode_numbers</item>
-    </string-array>
-    <string-array name="pref_classics_key_mode_values" translatable="false">
-        <item>mixed</item>
-        <item>arrows</item>
-        <item>numbers</item>
-    </string-array>
     <string-array name="pref_classics_handset_skin_entries">
         <item>@string/pref_classics_handset_skin_dark</item>
         <item>@string/pref_classics_handset_skin_gold</item>
@@ -57,14 +47,6 @@
         <item>gold</item>
         <item>blue</item>
         <item>silver</item>
-    </string-array>
-    <string-array name="pref_apps_view_entries">
-        <item>@string/pref_apps_view_carousel</item>
-        <item>@string/pref_apps_view_grid</item>
-    </string-array>
-    <string-array name="pref_apps_view_values" translatable="false">
-        <item>carousel</item>
-        <item>grid</item>
     </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
