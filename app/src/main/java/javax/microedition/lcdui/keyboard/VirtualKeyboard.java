@@ -61,7 +61,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final String ARROW_DOWN_RIGHT = "↘";
 
 	private static final int LAYOUT_SIGNATURE = 0x564B4C00;
-	private static final int LAYOUT_VERSION = 3;
+	private static final int LAYOUT_VERSION = 4;
 	public static final int LAYOUT_EOF = -1;
 	public static final int LAYOUT_KEYS = 0;
 	public static final int LAYOUT_SCALES = 1;
@@ -229,9 +229,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 		if (layoutVariant == -1) {
 			layoutVariant = settings.vkType;
-			if (layoutVariant == TYPE_CUSTOM) {
-				layoutVariant = TYPE_NUM_ARR;
-			}
 		}
 		resetLayout(layoutVariant);
 		if (layoutVariant == TYPE_CUSTOM) {
@@ -239,8 +236,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				readLayout();
 			} catch (IOException e) {
 				e.printStackTrace();
-				resetLayout(TYPE_NUM_ARR);
-				layoutVariant = TYPE_NUM_ARR;
+				resetLayout(TYPE_CUSTOM);
+				layoutVariant = TYPE_CUSTOM;
 				saveLayout();
 			}
 		}
@@ -275,6 +272,43 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	private void resetLayout(int variant) {
 		switch (variant) {
+			case TYPE_CUSTOM -> {
+				Arrays.fill(keyScales, 1.0f);
+
+				// Base preset: split, simple and easy to extend later.
+				setSnap(KEY_SOFT_LEFT, SCREEN, RectSnap.INT_NORTHWEST, true);
+				setSnap(KEY_SOFT_RIGHT, SCREEN, RectSnap.INT_NORTHEAST, true);
+
+				setSnap(KEY_NUM1, SCREEN, RectSnap.INT_SOUTHWEST, true);
+				setSnap(KEY_NUM4, KEY_NUM1, RectSnap.EXT_SOUTH, true);
+				setSnap(KEY_NUM7, KEY_NUM4, RectSnap.EXT_SOUTH, true);
+				setSnap(KEY_STAR, KEY_NUM7, RectSnap.EXT_SOUTH, true);
+
+				setSnap(KEY_FIRE, KEY_NUM4, RectSnap.EXT_EAST, true);
+				setSnap(KEY_UP, KEY_FIRE, RectSnap.EXT_NORTH, true);
+				setSnap(KEY_LEFT, KEY_FIRE, RectSnap.EXT_WEST, true);
+				setSnap(KEY_RIGHT, KEY_FIRE, RectSnap.EXT_EAST, true);
+				setSnap(KEY_DOWN, KEY_FIRE, RectSnap.EXT_SOUTH, true);
+
+				setSnap(KEY_POUND, SCREEN, RectSnap.INT_NORTHEAST, true);
+				setSnap(KEY_NUM0, KEY_POUND, RectSnap.EXT_WEST, true);
+				setSnap(KEY_NUM2, KEY_POUND, RectSnap.EXT_SOUTH, true);
+				setSnap(KEY_NUM5, KEY_NUM2, RectSnap.EXT_SOUTH, true);
+
+				setSnap(KEY_NUM3, KEY_NUM2, RectSnap.EXT_EAST, false);
+				setSnap(KEY_NUM6, KEY_NUM5, RectSnap.EXT_EAST, false);
+				setSnap(KEY_NUM8, KEY_NUM7, RectSnap.EXT_EAST, false);
+				setSnap(KEY_NUM9, KEY_NUM8, RectSnap.EXT_EAST, false);
+				setSnap(KEY_A, KEY_NUM1, RectSnap.EXT_NORTH, false);
+				setSnap(KEY_B, KEY_NUM4, RectSnap.EXT_NORTH, false);
+				setSnap(KEY_C, KEY_NUM7, RectSnap.EXT_NORTH, false);
+				setSnap(KEY_D, KEY_STAR, RectSnap.EXT_NORTH, false);
+				setSnap(KEY_MENU, KEY_POUND, RectSnap.EXT_WEST, false);
+				setSnap(KEY_UP_LEFT, KEY_UP, RectSnap.EXT_WEST, false);
+				setSnap(KEY_UP_RIGHT, KEY_UP, RectSnap.EXT_EAST, false);
+				setSnap(KEY_DOWN_LEFT, KEY_DOWN, RectSnap.EXT_WEST, false);
+				setSnap(KEY_DOWN_RIGHT, KEY_DOWN, RectSnap.EXT_EAST, false);
+			}
 			case TYPE_PHONE -> {
 				for (int j = 0, len = keyScales.length; j < len; ) {
 					keyScales[j++] = PHONE_KEY_SCALE_X;
@@ -518,7 +552,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		if (layoutVariant != TYPE_CUSTOM) {
 			return;
 		}
-		resetLayout(TYPE_NUM_ARR);
+		resetLayout(TYPE_CUSTOM);
 		layoutVariant = TYPE_CUSTOM;
 		onLayoutChanged(TYPE_CUSTOM);
 		for (int group = 0; group < keyScaleGroups.length; group++) {
@@ -746,6 +780,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		for (int i = 0; i < KEYBOARD_SIZE; i++) {
 			keypad[i].visible = !states[i];
 		}
+		saveLayout();
 		overlayView.postInvalidate();
 	}
 
