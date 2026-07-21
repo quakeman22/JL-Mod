@@ -61,7 +61,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final String ARROW_DOWN_RIGHT = "↘";
 
 	private static final int LAYOUT_SIGNATURE = 0x564B4C00;
-	private static final int LAYOUT_VERSION = 4;
+	private static final int LAYOUT_VERSION = 5;
 	public static final int LAYOUT_EOF = -1;
 	public static final int LAYOUT_KEYS = 0;
 	public static final int LAYOUT_SCALES = 1;
@@ -279,16 +279,16 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		switch (variant) {
 			case TYPE_CUSTOM -> {
 				Arrays.fill(keyScales, 1.0f);
-				keyScales[0] = 1.10f;
-				keyScales[1] = 1.10f;
-				keyScales[2] = 1.00f;
-				keyScales[3] = 1.00f;
-				keyScales[6] = 1.08f;
-				keyScales[7] = 1.08f;
-				keyScales[8] = 1.10f;
-				keyScales[9] = 1.10f;
-				keyScales[10] = 0.95f;
-				keyScales[11] = 0.95f;
+				keyScales[0] = 1.06f;
+				keyScales[1] = 1.06f;
+				keyScales[2] = 1.32f;
+				keyScales[3] = 0.82f;
+				keyScales[6] = 1.02f;
+				keyScales[7] = 1.02f;
+				keyScales[8] = 1.00f;
+				keyScales[9] = 1.00f;
+				keyScales[10] = 0.92f;
+				keyScales[11] = 0.92f;
 
 				setSnap(KEY_SOFT_LEFT, SCREEN, RectSnap.INT_NORTHWEST, true);
 				setSnap(KEY_SOFT_RIGHT, SCREEN, RectSnap.INT_NORTHEAST, true);
@@ -1359,6 +1359,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 
 		void paint(CanvasWrapper g) {
+			if (layoutVariant == TYPE_CUSTOM) {
+				paintCustom(g);
+				return;
+			}
 			int bgColor;
 			int fgColor;
 			if (selected) {
@@ -1386,6 +1390,54 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					g.fillArc(rect, 0, 360);
 					g.drawArc(rect, 0, 360);
 				}
+			}
+			g.drawString(label, rect.centerX(), rect.centerY());
+		}
+
+		private void paintCustom(CanvasWrapper g) {
+			int alpha = (opaque || layoutEditMode != LAYOUT_EOF ? 0xFF : settings.vkAlpha) << 24;
+			int bgColor = selected ? 0xFF505055 : 0xFF2F2F33;
+			int fgColor = 0xFFD6D6D8;
+			int outlineColor = 0xFFE2D8C8;
+			RectF shadow = new RectF(rect);
+			shadow.offset(2.0f, 2.5f);
+			g.setFillColor(0x66000000);
+			g.setDrawColor(0x66000000);
+			g.setTextColor(0x00000000);
+			int corners = Math.max(this.corners, (int) (Math.min(rect.width(), rect.height()) * 0.32f));
+			switch (settings.vkButtonShape) {
+				case SHAPE_OVAL -> {
+					g.fillArc(shadow, 0, 360);
+				}
+				default -> {
+					g.fillRoundRect(shadow, corners, corners);
+				}
+			}
+
+			int paintAlpha = layoutEditMode != LAYOUT_EOF ? 0xA0000000 : alpha;
+			g.setFillColor(paintAlpha | bgColor);
+			g.setDrawColor(paintAlpha | outlineColor);
+			g.setTextColor(paintAlpha | fgColor);
+			g.setTextScale(0.84f);
+			RectF gloss = new RectF(rect.left + 1.0f, rect.top + 1.0f, rect.right - 1.0f,
+					rect.top + rect.height() * 0.42f);
+			switch (settings.vkButtonShape) {
+				case SHAPE_RECT -> {
+					g.fillRect(rect);
+					g.drawRect(rect);
+				}
+				case SHAPE_OVAL -> {
+					g.fillArc(rect, 0, 360);
+					g.drawArc(rect, 0, 360);
+				}
+				default -> {
+					g.fillRoundRect(rect, corners, corners);
+					g.drawRoundRect(rect, corners, corners);
+				}
+			}
+			if (settings.vkButtonShape != SHAPE_RECT) {
+				g.setFillColor(0x22FFFFFF);
+				g.fillRoundRect(gloss, corners, corners);
 			}
 			g.drawString(label, rect.centerX(), rect.centerY());
 		}
