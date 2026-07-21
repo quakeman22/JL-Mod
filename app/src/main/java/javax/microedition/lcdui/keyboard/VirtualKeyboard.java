@@ -1336,16 +1336,25 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		void paint(CanvasWrapper g) {
 			int alpha = (opaque || layoutEditMode != LAYOUT_EOF ? 0xFF : settings.vkAlpha) << 24;
 			if (layoutVariant == TYPE_CUSTOM) {
-				int fillColor = selected ? 0xFF5B6070 : 0xFF2F3138;
-				int innerColor = selected ? 0xFF7C8195 : 0xFF3D4049;
-				int outlineColor = selected ? 0xFFE0E5FF : 0xFFBFC6D9;
-				int textColor = 0xFFFFFFFF;
+				int fillColor = selected ? 0xFF4E3DAA : 0xFF1F232C;
+				int innerColor = selected ? 0xFF7B61FF : 0xFF323744;
+				int outlineColor = selected ? 0xFFE7D7FF : 0xFF8D7FE6;
+				int textColor = 0xFFF8F8FF;
 				float inset = Math.max(2f, Math.min(rect.width(), rect.height()) * 0.08f);
+				float shadow = Math.max(2f, Math.min(rect.width(), rect.height()) * 0.06f);
 				RectF outer = rect;
+				RectF shadowRect = new RectF(rect.left + shadow, rect.top + shadow,
+						rect.right + shadow, rect.bottom + shadow);
 				RectF inner = new RectF(rect.left + inset, rect.top + inset,
 						rect.right - inset, rect.bottom - inset);
-				int fillAlpha = layoutEditMode != LAYOUT_EOF ? 0x88 : (alpha >>> 24);
-				int innerAlpha = layoutEditMode != LAYOUT_EOF ? 0x66 : (alpha >>> 24);
+				int fillAlpha = layoutEditMode != LAYOUT_EOF ? 0xDD : (alpha >>> 24);
+				int innerAlpha = layoutEditMode != LAYOUT_EOF ? 0xB0 : (alpha >>> 24);
+				g.setFillColor((0x90 << 24) | 0x00000000);
+				switch (settings.vkButtonShape) {
+					case SHAPE_OVAL -> g.fillArc(shadowRect, 0, 360);
+					case SHAPE_RECT -> g.fillRect(shadowRect);
+					case SHAPE_ROUND_RECT -> g.fillRoundRect(shadowRect, corners, corners);
+				}
 				g.setFillColor((fillAlpha << 24) | (fillColor & 0x00FFFFFF));
 				g.setDrawColor((alpha & 0xFF000000) | (outlineColor & 0x00FFFFFF));
 				switch (settings.vkButtonShape) {
@@ -1369,7 +1378,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						g.fillRoundRect(inner, round, round);
 					}
 				}
+				g.setTextScale(0.78f);
+				g.setTextColor((alpha & 0xFF000000) | 0x00202020);
+				g.drawString(label, rect.centerX() + 1, rect.centerY() + 1);
 				g.setTextColor((alpha & 0xFF000000) | (textColor & 0x00FFFFFF));
+				g.drawString(label, rect.centerX(), rect.centerY());
+				g.setTextScale(1.0f);
 			} else {
 				int bgColor;
 				int fgColor;
