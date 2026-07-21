@@ -123,51 +123,6 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/gameplay_menu_layout_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_gameplay_menu_row"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="38dp"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="7dp"
-        android:text="@string/layout_switch"
-        android:textColor="@color/settings_title"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/gameplay_menu_hide_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_gameplay_menu_row"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="38dp"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="7dp"
-        android:text="@string/hide_buttons"
-        android:textColor="@color/settings_title"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/gameplay_menu_edit_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_gameplay_menu_row"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="38dp"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="7dp"
-        android:text="@string/custom_keyboard_edit_title"
-        android:textColor="@color/settings_title"
-        android:textSize="16sp" />
-
-    <TextView
         android:id="@+id/gameplay_menu_key_mode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
