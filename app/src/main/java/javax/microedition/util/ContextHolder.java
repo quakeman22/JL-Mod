@@ -113,11 +113,6 @@ public class ContextHolder {
 		}
 	}
 
-	public static void setClassicsControlStyle(String style) {
-		classicsControlStyle = style;
-		classicsKeyBounds.clear();
-	}
-
 	public static void clearClassicsControlBounds() {
 		classicsKeyBounds.clear();
 		classicsControlStyle = "joystick";
@@ -129,10 +124,6 @@ public class ContextHolder {
 
 	public static String getClassicsControlStyle() {
 		return classicsControlStyle;
-	}
-
-	public static boolean isClassicsCustomControlActive() {
-		return "custom".equals(classicsControlStyle);
 	}
 
 	public static Rect getClassicsKeyBounds(int keyCode) {
