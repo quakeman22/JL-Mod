@@ -37,16 +37,14 @@
         <item>custom</item>
     </string-array>
     <string-array name="pref_classics_key_mode_entries">
-        <item>@string/pref_classics_key_mode_numbers</item>
+        <item>@string/pref_classics_key_mode_mixed</item>
         <item>@string/pref_classics_key_mode_arrows</item>
-        <item>@string/pref_classics_key_mode_numbers_arrows</item>
-        <item>@string/pref_classics_key_mode_arrows_numbers</item>
+        <item>@string/pref_classics_key_mode_numbers</item>
     </string-array>
     <string-array name="pref_classics_key_mode_values" translatable="false">
-        <item>numbers</item>
+        <item>mixed</item>
         <item>arrows</item>
-        <item>numbers_arrows</item>
-        <item>arrows_numbers</item>
+        <item>numbers</item>
     </string-array>
     <string-array name="pref_classics_handset_skin_entries">
         <item>@string/pref_classics_handset_skin_dark</item>
@@ -60,6 +58,14 @@
         <item>blue</item>
         <item>silver</item>
     </string-array>
+    <string-array name="pref_apps_view_entries">
+        <item>@string/pref_apps_view_carousel</item>
+        <item>@string/pref_apps_view_grid</item>
+    </string-array>
+    <string-array name="pref_apps_view_values" translatable="false">
+        <item>carousel</item>
+        <item>grid</item>
+    </string-array>
     <string-array name="pref_app_sort_entries">
         <item>@string/pref_app_sort_name</item>
         <item>@string/pref_app_sort_date</item>
@@ -69,14 +75,6 @@
         <item>title COLLATE LOCALIZED %s, author COLLATE LOCALIZED ASC</item>
         <item>id %s</item>
         <item>author COLLATE LOCALIZED %s, title COLLATE LOCALIZED ASC</item>
-    </string-array>
-    <string-array name="pref_apps_view_entries">
-        <item>@string/pref_apps_view_list</item>
-        <item>@string/pref_apps_view_grid</item>
-    </string-array>
-    <string-array name="pref_apps_view_values" translatable="false">
-        <item>list</item>
-        <item>grid</item>
     </string-array>
     <string-array name="PREF_ORIENTATION_ENTRIES">
         <item>@string/pref_orientation_default</item>
