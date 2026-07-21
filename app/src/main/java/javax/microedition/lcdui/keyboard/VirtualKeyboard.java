@@ -23,22 +23,27 @@ import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_
 import android.graphics.Rect;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.graphics.CanvasWrapper;
 import javax.microedition.lcdui.overlay.Overlay;
 import javax.microedition.shell.MicroActivity;
@@ -61,13 +66,14 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final String ARROW_DOWN_RIGHT = "↘";
 
 	private static final int LAYOUT_SIGNATURE = 0x564B4C00;
-	private static final int LAYOUT_VERSION = 3;
+	private static final int LAYOUT_VERSION = 4;
 	public static final int LAYOUT_EOF = -1;
 	public static final int LAYOUT_KEYS = 0;
 	public static final int LAYOUT_SCALES = 1;
 	@SuppressWarnings("unused")
 	public static final int LAYOUT_COLORS = 2;
 	public static final int LAYOUT_TYPE = 3;
+	public static final int LAYOUT_ICONS = 4;
 
 	private static final int SHAPE_OVAL = 0;
 	private static final int SHAPE_RECT = 1;
@@ -586,6 +592,25 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			for (float keyScale : keyScales) {
 				raf.writeFloat(keyScale);
 			}
+			int iconCount = 0;
+			for (VirtualKey key : keypad) {
+				if (key.iconUri != null) iconCount++;
+			}
+			if (iconCount > 0) {
+				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+				DataOutputStream dos = new DataOutputStream(bos);
+				dos.writeInt(iconCount);
+				for (VirtualKey key : keypad) {
+					if (key.iconUri != null) {
+						dos.writeInt(key.hashCode());
+						dos.writeUTF(key.iconUri);
+					}
+				}
+				byte[] iconBytes = bos.toByteArray();
+				raf.writeInt(LAYOUT_ICONS);
+				raf.writeInt(iconBytes.length);
+				raf.write(iconBytes);
+			}
 			raf.writeInt(LAYOUT_EOF);
 			raf.writeInt(0);
 			raf.setLength(raf.getFilePointer());
@@ -701,6 +726,19 @@ public class VirtualKeyboard implements Overlay, Runnable {
 							dis.skipBytes(count * 4);
 						}
 					}
+					case LAYOUT_ICONS -> {
+						count = dis.readInt();
+						for (int i = 0; i < count; i++) {
+							int hash = dis.readInt();
+							String uri = dis.readUTF();
+							for (VirtualKey key : keypad) {
+								if (key.hashCode() == hash) {
+									key.setIconUri(uri);
+									break;
+								}
+							}
+						}
+					}
 					default -> dis.skipBytes(length);
 				}
 			}
@@ -728,6 +766,21 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			keypad[i].visible = !states[i];
 		}
 		overlayView.postInvalidate();
+	}
+
+	/**
+	 * Sets (or clears, if uri is null) a custom PNG icon for the key at the
+	 * given index. Persist via {@link #saveLayout()} to keep it across
+	 * sessions; call after {@link #getKeyNames()} to know valid indices.
+	 */
+	public void setKeyIcon(int index, @Nullable String uriString) {
+		keypad[index].setIconUri(uriString);
+		overlayView.postInvalidate();
+	}
+
+	@Nullable
+	public String getKeyIconUri(int index) {
+		return keypad[index].iconUri;
 	}
 
 	@Override
@@ -1292,11 +1345,41 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		int corners;
 		private final int hashCode;
 		private int repeatCount;
+		String iconUri;
+		private Image iconImage;
+		private boolean iconLoadFailed;
 
 		VirtualKey(int keyCode, String label) {
 			this.keyCode = keyCode;
 			this.label = label;
 			hashCode = 31 * (31 + this.keyCode);
+		}
+
+		void setIconUri(@Nullable String uri) {
+			this.iconUri = uri;
+			this.iconImage = null;
+			this.iconLoadFailed = false;
+		}
+
+		@Nullable
+		private Image getIconImage() {
+			if (iconUri == null || iconLoadFailed) {
+				return null;
+			}
+			if (iconImage == null) {
+				try (InputStream in = ContextHolder.getAppContext()
+						.getContentResolver().openInputStream(Uri.parse(iconUri))) {
+					if (in == null) {
+						throw new IOException("Unable to open icon stream");
+					}
+					iconImage = Image.createImage(in);
+				} catch (Exception e) {
+					Log.w(TAG, "Failed to load custom key icon: " + iconUri, e);
+					iconLoadFailed = true;
+					return null;
+				}
+			}
+			return iconImage;
 		}
 
 		void resize(float width, float height) {
@@ -1309,6 +1392,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 
 		void paint(CanvasWrapper g) {
+			Image icon = getIconImage();
+			if (icon != null) {
+				g.drawImage(icon, rect);
+				return;
+			}
 			int bgColor;
 			int fgColor;
 			if (selected) {
