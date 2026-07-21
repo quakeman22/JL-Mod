@@ -74,6 +74,7 @@
     <string name="layout_edit_finish">Finish edit mode</string>
     <string name="layout_edit_finished">Edit mode finished</string>
     <string name="layout_edit_mode">Keylayout edit mode</string>
+    <string name="custom_keyboard_edit_title">Edit custom keyboard</string>
     <string name="layout_scale_mode">Keylayout resize mode</string>
     <string name="layout_switch">Switch keylayout</string>
     <string name="licenses">Licenses</string>
@@ -128,6 +129,9 @@
     <string name="pref_app_sort_title">App sort order</string>
     <string name="pref_app_sort_vendor">Vendor</string>
     <string name="pref_apps_view">view</string>
+    <string name="pref_apps_view_title">Library view</string>
+    <string name="pref_apps_view_list">List view</string>
+    <string name="pref_apps_view_grid">Grid view</string>
     <string name="pref_audio_title">Audio</string>
     <string name="PREF_BACKGROUND">Background</string>
     <string name="pref_button_shape_oval">Oval</string>
@@ -153,6 +157,11 @@
     <string name="pref_classics_control_style_phone">Phone</string>
     <string name="pref_classics_control_style_handset">Retro Handset</string>
     <string name="pref_classics_control_style_custom">Personalized</string>
+    <string name="pref_classics_key_mode_title">Classics key mode</string>
+    <string name="pref_classics_key_mode_numbers">Numbers</string>
+    <string name="pref_classics_key_mode_arrows">Arrows</string>
+    <string name="pref_classics_key_mode_numbers_arrows">Numbers &amp; arrows</string>
+    <string name="pref_classics_key_mode_arrows_numbers">Arrows &amp; numbers</string>
     <string name="pref_classics_handset_skin_title">Handset skin</string>
     <string name="pref_classics_handset_skin_dark">Handset Dark</string>
     <string name="pref_classics_handset_skin_gold">Handset Gold</string>
