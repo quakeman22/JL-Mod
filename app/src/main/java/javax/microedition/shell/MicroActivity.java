@@ -488,16 +488,15 @@ public class MicroActivity extends AppCompatActivity {
 		} else {
 			classicsControlStyle = "joystick";
 		}
-		int joystickVisibility = "joystick".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		boolean classicPadStyle = "joystick".equals(classicsControlStyle) || "custom".equals(classicsControlStyle);
+		int classicVisibility = classicPadStyle ? View.VISIBLE : View.GONE;
 		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		int customVisibility = "custom".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		binding.controlPadShell.setVisibility(joystickVisibility);
-		binding.actionCluster.setVisibility(joystickVisibility);
+		binding.controlPadShell.setVisibility(classicVisibility);
+		binding.actionCluster.setVisibility(classicVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
-		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE :
-				(customVisibility == View.VISIBLE ? View.GONE : View.VISIBLE));
+		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
@@ -505,7 +504,7 @@ public class MicroActivity extends AppCompatActivity {
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
-		if (customVisibility == View.VISIBLE && current instanceof Canvas) {
+		if ("custom".equals(classicsControlStyle) && current instanceof Canvas) {
 			classicsCustomLandscapeForced = true;
 			setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
 		} else if (!customSelected && classicsCustomLandscapeForced) {
