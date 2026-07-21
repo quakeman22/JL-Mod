@@ -894,8 +894,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	@Override
 	public void paint(CanvasWrapper g) {
 		boolean hasViewportOverride = !ContextHolder.getCanvasViewport().isEmpty();
-		if (hasViewportOverride && !ContextHolder.isClassicsCustomControlActive()
-				&& layoutEditMode == LAYOUT_EOF) {
+		if (hasViewportOverride && layoutEditMode == LAYOUT_EOF) {
 			return;
 		}
 		if (visible && (layoutEditMode != LAYOUT_EOF || settings.vkAlpha > 0)) {
@@ -1008,7 +1007,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						}
 					}
 					snapKey(editedIndex, 0);
-					saveLayout();
 					overlayView.postInvalidate();
 					return true;
 				}
@@ -1052,7 +1050,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				keyScales[index] = scale;
 				resizeKeyGroup(editedIndex);
 				snapKeys();
-				saveLayout();
 				overlayView.postInvalidate();
 				return true;
 			}
