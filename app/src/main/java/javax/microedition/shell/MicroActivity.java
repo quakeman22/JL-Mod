@@ -488,7 +488,7 @@ public class MicroActivity extends AppCompatActivity {
 		} else {
 			classicsControlStyle = "joystick";
 		}
-		boolean classicPadStyle = "joystick".equals(classicsControlStyle) || "custom".equals(classicsControlStyle);
+		boolean classicPadStyle = "joystick".equals(classicsControlStyle);
 		int classicVisibility = classicPadStyle ? View.VISIBLE : View.GONE;
 		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
@@ -496,7 +496,9 @@ public class MicroActivity extends AppCompatActivity {
 		binding.actionCluster.setVisibility(classicVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
-		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
+		binding.controlTopRow.setVisibility(customSelected
+				? View.INVISIBLE
+				: ("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE));
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
@@ -611,30 +613,31 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		SparseArray<Rect> keyBounds = new SparseArray<>();
 		if ("custom".equals(classicsControlStyle)) {
-			Rect display = getViewBounds(binding.gameFrame);
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, relativeRect(display, 0.00f, 0.02f, 0.12f, 0.11f));
-			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, relativeRect(display, 0.42f, 0.02f, 0.58f, 0.11f));
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, relativeRect(display, 0.88f, 0.02f, 1.00f, 0.11f));
+			Rect display = getViewBounds(binding.virtualDisplay);
+			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, relativeRect(display, 0.02f, 0.02f, 0.14f, 0.10f));
+			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, relativeRect(display, 0.43f, 0.02f, 0.57f, 0.10f));
+			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, relativeRect(display, 0.86f, 0.02f, 0.98f, 0.10f));
 
-			addKeyBound(keyBounds, Canvas.KEY_NUM1, relativeRect(display, 0.02f, 0.22f, 0.12f, 0.31f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM4, relativeRect(display, 0.02f, 0.36f, 0.12f, 0.45f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM7, relativeRect(display, 0.02f, 0.50f, 0.12f, 0.59f));
-			addKeyBound(keyBounds, Canvas.KEY_STAR, relativeRect(display, 0.02f, 0.64f, 0.12f, 0.73f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM1, relativeRect(display, 0.02f, 0.28f, 0.12f, 0.36f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM4, relativeRect(display, 0.02f, 0.40f, 0.12f, 0.48f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM7, relativeRect(display, 0.02f, 0.52f, 0.12f, 0.60f));
+			addKeyBound(keyBounds, Canvas.KEY_STAR, relativeRect(display, 0.02f, 0.64f, 0.12f, 0.72f));
 
-			addKeyBound(keyBounds, Canvas.KEY_NUM2, relativeRect(display, 0.14f, 0.22f, 0.24f, 0.31f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM5, relativeRect(display, 0.14f, 0.36f, 0.24f, 0.45f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM0, relativeRect(display, 0.14f, 0.50f, 0.24f, 0.59f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM2, relativeRect(display, 0.13f, 0.28f, 0.23f, 0.36f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM5, relativeRect(display, 0.13f, 0.40f, 0.23f, 0.48f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM8, relativeRect(display, 0.13f, 0.52f, 0.23f, 0.60f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM0, relativeRect(display, 0.13f, 0.64f, 0.23f, 0.72f));
 
-			addKeyBound(keyBounds, Canvas.KEY_UP, relativeRect(display, 0.58f, 0.34f, 0.68f, 0.43f));
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, relativeRect(display, 0.48f, 0.45f, 0.58f, 0.54f));
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, relativeRect(display, 0.58f, 0.45f, 0.68f, 0.54f));
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, relativeRect(display, 0.68f, 0.45f, 0.78f, 0.54f));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, relativeRect(display, 0.58f, 0.56f, 0.68f, 0.65f));
+			addKeyBound(keyBounds, Canvas.KEY_UP, relativeRect(display, 0.73f, 0.30f, 0.82f, 0.38f));
+			addKeyBound(keyBounds, Canvas.KEY_LEFT, relativeRect(display, 0.62f, 0.42f, 0.72f, 0.50f));
+			addKeyBound(keyBounds, Canvas.KEY_FIRE, relativeRect(display, 0.73f, 0.42f, 0.82f, 0.50f));
+			addKeyBound(keyBounds, Canvas.KEY_RIGHT, relativeRect(display, 0.84f, 0.42f, 0.94f, 0.50f));
+			addKeyBound(keyBounds, Canvas.KEY_DOWN, relativeRect(display, 0.73f, 0.54f, 0.82f, 0.62f));
 
-			addKeyBound(keyBounds, Canvas.KEY_NUM3, relativeRect(display, 0.80f, 0.22f, 0.90f, 0.31f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM6, relativeRect(display, 0.80f, 0.36f, 0.90f, 0.45f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM9, relativeRect(display, 0.80f, 0.50f, 0.90f, 0.59f));
-			addKeyBound(keyBounds, Canvas.KEY_POUND, relativeRect(display, 0.80f, 0.64f, 0.90f, 0.73f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM3, relativeRect(display, 0.84f, 0.28f, 0.94f, 0.36f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM6, relativeRect(display, 0.84f, 0.40f, 0.94f, 0.48f));
+			addKeyBound(keyBounds, Canvas.KEY_NUM9, relativeRect(display, 0.84f, 0.52f, 0.94f, 0.60f));
+			addKeyBound(keyBounds, Canvas.KEY_POUND, relativeRect(display, 0.84f, 0.64f, 0.94f, 0.72f));
 		} else if ("phone".equals(classicsControlStyle)) {
 			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
 			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
@@ -755,6 +758,9 @@ public class MicroActivity extends AppCompatActivity {
 			}
 		}
 		runOnUiThread(() -> {
+			if ("custom".equals(classicsControlStyle)) {
+				return;
+			}
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
 					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
