@@ -125,8 +125,8 @@ public class MicroActivity extends AppCompatActivity {
 	private String appPath;
 	private ActivityMicroBinding binding;
 	private String classicsControlStyle = "joystick";
-	private boolean classicsCustomLandscapeForced;
 	private String classicsHandsetSkin = "dark";
+	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
 
 	private UiSoundEffects uiSounds() {
@@ -142,6 +142,7 @@ public class MicroActivity extends AppCompatActivity {
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
 		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
@@ -293,6 +294,7 @@ public class MicroActivity extends AppCompatActivity {
 		super.onResume();
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 	}
 
@@ -304,6 +306,7 @@ public class MicroActivity extends AppCompatActivity {
 		attachOverlayLayers();
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
+		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
 		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		bindDisplayable(current);
 	}
@@ -477,28 +480,22 @@ public class MicroActivity extends AppCompatActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		classicsHandsetSkin = prefs.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
 		boolean handsetSelected = "handset".equals(style);
-		boolean customSelected = "custom".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
 			classicsControlStyle = "handset";
 		} else if ("phone".equals(style) || handsetSelected) {
 			classicsControlStyle = "phone";
-		} else if (customSelected) {
-			classicsControlStyle = "custom";
 		} else {
 			classicsControlStyle = "joystick";
 		}
-		boolean classicPadStyle = "joystick".equals(classicsControlStyle);
-		int classicVisibility = classicPadStyle ? View.VISIBLE : View.GONE;
+		int joystickVisibility = "joystick".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		binding.controlPadShell.setVisibility(classicVisibility);
-		binding.actionCluster.setVisibility(classicVisibility);
+		binding.controlPadShell.setVisibility(joystickVisibility);
+		binding.actionCluster.setVisibility(joystickVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
-		binding.controlTopRow.setVisibility(customSelected
-				? View.INVISIBLE
-				: ("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE));
+		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
@@ -506,17 +503,54 @@ public class MicroActivity extends AppCompatActivity {
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
-		if ("custom".equals(classicsControlStyle) && current instanceof Canvas) {
-			classicsCustomLandscapeForced = true;
-			setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
-		} else if (!customSelected && classicsCustomLandscapeForced) {
-			classicsCustomLandscapeForced = false;
-			setOrientation(microLoader.getOrientation());
-		}
 		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
-		if (current instanceof Canvas) {
-			updateClassicsControlBounds();
-		}
+	}
+
+	private void applyClassicsKeyMode(String mode) {
+		classicsKeyMode = switch (mode) {
+			case "arrows", "numbers" -> mode;
+			default -> "mixed";
+		};
+		updateClassicsControlBounds();
+	}
+
+	private int getJoystickDpadUpKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM2 : Canvas.KEY_UP;
+	}
+
+	private int getJoystickDpadLeftKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM4 : Canvas.KEY_LEFT;
+	}
+
+	private int getJoystickDpadFireKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM5 : Canvas.KEY_FIRE;
+	}
+
+	private int getJoystickDpadRightKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM6 : Canvas.KEY_RIGHT;
+	}
+
+	private int getJoystickDpadDownKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM8 : Canvas.KEY_DOWN;
+	}
+
+	private int getJoystickActionAKey() {
+		return switch (classicsKeyMode) {
+			case "arrows", "numbers" -> Canvas.KEY_FIRE;
+			default -> Canvas.KEY_NUM7;
+		};
+	}
+
+	private int getJoystickActionBKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM9 : Canvas.KEY_NUM8;
+	}
+
+	private int getJoystickActionXKey() {
+		return "numbers".equals(classicsKeyMode) ? Canvas.KEY_NUM7 : Canvas.KEY_NUM5;
+	}
+
+	private int getJoystickActionYKey() {
+		return Canvas.KEY_NUM0;
 	}
 
 	private void applyHandsetSkin() {
@@ -612,36 +646,10 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		SparseArray<Rect> keyBounds = new SparseArray<>();
-		if ("custom".equals(classicsControlStyle)) {
-			Rect display = getViewBounds(binding.virtualDisplay);
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, relativeRect(display, 0.02f, 0.02f, 0.14f, 0.10f));
-			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, relativeRect(display, 0.43f, 0.02f, 0.57f, 0.10f));
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, relativeRect(display, 0.86f, 0.02f, 0.98f, 0.10f));
-
-			addKeyBound(keyBounds, Canvas.KEY_NUM1, relativeRect(display, 0.02f, 0.28f, 0.12f, 0.36f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM4, relativeRect(display, 0.02f, 0.40f, 0.12f, 0.48f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM7, relativeRect(display, 0.02f, 0.52f, 0.12f, 0.60f));
-			addKeyBound(keyBounds, Canvas.KEY_STAR, relativeRect(display, 0.02f, 0.64f, 0.12f, 0.72f));
-
-			addKeyBound(keyBounds, Canvas.KEY_NUM2, relativeRect(display, 0.13f, 0.28f, 0.23f, 0.36f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM5, relativeRect(display, 0.13f, 0.40f, 0.23f, 0.48f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM8, relativeRect(display, 0.13f, 0.52f, 0.23f, 0.60f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM0, relativeRect(display, 0.13f, 0.64f, 0.23f, 0.72f));
-
-			addKeyBound(keyBounds, Canvas.KEY_UP, relativeRect(display, 0.73f, 0.30f, 0.82f, 0.38f));
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, relativeRect(display, 0.62f, 0.42f, 0.72f, 0.50f));
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, relativeRect(display, 0.73f, 0.42f, 0.82f, 0.50f));
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, relativeRect(display, 0.84f, 0.42f, 0.94f, 0.50f));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, relativeRect(display, 0.73f, 0.54f, 0.82f, 0.62f));
-
-			addKeyBound(keyBounds, Canvas.KEY_NUM3, relativeRect(display, 0.84f, 0.28f, 0.94f, 0.36f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM6, relativeRect(display, 0.84f, 0.40f, 0.94f, 0.48f));
-			addKeyBound(keyBounds, Canvas.KEY_NUM9, relativeRect(display, 0.84f, 0.52f, 0.94f, 0.60f));
-			addKeyBound(keyBounds, Canvas.KEY_POUND, relativeRect(display, 0.84f, 0.64f, 0.94f, 0.72f));
-		} else if ("phone".equals(classicsControlStyle)) {
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
-			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
-			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
+		addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
+		addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
+		addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
+		if ("phone".equals(classicsControlStyle)) {
 			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
 			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
 			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
@@ -672,15 +680,15 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.handsetKeyPound);
 		} else {
 			Rect dpad = getViewBounds(binding.controlPadShell);
-			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, subdivideRect(dpad, 0, 1));
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, subdivideRect(dpad, 1, 1));
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, subdivideRect(dpad, 2, 1));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, subdivideRect(dpad, 1, 2));
-			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.buttonAShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.buttonBShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.buttonXShell);
-			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.buttonYShell);
+			addKeyBound(keyBounds, getJoystickDpadUpKey(), subdivideRect(dpad, 1, 0));
+			addKeyBound(keyBounds, getJoystickDpadLeftKey(), subdivideRect(dpad, 0, 1));
+			addKeyBound(keyBounds, getJoystickDpadFireKey(), subdivideRect(dpad, 1, 1));
+			addKeyBound(keyBounds, getJoystickDpadRightKey(), subdivideRect(dpad, 2, 1));
+			addKeyBound(keyBounds, getJoystickDpadDownKey(), subdivideRect(dpad, 1, 2));
+			addKeyBound(keyBounds, getJoystickActionAKey(), binding.buttonAShell);
+			addKeyBound(keyBounds, getJoystickActionBKey(), binding.buttonBShell);
+			addKeyBound(keyBounds, getJoystickActionXKey(), binding.buttonXShell);
+			addKeyBound(keyBounds, getJoystickActionYKey(), binding.buttonYShell);
 		}
 		if (keyBounds.get(Canvas.KEY_SOFT_LEFT) == null
 				|| keyBounds.get(KeyMapper.KEY_OPTIONS_MENU) == null
@@ -704,15 +712,6 @@ public class MicroActivity extends AppCompatActivity {
 		if (!rect.isEmpty()) {
 			keyBounds.put(keyCode, rect);
 		}
-	}
-
-	private Rect relativeRect(Rect base, float left, float top, float right, float bottom) {
-		return new Rect(
-				base.left + Math.round(base.width() * left),
-				base.top + Math.round(base.height() * top),
-				base.left + Math.round(base.width() * right),
-				base.top + Math.round(base.height() * bottom)
-		);
 	}
 
 	private Rect subdivideRect(Rect bounds, int column, int row) {
@@ -742,6 +741,46 @@ public class MicroActivity extends AppCompatActivity {
 		return rect;
 	}
 
+	private boolean updateJoystickPressedVisual(int keyCode, boolean pressed) {
+		if (!"joystick".equals(classicsControlStyle)) {
+			return false;
+		}
+		boolean handled = false;
+		if (keyCode == getJoystickDpadUpKey()) {
+			binding.dpadUpVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadDownKey()) {
+			binding.dpadDownVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadLeftKey()) {
+			binding.dpadLeftVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickDpadRightKey()) {
+			binding.dpadRightVisual.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionAKey()) {
+			binding.buttonAShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionBKey()) {
+			binding.buttonBShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionXKey()) {
+			binding.buttonXShell.setPressed(pressed);
+			handled = true;
+		}
+		if (keyCode == getJoystickActionYKey()) {
+			binding.buttonYShell.setPressed(pressed);
+			handled = true;
+		}
+		return handled;
+	}
+
 	public void setClassicsKeyPressed(int keyCode, boolean pressed) {
 		if (pressed) {
 			switch (keyCode) {
@@ -758,7 +797,7 @@ public class MicroActivity extends AppCompatActivity {
 			}
 		}
 		runOnUiThread(() -> {
-			if ("custom".equals(classicsControlStyle)) {
+			if (updateJoystickPressedVisual(keyCode, pressed)) {
 				return;
 			}
 			switch (keyCode) {
@@ -1008,11 +1047,6 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void lockOrientation() {
-		if ("custom".equals(classicsControlStyle)) {
-			classicsCustomLandscapeForced = true;
-			setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
-			return;
-		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 			setRequestedOrientation(SCREEN_ORIENTATION_LOCKED);
 			return;
@@ -1057,12 +1091,6 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void unlockOrientation() {
-		if ("custom".equals(classicsControlStyle)) {
-			classicsCustomLandscapeForced = true;
-			setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
-			return;
-		}
-		classicsCustomLandscapeForced = false;
 		setOrientation(microLoader.getOrientation());
 	}
 
@@ -1088,10 +1116,6 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		lockRow.setOnClickListener(v -> {
 			uiSounds().playConfirm();
-			if ("custom".equals(classicsControlStyle)) {
-				lockCheckBox.setChecked(true);
-				return;
-			}
 			boolean locked = isOrientationLocked();
 			if (locked) {
 				unlockOrientation();
@@ -1121,6 +1145,11 @@ public class MicroActivity extends AppCompatActivity {
 			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showLimitFpsDialog();
+		});
+		view.findViewById(R.id.gameplay_menu_key_mode).setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showClassicsKeyModeDialog();
 		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
@@ -1275,6 +1304,31 @@ public class MicroActivity extends AppCompatActivity {
 				.show();
 	}
 
+	private void showClassicsKeyModeDialog() {
+		String[] values = getResources().getStringArray(R.array.pref_classics_key_mode_values);
+		int checked = 0;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i].equals(classicsKeyMode)) {
+				checked = i;
+				break;
+			}
+		}
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.pref_classics_key_mode_title)
+				.setSingleChoiceItems(R.array.pref_classics_key_mode_entries, checked, (dialog, which) -> {
+					String mode = values[which];
+					PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+							.edit()
+							.putString(PREF_CLASSICS_KEY_MODE, mode)
+							.apply();
+					applyClassicsKeyMode(mode);
+					uiSounds().playConfirm();
+					dialog.dismiss();
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	}
+
 	private void showMultiplayerDialog() {
 		View view = LayoutInflater.from(this).inflate(R.layout.dialog_multiplayer, null, false);
 		android.widget.Switch networkSwitch = view.findViewById(R.id.multiplayer_network_switch);
@@ -1386,10 +1440,6 @@ public class MicroActivity extends AppCompatActivity {
 			binding.phoneShellContainer.setVisibility(View.GONE);
 			ContextHolder.clearCanvasViewport();
 			ContextHolder.clearClassicsControlBounds();
-			if (classicsCustomLandscapeForced) {
-				classicsCustomLandscapeForced = false;
-				setOrientation(microLoader.getOrientation());
-			}
 			actionBar.show();
 			final String title = next != null ? next.getTitle() : null;
 			actionBar.setTitle(title == null ? appName : title);
