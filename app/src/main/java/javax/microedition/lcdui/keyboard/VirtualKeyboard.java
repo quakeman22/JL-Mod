@@ -61,7 +61,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final String ARROW_DOWN_RIGHT = "↘";
 
 	private static final int LAYOUT_SIGNATURE = 0x564B4C00;
-	private static final int LAYOUT_VERSION = 5;
+	private static final int LAYOUT_VERSION = 3;
 	public static final int LAYOUT_EOF = -1;
 	public static final int LAYOUT_KEYS = 0;
 	public static final int LAYOUT_SCALES = 1;
@@ -224,27 +224,24 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		keypad[KEY_FIRE] = new VirtualKey(Canvas.KEY_FIRE, "F");
 		keypad[KEY_MENU] = new MenuKey();
 
-		int savedLayoutVariant = readLayoutType();
-		if (settings.vkType == TYPE_CUSTOM) {
-			layoutVariant = TYPE_CUSTOM;
-			resetLayout(TYPE_CUSTOM);
-			if (savedLayoutVariant == TYPE_CUSTOM) {
-				try {
-					readLayout();
-				} catch (IOException e) {
-					e.printStackTrace();
-					resetLayout(TYPE_CUSTOM);
-					saveLayout();
-				}
-			} else {
+		layoutVariant = readLayoutType();
+
+		if (layoutVariant == -1) {
+			layoutVariant = settings.vkType;
+			if (layoutVariant == TYPE_CUSTOM) {
+				layoutVariant = TYPE_NUM_ARR;
+			}
+		}
+		resetLayout(layoutVariant);
+		if (layoutVariant == TYPE_CUSTOM) {
+			try {
+				readLayout();
+			} catch (IOException e) {
+				e.printStackTrace();
+				resetLayout(TYPE_NUM_ARR);
+				layoutVariant = TYPE_NUM_ARR;
 				saveLayout();
 			}
-		} else {
-			layoutVariant = savedLayoutVariant;
-			if (layoutVariant == -1) {
-				layoutVariant = settings.vkType;
-			}
-			resetLayout(layoutVariant);
 		}
 		HandlerThread thread = new HandlerThread("MidletVirtualKeyboard");
 		thread.start();
@@ -277,53 +274,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	private void resetLayout(int variant) {
 		switch (variant) {
-			case TYPE_CUSTOM -> {
-				Arrays.fill(keyScales, 1.0f);
-				keyScales[0] = 1.06f;
-				keyScales[1] = 1.06f;
-				keyScales[2] = 1.32f;
-				keyScales[3] = 0.82f;
-				keyScales[6] = 1.02f;
-				keyScales[7] = 1.02f;
-				keyScales[8] = 1.00f;
-				keyScales[9] = 1.00f;
-				keyScales[10] = 0.92f;
-				keyScales[11] = 0.92f;
-
-				setSnap(KEY_SOFT_LEFT, SCREEN, RectSnap.INT_NORTHWEST, true);
-				setSnap(KEY_SOFT_RIGHT, SCREEN, RectSnap.INT_NORTHEAST, true);
-
-				setSnap(KEY_NUM1, KEY_SOFT_LEFT, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM4, KEY_NUM1, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM7, KEY_NUM4, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_STAR, KEY_NUM7, RectSnap.EXT_SOUTH, true);
-
-				setSnap(KEY_NUM2, KEY_NUM1, RectSnap.EXT_EAST, true);
-				setSnap(KEY_NUM5, KEY_NUM2, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM8, KEY_NUM5, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM0, KEY_NUM8, RectSnap.EXT_SOUTH, true);
-
-				setSnap(KEY_NUM3, KEY_SOFT_RIGHT, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM6, KEY_NUM3, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_NUM9, KEY_NUM6, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_POUND, KEY_NUM9, RectSnap.EXT_SOUTH, true);
-
-				setSnap(KEY_FIRE, KEY_NUM5, RectSnap.EXT_EAST, true);
-				setSnap(KEY_LEFT, KEY_FIRE, RectSnap.EXT_WEST, true);
-				setSnap(KEY_RIGHT, KEY_FIRE, RectSnap.EXT_EAST, true);
-				setSnap(KEY_UP, KEY_FIRE, RectSnap.EXT_NORTH, true);
-				setSnap(KEY_DOWN, KEY_FIRE, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_UP_LEFT, KEY_LEFT, RectSnap.EXT_NORTH, true);
-				setSnap(KEY_UP_RIGHT, KEY_RIGHT, RectSnap.EXT_NORTH, true);
-				setSnap(KEY_DOWN_LEFT, KEY_LEFT, RectSnap.EXT_SOUTH, true);
-				setSnap(KEY_DOWN_RIGHT, KEY_RIGHT, RectSnap.EXT_SOUTH, true);
-
-				setSnap(KEY_A, SCREEN, RectSnap.INT_NORTHWEST, false);
-				setSnap(KEY_B, SCREEN, RectSnap.INT_NORTHEAST, false);
-				setSnap(KEY_C, SCREEN, RectSnap.INT_SOUTHWEST, false);
-				setSnap(KEY_D, SCREEN, RectSnap.INT_SOUTHEAST, false);
-				setSnap(KEY_MENU, KEY_FIRE, RectSnap.EXT_SOUTH, false);
-			}
 			case TYPE_PHONE -> {
 				for (int j = 0, len = keyScales.length; j < len; ) {
 					keyScales[j++] = PHONE_KEY_SCALE_X;
@@ -1359,10 +1309,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 
 		void paint(CanvasWrapper g) {
-			if (layoutVariant == TYPE_CUSTOM) {
-				paintCustom(g);
-				return;
-			}
 			int bgColor;
 			int fgColor;
 			if (selected) {
@@ -1390,54 +1336,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					g.fillArc(rect, 0, 360);
 					g.drawArc(rect, 0, 360);
 				}
-			}
-			g.drawString(label, rect.centerX(), rect.centerY());
-		}
-
-		private void paintCustom(CanvasWrapper g) {
-			int alpha = (opaque || layoutEditMode != LAYOUT_EOF ? 0xFF : settings.vkAlpha) << 24;
-			int bgColor = selected ? 0xFF505055 : 0xFF2F2F33;
-			int fgColor = 0xFFD6D6D8;
-			int outlineColor = 0xFFE2D8C8;
-			RectF shadow = new RectF(rect);
-			shadow.offset(2.0f, 2.5f);
-			g.setFillColor(0x66000000);
-			g.setDrawColor(0x66000000);
-			g.setTextColor(0x00000000);
-			int corners = Math.max(this.corners, (int) (Math.min(rect.width(), rect.height()) * 0.32f));
-			switch (settings.vkButtonShape) {
-				case SHAPE_OVAL -> {
-					g.fillArc(shadow, 0, 360);
-				}
-				default -> {
-					g.fillRoundRect(shadow, corners, corners);
-				}
-			}
-
-			int paintAlpha = layoutEditMode != LAYOUT_EOF ? 0xA0000000 : alpha;
-			g.setFillColor(paintAlpha | bgColor);
-			g.setDrawColor(paintAlpha | outlineColor);
-			g.setTextColor(paintAlpha | fgColor);
-			g.setTextScale(0.84f);
-			RectF gloss = new RectF(rect.left + 1.0f, rect.top + 1.0f, rect.right - 1.0f,
-					rect.top + rect.height() * 0.42f);
-			switch (settings.vkButtonShape) {
-				case SHAPE_RECT -> {
-					g.fillRect(rect);
-					g.drawRect(rect);
-				}
-				case SHAPE_OVAL -> {
-					g.fillArc(rect, 0, 360);
-					g.drawArc(rect, 0, 360);
-				}
-				default -> {
-					g.fillRoundRect(rect, corners, corners);
-					g.drawRoundRect(rect, corners, corners);
-				}
-			}
-			if (settings.vkButtonShape != SHAPE_RECT) {
-				g.setFillColor(0x22FFFFFF);
-				g.fillRoundRect(gloss, corners, corners);
 			}
 			g.drawString(label, rect.centerX(), rect.centerY());
 		}
