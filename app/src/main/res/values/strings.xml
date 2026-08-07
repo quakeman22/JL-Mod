@@ -76,6 +76,11 @@
     <string name="layout_edit_mode">Keylayout edit mode</string>
     <string name="layout_scale_mode">Keylayout resize mode</string>
     <string name="layout_switch">Switch keylayout</string>
+    <string name="custom_controls_editor">Customize buttons</string>
+    <string name="custom_controls_move">Move buttons</string>
+    <string name="custom_controls_resize">Resize buttons</string>
+    <string name="custom_controls_finish">Finish editing</string>
+    <string name="custom_controls_edit_hint">Drag the buttons on screen. Open the menu again to finish and save.</string>
     <string name="licenses">Licenses</string>
     <string name="load_profile">Load profile</string>
     <string name="loading_info">loading info…</string>
