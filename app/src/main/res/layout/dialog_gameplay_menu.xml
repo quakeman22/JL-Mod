@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="248dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_gameplay_menu_panel"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_gameplay_menu_panel"
+        android:orientation="vertical"
+        android:padding="12dp">
 
     <TextView
         android:id="@+id/gameplay_menu_title"
@@ -16,6 +22,21 @@
         android:textColor="@color/settings_title"
         android:textSize="18sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/gameplay_menu_custom_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/custom_controls_editor"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/gameplay_menu_exit"
@@ -153,21 +174,6 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/gameplay_menu_custom_controls"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_gameplay_menu_row"
-        android:clickable="true"
-        android:focusable="true"
-        android:minHeight="38dp"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="7dp"
-        android:text="@string/custom_controls_editor"
-        android:textColor="@color/settings_title"
-        android:textSize="16sp" />
-
-    <TextView
         android:id="@+id/gameplay_menu_multiplayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -182,4 +188,5 @@
         android:textColor="@color/settings_title"
         android:textSize="16sp" />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
