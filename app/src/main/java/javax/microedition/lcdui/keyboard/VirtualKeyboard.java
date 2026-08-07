@@ -1012,8 +1012,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
     }
 
     private void readLayout() {
-        DataInputStream dis = new DataInputStream(new FileInputStream(getLayoutFile()));
+        DataInputStream dis = null;
         try {
+            dis = new DataInputStream(new FileInputStream(getLayoutFile()));
             if (dis.readInt() != LAYOUT_SIGNATURE) {
                 throw new IOException("file signature not found");
             }
@@ -1103,12 +1104,19 @@ public class VirtualKeyboard implements Overlay, Runnable {
                 }
             }
             throw new IOException("incompatible file version");
+        } catch (FileNotFoundException e) {
+            Log.w(TAG, "readLayout() threw an FileNotFoundException: " + e.getMessage());
+        } catch (IOException e2) {
+            e2.printStackTrace();
         } catch (Throwable th) {
-            try {
-                dis.close();
-            } catch (IOException ignored) {
-            }
             Log.e(TAG, "readLayout failed", th);
+        } finally {
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 
