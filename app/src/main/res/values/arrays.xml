@@ -28,11 +28,13 @@
         <item>@string/pref_classics_control_style_joystick</item>
         <item>@string/pref_classics_control_style_phone</item>
         <item>@string/pref_classics_control_style_handset</item>
+        <item>@string/pref_classics_control_style_custom</item>
     </string-array>
     <string-array name="pref_classics_control_style_values" translatable="false">
         <item>joystick</item>
         <item>phone</item>
         <item>handset</item>
+        <item>custom</item>
     </string-array>
     <string-array name="pref_classics_key_mode_entries">
         <item>@string/pref_classics_key_mode_mixed</item>
