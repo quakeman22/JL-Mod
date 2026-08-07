@@ -157,6 +157,30 @@ public class ProfileModel {
 	@SerializedName("VirtualKeyboardColorOutline")
 	public int vkOutlineColor;
 
+	@SerializedName("VirtualKeyboardSkinIconScales")
+	public float[] vkSkinIconScales;
+
+	@SerializedName("VirtualKeyboardSkinIcons")
+	public String[] vkSkinIcons;
+
+	@SerializedName("VirtualKeyboardSkinKeepAspect")
+	public boolean vkSkinKeepAspect;
+
+	@SerializedName("VirtualKeyboardSkinKeepAspectExceptions")
+	public boolean[] vkSkinKeepAspectExceptions;
+
+	@SerializedName("VirtualKeyboardSkinKeys")
+	public String[] vkSkinKeys;
+
+	@SerializedName("VirtualKeyboardSkinKeysPressed")
+	public String[] vkSkinKeysPressed;
+
+	@SerializedName("VirtualKeyboardSkinPath")
+	public String vkSkinPath;
+
+	@SerializedName("VirtualKeyboardSkinPressedPath")
+	public String vkSkinPressedPath;
+
 	@SerializedName("Layout")
 	public int keyCodesLayout;
 
@@ -235,6 +259,7 @@ public class ProfileModel {
 		vkBgColorSelected = 0x000080;
 		vkFgColorSelected = 0xFFFFFF;
 		vkOutlineColor = 0xFFFFFF;
+		vkSkinKeepAspect = true;
 		joyPreset = 1;
 		joyMap = (int[]) VirtualKeyboard.JOY_PRESETS[1].clone();
 		joyMode = 0;
