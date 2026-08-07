@@ -1395,7 +1395,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
     }
 
     @Override // javax.microedition.lcdui.overlay.Overlay
-    public void resize(RectF screen, float left, float top, float right, float bottom) throws IllegalAccessException {
+    public void resize(RectF screen, float left, float top, float right, float bottom) {
         this.screen = screen;
         this.virtualScreen.set(left, top, right, bottom);
         int newOrientation = screen.width() < screen.height() ? 0 : 1;
