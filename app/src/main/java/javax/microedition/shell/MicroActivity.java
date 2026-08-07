@@ -22,6 +22,8 @@ import static android.content.pm.ActivityInfo.*;
 import static ru.playsoftware.j2meloader.util.Constants.*;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +36,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -85,6 +88,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Displayable;
@@ -107,6 +111,7 @@ import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
+import ru.playsoftware.j2meloader.util.SavestateManager;
 import ru.playsoftware.j2meloader.util.UiSoundEffects;
 
 public class MicroActivity extends AppCompatActivity {
@@ -176,6 +181,7 @@ public class MicroActivity extends AppCompatActivity {
 			finish();
 			return;
 		}
+		applyPendingSavestateIfAny();
 		microLoader.applyConfiguration();
 		attachOverlayLayers();
 		SkinLayer skinLayer = SkinLayer.getInstance();
@@ -1151,6 +1157,11 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showClassicsKeyModeDialog();
 		});
+		view.findViewById(R.id.gameplay_menu_savestate).setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showSavestateDialog();
+		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1214,6 +1225,107 @@ public class MicroActivity extends AppCompatActivity {
 			e.printStackTrace();
 			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void showSavestateDialog() {
+		File appDataDir = getCurrentAppDataDir();
+		List<File> states = SavestateManager.listStates(appDataDir);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.savestate_title)
+				.setPositiveButton(R.string.savestate_save_current, (dialog, which) -> saveCurrentSavestate())
+				.setNegativeButton(android.R.string.cancel, null);
+		if (states.isEmpty()) {
+			builder.setMessage(R.string.savestate_empty);
+		} else {
+			CharSequence[] items = new CharSequence[states.size()];
+			for (int i = 0; i < states.size(); i++) {
+				items[i] = formatSavestateLabel(states.get(i));
+			}
+			builder.setItems(items, (dialog, which) -> requestRestoreSavestate(states.get(which)));
+		}
+		builder.show();
+	}
+
+	private void saveCurrentSavestate() {
+		new Thread(() -> {
+			try {
+				File saved = SavestateManager.saveState(getCurrentAppDataDir());
+				GameLog.i("Savestate", "Saved state to " + saved);
+				runOnUiThread(() -> Toast.makeText(MicroActivity.this,
+						getString(R.string.savestate_saved, saved.getName()),
+						Toast.LENGTH_LONG).show());
+			} catch (IOException e) {
+				GameLog.e("Savestate", "Failed to save state", e);
+				runOnUiThread(() -> Toast.makeText(MicroActivity.this,
+						R.string.error, Toast.LENGTH_SHORT).show());
+			}
+		}, "SavestateSave").start();
+	}
+
+	private void requestRestoreSavestate(File stateFile) {
+		if (stateFile == null || !stateFile.isFile()) {
+			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		try {
+			SavestateManager.setPendingRestore(this, stateFile.getAbsolutePath());
+			scheduleGameRelaunch();
+		} catch (Exception e) {
+			GameLog.e("Savestate", "Failed to request restore", e);
+			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void scheduleGameRelaunch() {
+		Intent launchIntent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appPath), this, MicroActivity.class);
+		launchIntent.putExtra(KEY_MIDLET_NAME, appName);
+		int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			flags |= PendingIntent.FLAG_IMMUTABLE;
+		}
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, appPath.hashCode(), launchIntent, flags);
+		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		if (alarmManager != null) {
+			long triggerAt = SystemClock.elapsedRealtime() + 1500L;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+						triggerAt, pendingIntent);
+			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
+			} else {
+				alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
+			}
+		}
+		Toast.makeText(this, R.string.savestate_restore_pending, Toast.LENGTH_SHORT).show();
+		MidletThread.destroyApp();
+	}
+
+	private void applyPendingSavestateIfAny() {
+		String pendingState = SavestateManager.consumePendingRestore(this);
+		if (pendingState == null || pendingState.isBlank()) {
+			return;
+		}
+		File stateFile = new File(pendingState);
+		try {
+			SavestateManager.restoreState(getCurrentAppDataDir(), stateFile);
+			GameLog.i("Savestate", "Restored state from " + stateFile);
+		} catch (Exception e) {
+			GameLog.e("Savestate", "Failed to restore state from " + stateFile, e);
+			Toast.makeText(this, R.string.savestate_restore_failed, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private File getCurrentAppDataDir() {
+		return new File(Config.getDataDir(), new File(appPath).getName());
+	}
+
+	private CharSequence formatSavestateLabel(File stateFile) {
+		String name = stateFile.getName();
+		if (name.endsWith(ru.playsoftware.j2meloader.util.SavestateManager.STATE_FILE_SUFFIX)) {
+			name = name.substring(0,
+					name.length() - ru.playsoftware.j2meloader.util.SavestateManager.STATE_FILE_SUFFIX.length());
+		}
+		return name;
 	}
 
 	private void showHideButtonDialog() {
