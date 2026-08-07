@@ -83,6 +83,10 @@ private static final String TAG = MidletThread.class.getName();
 		instance.state = PAUSED;
 	}
 
+	public static MIDlet getMidlet() {
+		return instance == null ? null : instance.midlet;
+	}
+
 	public static void resumeRequest() {
 		GameLog.i("MidletThread", "resumeRequest()");
 		MicroActivity activity = ContextHolder.getActivity();

@@ -61,7 +61,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.CheckBox;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.ListView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -85,6 +88,7 @@ import org.acra.ErrorReporter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -97,7 +101,9 @@ import javax.microedition.lcdui.ViewHandler;
 import javax.microedition.lcdui.event.SimpleEvent;
 import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
+import javax.microedition.lcdui.overlay.VkEditPanel;
 import javax.microedition.lcdui.skin.SkinLayer;
+import javax.microedition.midlet.MIDlet;
 import javax.microedition.util.ContextHolder;
 
 import io.reactivex.SingleObserver;
@@ -137,6 +143,11 @@ public class MicroActivity extends AppCompatActivity {
 	private String classicsHandsetSkin = "dark";
 	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
+	private List<MemoryScanner.Result> memoryResults;
+	private final List<MemoryScanner.Result> pinnedResults = new java.util.ArrayList<>();
+	private boolean memoryFirstSearch = true;
+	private VkEditPanel vkEditPanel;
+	private boolean[] hideModeInitialVisibility;
 
 	private UiSoundEffects uiSounds() {
 		return UiSoundEffects.get(this);
@@ -501,9 +512,6 @@ public class MicroActivity extends AppCompatActivity {
 		} else {
 			classicsControlStyle = CLASSICS_STYLE_JOYSTICK;
 		}
-		if (customSelected && !isLandscapeUi()) {
-			setRequestedOrientation(SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		}
 		int joystickVisibility = CLASSICS_STYLE_JOYSTICK.equals(classicsControlStyle)
 				|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		int phoneVisibility = (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
@@ -515,14 +523,8 @@ public class MicroActivity extends AppCompatActivity {
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility(CLASSICS_STYLE_HANDSET.equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
-		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-			applyCustomControlArrangement();
-			applyCustomControlSkin();
-			binding.dpadConsoleBackdrop.setVisibility(View.GONE);
-		} else {
-			applyDefaultControlArrangement();
-			binding.dpadConsoleBackdrop.setVisibility(View.VISIBLE);
-		}
+		applyDefaultControlArrangement();
+		binding.dpadConsoleBackdrop.setVisibility(View.VISIBLE);
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
@@ -1198,6 +1200,12 @@ public class MicroActivity extends AppCompatActivity {
 		} else if (id == R.id.action_save_log) {
 			uiSounds().playConfirm();
 			saveLog();
+		} else if (id == R.id.action_memory_search) {
+			uiSounds().playConfirm();
+			showMemorySearchDialog();
+		} else if (id == R.id.action_layout_edit_mode) {
+			uiSounds().playConfirm();
+			showEditLayoutMode();
 		} else if (id == R.id.action_lock_orientation) {
 			uiSounds().playConfirm();
 			if (item.isChecked()) {
@@ -1342,7 +1350,7 @@ public class MicroActivity extends AppCompatActivity {
 			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) && ContextHolder.getVk() != null) {
-				showCustomControlsEditorDialog();
+				showEditLayoutMode();
 			} else {
 				Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
 			}
@@ -1378,35 +1386,293 @@ public class MicroActivity extends AppCompatActivity {
 		}
 	}
 
-	private void showCustomControlsEditorDialog() {
+	private void showEditLayoutMode() {
 		final VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk == null) {
 			return;
 		}
-		String[] items = {
-				getString(R.string.custom_controls_move),
-				getString(R.string.custom_controls_resize),
-				getString(R.string.hide_buttons)
-		};
-		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
-				.setTitle(R.string.custom_controls_editor)
-				.setItems(items, (dialog, which) -> {
-					switch (which) {
-						case 0 -> {
-							vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
-							Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
-						}
-						case 1 -> {
-							vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_SCALES);
-							Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
-						}
-						case 2 -> showHideButtonDialog();
+		vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
+		Toast.makeText(this, R.string.layout_edit_mode, Toast.LENGTH_SHORT).show();
+		if (vkEditPanel == null) {
+			vkEditPanel = new VkEditPanel(binding.midletFrame, new VkEditPanel.Listener() {
+				@Override
+				public void finishEditing() {
+					VirtualKeyboard keyboard = ContextHolder.getVk();
+					if (keyboard == null) {
+						return;
 					}
-				})
-				.setPositiveButton(R.string.custom_controls_finish, (dialog, which) -> {
-					vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
-					vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
-					Toast.makeText(this, R.string.custom_controls_editor, Toast.LENGTH_SHORT).show();
+					if (keyboard.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE) {
+						boolean[] current = keyboard.getKeysVisibility();
+						keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+						keyboard.postInvalidate();
+						if (hideModeInitialVisibility != null
+								&& !Arrays.equals(current, hideModeInitialVisibility)) {
+							showSaveVkAlert(true);
+						}
+						hideModeInitialVisibility = null;
+						if (vkEditPanel != null) {
+							vkEditPanel.setHideModeActive(false);
+						}
+						return;
+					}
+					keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+					keyboard.postInvalidate();
+					Toast.makeText(MicroActivity.this, R.string.layout_edit_finished, Toast.LENGTH_SHORT).show();
+					showSaveVkAlert(false);
+					if (vkEditPanel != null) {
+						vkEditPanel.setHideModeActive(false);
+					}
+				}
+
+				@Override
+				public void refitKeys() {
+					VirtualKeyboard keyboard = ContextHolder.getVk();
+					if (keyboard != null) {
+						keyboard.flattenKeysToScreenAnchored();
+						keyboard.postInvalidate();
+					}
+				}
+
+				@Override
+				public void resetLayout() {
+					VirtualKeyboard keyboard = ContextHolder.getVk();
+					if (keyboard != null) {
+						keyboard.setLayout(keyboard.getLayout());
+						keyboard.postInvalidate();
+					}
+				}
+
+				@Override
+				public void showHideButtons() {
+					VirtualKeyboard keyboard = ContextHolder.getVk();
+					if (keyboard == null) {
+						return;
+					}
+					if (keyboard.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE) {
+						boolean[] current = keyboard.getKeysVisibility();
+						keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
+						keyboard.postInvalidate();
+						if (hideModeInitialVisibility != null
+								&& !Arrays.equals(current, hideModeInitialVisibility)) {
+							showSaveVkAlert(true);
+						}
+						hideModeInitialVisibility = null;
+						if (vkEditPanel != null) {
+							vkEditPanel.setHideModeActive(false);
+						}
+						return;
+					}
+					hideModeInitialVisibility = keyboard.getKeysVisibility();
+					keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_HIDE);
+					keyboard.postInvalidate();
+					if (vkEditPanel != null) {
+						vkEditPanel.setHideModeActive(true);
+					}
+				}
+			});
+		}
+		vkEditPanel.setHideModeActive(vk.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE);
+		vkEditPanel.show();
+	}
+
+	private void finishEditLayout() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		if (vkEditPanel != null) {
+			vkEditPanel.dismiss();
+			vkEditPanel = null;
+		}
+		if (vk != null) {
+			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+			vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
+		}
+		Toast.makeText(this, R.string.layout_edit_finished, Toast.LENGTH_SHORT).show();
+		showSaveVkAlert(false);
+	}
+
+	private void refitKeys() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk == null) {
+			return;
+		}
+		vk.flattenKeysToScreenAnchored();
+		vk.postInvalidate();
+		Toast.makeText(this, R.string.refit_keys, Toast.LENGTH_SHORT).show();
+	}
+
+	private void showMemorySearchDialog() {
+		final MIDlet midlet = MidletThread.getMidlet();
+		if (midlet == null) {
+			Toast.makeText(this, R.string.memory_no_results, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		LinearLayout root = new LinearLayout(this);
+		root.setOrientation(LinearLayout.VERTICAL);
+		root.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
+		final EditText etValue = new EditText(this);
+		etValue.setHint(R.string.memory_search_hint);
+		etValue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+		etValue.setKeyListener(DigitsKeyListener.getInstance("0123456789-"));
+		etValue.setSingleLine(true);
+		etValue.setMaxLines(1);
+		Button btnSearch = new Button(this);
+		btnSearch.setText("SEARCH");
+		Button btnRefine = new Button(this);
+		btnRefine.setText("Changed");
+		Button btnRefresh = new Button(this);
+		btnRefresh.setText("CLEAR");
+		LinearLayout btnRow = new LinearLayout(this);
+		btnRow.setOrientation(LinearLayout.HORIZONTAL);
+		btnRow.addView(btnSearch);
+		btnRow.addView(btnRefine);
+		btnRow.addView(btnRefresh);
+		final TextView tvCount = new TextView(this);
+		tvCount.setPadding(0, dpToPx(8), 0, dpToPx(8));
+		final ArrayList<String> displayItems = new ArrayList<>();
+		final ArrayList<MemoryScanner.Result> resultItems = new ArrayList<>();
+		final ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this,
+				android.R.layout.simple_list_item_1, displayItems);
+		final ListView listView = new ListView(this);
+		listView.setAdapter(listAdapter);
+		int maxListHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.5f);
+		int listHeight = Math.max(dpToPx(200), Math.min(maxListHeight, dpToPx(600)));
+		root.addView(etValue);
+		root.addView(btnRow);
+		root.addView(tvCount);
+		root.addView(listView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
+		final AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.memory_search_title)
+				.setView(root)
+				.setNegativeButton(android.R.string.cancel, (DialogInterface.OnClickListener) null)
+				.show();
+		listView.setOnItemClickListener((parent, view, position, id) -> {
+			MemoryScanner.Result r = resultItems.get(position);
+			showMemoryEditDialog(r, () -> updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems));
+		});
+		listView.setOnItemLongClickListener((parent, view, position, id) -> {
+			MemoryScanner.Result r = resultItems.get(position);
+			if (pinnedResults.contains(r)) {
+				pinnedResults.remove(r);
+				Toast.makeText(this, "Unpinned", Toast.LENGTH_SHORT).show();
+			} else {
+				pinnedResults.add(r);
+				if (memoryResults != null) {
+					memoryResults.remove(r);
+				}
+				Toast.makeText(this, "Pinned", Toast.LENGTH_SHORT).show();
+			}
+			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
+			return true;
+		});
+		btnSearch.setOnClickListener(v -> {
+			String text = etValue.getText().toString().trim();
+			boolean hasValue = !text.isEmpty();
+			long searchValue = 0L;
+			if (hasValue) {
+				try {
+					searchValue = Long.parseLong(text);
+				} catch (NumberFormatException e) {
+					Toast.makeText(this, "Invalid value", Toast.LENGTH_SHORT).show();
+					return;
+				}
+			}
+			try {
+				memoryResults = MemoryScanner.search(midlet, searchValue, hasValue ? MemoryScanner.TYPE_EXACT : MemoryScanner.TYPE_UNKNOWN);
+				memoryFirstSearch = false;
+				MemoryScanner.updateValues(memoryResults);
+				updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
+			} catch (Throwable t) {
+				GameLog.e("MemorySearch", "Search failed", t);
+				Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+			}
+		});
+		btnRefine.setOnClickListener(v -> {
+			if (memoryResults == null || memoryResults.isEmpty()) {
+				Toast.makeText(this, "Search first", Toast.LENGTH_SHORT).show();
+				return;
+			}
+			memoryResults = MemoryScanner.refine(memoryResults, MemoryScanner.TYPE_CHANGED, 0L);
+			MemoryScanner.updateValues(memoryResults);
+			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
+		});
+		btnRefresh.setOnClickListener(v -> {
+			memoryResults = null;
+			memoryFirstSearch = true;
+			pinnedResults.clear();
+			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
+			Toast.makeText(this, "Cleared", Toast.LENGTH_SHORT).show();
+		});
+		if (memoryResults != null && !memoryResults.isEmpty()) {
+			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
+		}
+	}
+
+	private void updateMemorySearchList(TextView tvCount, ArrayAdapter<String> adapter,
+			ArrayList<String> displayItems, ArrayList<MemoryScanner.Result> resultItems) {
+		displayItems.clear();
+		resultItems.clear();
+		int total = 0;
+		for (MemoryScanner.Result r : pinnedResults) {
+			displayItems.add("* " + formatResult(r));
+			resultItems.add(r);
+			total++;
+		}
+		if (memoryResults != null) {
+			for (MemoryScanner.Result r : memoryResults) {
+				displayItems.add("  " + formatResult(r));
+				resultItems.add(r);
+				total++;
+			}
+		}
+		if (total == 0) {
+			tvCount.setText(R.string.memory_no_results);
+		} else {
+			tvCount.setText(getString(R.string.memory_search_results, total));
+		}
+		adapter.notifyDataSetChanged();
+	}
+
+	private String formatResult(MemoryScanner.Result r) {
+		String base = r.toString();
+		long cur = r.readValue();
+		if (cur != r.lastValue) {
+			return base + " was " + r.lastValue;
+		}
+		return base;
+	}
+
+	private void showMemoryEditDialog(MemoryScanner.Result result, Runnable onUpdate) {
+		if (result == null) {
+			return;
+		}
+		LinearLayout layout = new LinearLayout(this);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		layout.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
+		TextView tvCurrent = new TextView(this);
+		tvCurrent.setText("Current: " + result.toString());
+		final EditText etNewVal = new EditText(this);
+		etNewVal.setHint(R.string.memory_edit_value);
+		etNewVal.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+		etNewVal.setKeyListener(DigitsKeyListener.getInstance("0123456789-"));
+		etNewVal.setSingleLine(true);
+		layout.addView(tvCurrent);
+		layout.addView(etNewVal);
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.memory_edit_value)
+				.setView(layout)
+				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+					String text = etNewVal.getText() == null ? "" : etNewVal.getText().toString().trim();
+					if (TextUtils.isEmpty(text)) {
+						return;
+					}
+					try {
+						long newVal = Long.parseLong(text);
+						result.writeValue(newVal);
+						Toast.makeText(this, "Value updated", Toast.LENGTH_SHORT).show();
+						if (onUpdate != null) {
+							onUpdate.run();
+						}
+					} catch (NumberFormatException e) {
+					}
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
@@ -1542,17 +1808,35 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showHideButtonDialog() {
 		final VirtualKeyboard vk = ContextHolder.getVk();
-		boolean[] states = vk.getKeysVisibility();
+		if (vk == null) {
+			return;
+		}
+		boolean[] states = hideModeInitialVisibility != null
+				? hideModeInitialVisibility.clone()
+				: vk.getKeysVisibility();
 		boolean[] changed = states.clone();
-		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+		if (vkEditPanel != null) {
+			vkEditPanel.setHideModeActive(true);
+		}
+		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.hide_buttons)
-				.setMultiChoiceItems(vk.getKeyNames(), changed, (dialog, which, isChecked) -> {})
-				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+				.setMultiChoiceItems(vk.getKeyNames(), changed, (dialogInterface, which, isChecked) -> {})
+				.setPositiveButton(android.R.string.ok, (dialogInterface, which) -> {
 					if (!Arrays.equals(states, changed)) {
 						vk.setKeysVisibility(changed);
 						showSaveVkAlert(true);
 					}
-				}).show();
+					if (vkEditPanel != null) {
+						vkEditPanel.setHideModeActive(false);
+					}
+				})
+				.create();
+		dialog.setOnDismissListener(d -> {
+			if (vkEditPanel != null) {
+				vkEditPanel.setHideModeActive(false);
+			}
+		});
+		dialog.show();
 	}
 
 	private void showSaveVkAlert(boolean keepScreenPreferred) {
