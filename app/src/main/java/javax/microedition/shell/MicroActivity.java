@@ -58,6 +58,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.CheckBox;
