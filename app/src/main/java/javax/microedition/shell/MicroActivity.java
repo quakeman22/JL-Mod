@@ -518,8 +518,10 @@ public class MicroActivity extends AppCompatActivity {
 		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
 			applyCustomControlArrangement();
 			applyCustomControlSkin();
+			binding.dpadConsoleBackdrop.setVisibility(View.GONE);
 		} else {
 			applyDefaultControlArrangement();
+			binding.dpadConsoleBackdrop.setVisibility(View.VISIBLE);
 		}
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
@@ -1334,6 +1336,17 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showSavestateDialog();
 		});
+		View customControlsRow = view.findViewById(R.id.gameplay_menu_custom_controls);
+		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) && ContextHolder.getVk() != null) {
+			customControlsRow.setVisibility(View.VISIBLE);
+			customControlsRow.setOnClickListener(v -> {
+				uiSounds().playConfirm();
+				if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+				showCustomControlsEditorDialog();
+			});
+		} else {
+			customControlsRow.setVisibility(View.GONE);
+		}
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1363,6 +1376,40 @@ public class MicroActivity extends AppCompatActivity {
 				controller.hide(WindowInsetsCompat.Type.systemBars());
 			}
 		}
+	}
+
+	private void showCustomControlsEditorDialog() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk == null) {
+			return;
+		}
+		String[] items = {
+				getString(R.string.custom_controls_move),
+				getString(R.string.custom_controls_resize),
+				getString(R.string.hide_buttons)
+		};
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setTitle(R.string.custom_controls_editor)
+				.setItems(items, (dialog, which) -> {
+					switch (which) {
+						case 0 -> {
+							vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
+							Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
+						}
+						case 1 -> {
+							vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_SCALES);
+							Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
+						}
+						case 2 -> showHideButtonDialog();
+					}
+				})
+				.setPositiveButton(R.string.custom_controls_finish, (dialog, which) -> {
+					vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+					vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
+					Toast.makeText(this, R.string.custom_controls_editor, Toast.LENGTH_SHORT).show();
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
 	}
 
 	@SuppressLint("CheckResult")
