@@ -529,12 +529,6 @@ public class MicroActivity extends AppCompatActivity {
 		gameFrameParams.bottomToTop = CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
-		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-			gameFrameParams.matchConstraintPercentWidth = 0.58f;
-			gameFrameParams.matchConstraintMaxWidth = dpToPx(360);
-			gameFrameParams.topMargin = dpToPx(10);
-			gameFrameParams.horizontalBias = 0.5f;
-		}
 		binding.gameFrame.setLayoutParams(gameFrameParams);
 		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
