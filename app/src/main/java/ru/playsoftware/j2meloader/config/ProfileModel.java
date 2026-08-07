@@ -167,6 +167,30 @@ public class ProfileModel {
 	@SerializedName("KeyMappings")
 	public SparseIntArray keyMappings;
 
+	@SerializedName("JoyEnabled")
+	public boolean joyEnabled;
+
+	@SerializedName("JoyMap")
+	public int[] joyMap;
+
+	@SerializedName("JoyMode")
+	public int joyMode;
+
+	@SerializedName("JoyPreset")
+	public int joyPreset;
+
+	@SerializedName("JoyRepeatDelay")
+	public int joyRepeatDelay;
+
+	@SerializedName("JoySkinPath")
+	public String joySkinPath;
+
+	@SerializedName("JoyThumbSkinPath")
+	public String joyThumbSkinPath;
+
+	@SerializedName("JoyThumbRadius")
+	public float joyThumbRadius;
+
 	@SerializedName("SoundBank")
 	public String soundBank;
 
@@ -211,6 +235,26 @@ public class ProfileModel {
 		vkBgColorSelected = 0x000080;
 		vkFgColorSelected = 0xFFFFFF;
 		vkOutlineColor = 0xFFFFFF;
+		joyPreset = 1;
+		joyMap = (int[]) VirtualKeyboard.JOY_PRESETS[1].clone();
+		joyMode = 0;
+		joyRepeatDelay = 0;
+		joyThumbRadius = 0.35f;
 		systemProperties = ContextHolder.getAssetAsString("defaults/system.props");
+	}
+
+	public void ensureLegacyDefaults() {
+		if (joyPreset < 0 || joyPreset >= VirtualKeyboard.JOY_PRESETS.length) {
+			joyPreset = 1;
+		}
+		if (joyMap == null || joyMap.length == 0) {
+			joyMap = (int[]) VirtualKeyboard.JOY_PRESETS[joyPreset].clone();
+		}
+		if (joyThumbRadius <= 0f) {
+			joyThumbRadius = 0.35f;
+		}
+		if (joyRepeatDelay < 0) {
+			joyRepeatDelay = 0;
+		}
 	}
 }

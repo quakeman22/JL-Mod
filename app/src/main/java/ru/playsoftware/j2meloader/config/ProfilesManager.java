@@ -137,6 +137,7 @@ public class ProfilesManager {
 		if (params == null) {
 			return null;
 		}
+		params.ensureLegacyDefaults();
 		switch (params.version) {
 			case 0:
 				if (params.hwAcceleration) {
