@@ -65,6 +65,11 @@
     <string name="layout_edit_mode">Modo de edição do teclado</string>
     <string name="layout_scale_mode">Editar tamanho dos botões</string>
     <string name="layout_switch">Alterar layout dos botões</string>
+    <string name="custom_controls_editor">Personalizar botões</string>
+    <string name="custom_controls_move">Mover botões</string>
+    <string name="custom_controls_resize">Redimensionar botões</string>
+    <string name="custom_controls_finish">Concluir edição</string>
+    <string name="custom_controls_edit_hint">Arraste os botões na tela. Abra o menu novamente para concluir e salvar.</string>
     <string name="licenses">Licenças</string>
     <string name="load_profile">Carregar perfil</string>
     <string name="loading_info">Carregando informações…</string>
