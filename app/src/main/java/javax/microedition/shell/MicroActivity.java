@@ -582,8 +582,8 @@ public class MicroActivity extends AppCompatActivity {
 
 		ConstraintLayout.LayoutParams dpadParams =
 				(ConstraintLayout.LayoutParams) binding.controlPadShell.getLayoutParams();
-		dpadParams.startToStart = R.id.game_frame;
-		dpadParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
+		dpadParams.startToStart = ConstraintLayout.LayoutParams.UNSET;
+		dpadParams.startToEnd = R.id.game_frame;
 		dpadParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
 		dpadParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
 		dpadParams.topToTop = R.id.game_frame;
@@ -596,9 +596,9 @@ public class MicroActivity extends AppCompatActivity {
 		dpadParams.setMarginEnd(dpToPx(12));
 		binding.controlPadShell.setLayoutParams(dpadParams);
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			binding.dpadConsoleBackdrop.setImageResource(R.drawable.classic_dpad_control_bg_land);
+			binding.dpadConsoleBackdrop.setImageResource(R.drawable.bg_handset_game_background);
 		} else {
-			binding.dpadConsoleBackdrop.setImageResource(R.drawable.classic_dpad_control_bg_port);
+			binding.dpadConsoleBackdrop.setImageResource(R.drawable.bg_handset_game_background);
 		}
 	}
 
@@ -640,6 +640,11 @@ public class MicroActivity extends AppCompatActivity {
 		binding.phoneKeyStar.setTextColor(textColor);
 		binding.phoneKey0.setTextColor(textColor);
 		binding.phoneKeyPound.setTextColor(textColor);
+
+		binding.dpadUpVisual.setBackgroundResource(buttonBackground);
+		binding.dpadLeftVisual.setBackgroundResource(buttonBackground);
+		binding.dpadRightVisual.setBackgroundResource(buttonBackground);
+		binding.dpadDownVisual.setBackgroundResource(buttonBackground);
 	}
 
 	private void applyClassicsKeyMode(String mode) {
