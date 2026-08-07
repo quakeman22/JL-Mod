@@ -141,6 +141,13 @@
     <string name="pref_classics_key_mode_mixed">Setas + números</string>
     <string name="pref_classics_key_mode_arrows">Setas / FIRE</string>
     <string name="pref_classics_key_mode_numbers">Números</string>
+    <string name="gameplay_menu_savestate">Savestate</string>
+    <string name="savestate_title">Savestate</string>
+    <string name="savestate_save_current">Salvar estado atual</string>
+    <string name="savestate_empty">Nenhum savestate encontrado para este jogo.</string>
+    <string name="savestate_saved">Savestate salvo: %1$s</string>
+    <string name="savestate_restore_pending">Restaurando savestate na próxima abertura</string>
+    <string name="savestate_restore_failed">Falha ao restaurar o savestate</string>
     <string name="pref_classics_handset_skin_title">Skin do celular retrô</string>
     <string name="pref_classics_handset_skin_dark">Celular retrô escuro</string>
     <string name="pref_classics_handset_skin_gold">Celular retrô dourado</string>
