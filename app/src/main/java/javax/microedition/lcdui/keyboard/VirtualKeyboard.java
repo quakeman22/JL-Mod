@@ -194,14 +194,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
         }
         resetLayout(this.layoutVariant);
         if (this.layoutVariant == 0) {
-            try {
-                readLayout();
-            } catch (IOException e) {
-                e.printStackTrace();
-                resetLayout(3);
-                this.layoutVariant = 3;
-                saveLayout();
-            }
+            readLayout();
         }
         HandlerThread thread = new HandlerThread("MidletVirtualKeyboard");
         thread.start();
@@ -470,7 +463,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
                     } catch (Exception e2) {
                     }
                 }
-                throw th;
+                Log.e(TAG, "Failed to load SVG: " + fullPath, th);
+                return null;
             }
         } catch (Exception e3) {
             Log.w(TAG, "Failed to load SVG: " + fullPath, e3);
@@ -805,13 +799,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
     public void setLayout(int variant) {
         resetLayout(variant);
         if (variant == 0) {
-            try {
-                readLayout();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                resetLayout(this.layoutVariant);
-                return;
-            }
+            readLayout();
         }
         this.layoutVariant = variant;
         onLayoutChanged(variant);
@@ -831,7 +819,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
         return file.exists() ? file : this.saveFile;
     }
 
-    private boolean loadLayoutForOrientation() throws IllegalAccessException, InvocationTargetException {
+    private boolean loadLayoutForOrientation() {
         String suffix = this.currentOrientation == 1 ? "_land" : "_port";
         File orientedFile = new File(this.settings.dir + Config.MIDLET_KEY_LAYOUT_FILE + suffix);
         if (!orientedFile.exists()) {
@@ -849,11 +837,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
             if (type == 0) {
                 Arrays.fill(this.keyScales, 1.0f);
                 resetLayout(3);
-                try {
-                    readLayout();
-                } catch (IOException e) {
-                    return false;
-                }
+                readLayout();
             } else {
                 resetLayout(type);
             }
@@ -861,7 +845,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
         return false;
     }
 
-    private void saveLayout() throws IllegalAccessException, InvocationTargetException {
+    private void saveLayout() {
         int length;
         String suffix = this.currentOrientation == 1 ? "_land" : "_port";
         File file = new File(this.settings.dir + Config.MIDLET_KEY_LAYOUT_FILE + suffix);
@@ -958,7 +942,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
         }
     }
 
-    private int readLayoutType() throws IllegalAccessException, InvocationTargetException {
+    private int readLayoutType() {
         try {
             DataInputStream dis = new DataInputStream(new FileInputStream(getLayoutFile()));
             try {
@@ -1013,10 +997,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
             } catch (Throwable th) {
                 try {
                     dis.close();
-                } catch (Throwable th2) {
-                    Throwable.class.getDeclaredMethod("addSuppressed", Throwable.class).invoke(th, th2);
+                } catch (IOException ignored) {
                 }
-                throw th;
+                Log.e(TAG, "readLayoutType failed", th);
+                return -1;
             }
         } catch (FileNotFoundException e) {
             Log.w(TAG, "readLayoutType() threw an FileNotFoundException: " + e.getMessage());
@@ -1027,7 +1011,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
         }
     }
 
-    private void readLayout() throws IllegalAccessException, IOException, InvocationTargetException {
+    private void readLayout() {
         DataInputStream dis = new DataInputStream(new FileInputStream(getLayoutFile()));
         try {
             if (dis.readInt() != LAYOUT_SIGNATURE) {
@@ -1053,31 +1037,30 @@ public class VirtualKeyboard implements Overlay, Runnable {
                                     VirtualKey[] virtualKeyArr = this.keypad;
                                     int length2 = virtualKeyArr.length;
                                     int i3 = 0;
-                                    while (true) {
-                                        if (i3 < length2) {
-                                            VirtualKey key = virtualKeyArr[i3];
-                                            if (key.hashCode() != hash) {
-                                                i3++;
-                                                i = 5;
-                                            } else {
-                                                if (version >= 2) {
-                                                    key.visible = dis.readBoolean();
-                                                }
-                                                key.snapOrigin = dis.readInt();
-                                                key.snapMode = dis.readInt();
-                                                float ox = dis.readFloat();
-                                                float oy = dis.readFloat();
-                                                if (version >= i) {
-                                                    float dispW = ContextHolder.getDisplayWidth();
-                                                    float dispH = ContextHolder.getDisplayHeight();
-                                                    key.snapOffset.x = ox * dispW;
-                                                    key.snapOffset.y = oy * dispH;
-                                                } else {
-                                                    key.snapOffset.x = ox;
-                                                    key.snapOffset.y = oy;
-                                                }
-                                                found = true;
+                                    while (i3 < length2) {
+                                        VirtualKey key = virtualKeyArr[i3];
+                                        if (key.hashCode() != hash) {
+                                            i3++;
+                                            i = 5;
+                                        } else {
+                                            if (version >= 2) {
+                                                key.visible = dis.readBoolean();
                                             }
+                                            key.snapOrigin = dis.readInt();
+                                            key.snapMode = dis.readInt();
+                                            float ox = dis.readFloat();
+                                            float oy = dis.readFloat();
+                                            if (version >= i) {
+                                                float dispW = ContextHolder.getDisplayWidth();
+                                                float dispH = ContextHolder.getDisplayHeight();
+                                                key.snapOffset.x = ox * dispW;
+                                                key.snapOffset.y = oy * dispH;
+                                            } else {
+                                                key.snapOffset.x = ox;
+                                                key.snapOffset.y = oy;
+                                            }
+                                            found = true;
+                                            break;
                                         }
                                     }
                                     if (!found) {
@@ -1123,11 +1106,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
         } catch (Throwable th) {
             try {
                 dis.close();
-                throw th;
-            } catch (Throwable th2) {
-                Throwable.class.getDeclaredMethod("addSuppressed", Throwable.class).invoke(th, th2);
-                throw th;
+            } catch (IOException ignored) {
             }
+            Log.e(TAG, "readLayout failed", th);
         }
     }
 
@@ -1519,16 +1500,15 @@ public class VirtualKeyboard implements Overlay, Runnable {
                     this.dragPointer = pointer;
                     this.editedIndex = -1;
                     int i2 = 0;
-                    while (true) {
-                        if (i2 < this.keypad.length) {
-                            if (!this.keypad[i2].contains(x, y)) {
-                                i2++;
-                            } else {
-                                this.editedIndex = i2;
-                                RectF rect = this.keypad[i2].rect;
-                                this.offsetX = x - rect.left;
-                                this.offsetY = y - rect.top;
-                            }
+                    while (i2 < this.keypad.length) {
+                        if (!this.keypad[i2].contains(x, y)) {
+                            i2++;
+                        } else {
+                            this.editedIndex = i2;
+                            RectF rect = this.keypad[i2].rect;
+                            this.offsetX = x - rect.left;
+                            this.offsetY = y - rect.top;
+                            break;
                         }
                     }
                     int i3 = this.editedIndex;
@@ -1559,14 +1539,13 @@ public class VirtualKeyboard implements Overlay, Runnable {
                 return false;
             case 5:
                 int i4 = 0;
-                while (true) {
-                    if (i4 < this.keypad.length) {
-                        if (!this.keypad[i4].rect.contains(x, y)) {
-                            i4++;
-                        } else {
-                            this.keypad[i4].visible = true ^ this.keypad[i4].visible;
-                            this.overlayView.postInvalidate();
-                        }
+                while (i4 < this.keypad.length) {
+                    if (!this.keypad[i4].rect.contains(x, y)) {
+                        i4++;
+                    } else {
+                        this.keypad[i4].visible = true ^ this.keypad[i4].visible;
+                        this.overlayView.postInvalidate();
+                        break;
                     }
                 }
                 return false;
