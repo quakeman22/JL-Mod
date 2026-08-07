@@ -234,6 +234,8 @@ public class MemoryScanner {
         }
         visited.put(obj, Boolean.TRUE);
         Class<?> cls3 = obj.getClass();
+        cls2 = cls3;
+        fieldArr = null;
         while (cls3 != null && cls3 != Object.class) {
             boolean z = true;
             if (isAppObject(obj)) {
