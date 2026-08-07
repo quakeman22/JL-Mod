@@ -115,7 +115,6 @@ public class ContextHolder {
 
 	public static void clearClassicsControlBounds() {
 		classicsKeyBounds.clear();
-		classicsControlStyle = "joystick";
 	}
 
 	public static boolean hasClassicsControlBounds() {
