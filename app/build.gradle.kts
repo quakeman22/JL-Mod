@@ -162,6 +162,7 @@ dependencies {
     implementation(libs.donations)
     implementation(libs.ffmpeg.mobile)
     implementation(libs.filepicker)
+    implementation(libs.androidsvg)
     implementation(libs.pngj)
     implementation(libs.rx.android)
 
