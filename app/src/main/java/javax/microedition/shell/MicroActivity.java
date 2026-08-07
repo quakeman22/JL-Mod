@@ -1287,14 +1287,7 @@ public class MicroActivity extends AppCompatActivity {
 		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if (alarmManager != null) {
 			long triggerAt = SystemClock.elapsedRealtime() + 1500L;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-						triggerAt, pendingIntent);
-			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-				alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
-			} else {
-				alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
-			}
+			alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
 		}
 		Toast.makeText(this, R.string.savestate_restore_pending, Toast.LENGTH_SHORT).show();
 		MidletThread.destroyApp();
