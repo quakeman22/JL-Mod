@@ -87,10 +87,10 @@ public class VkEditPanel extends FrameLayout {
             expandBtn.setBackgroundDrawable(makeButtonBg(-11184811, corner6));
         }
         expandBtn.setPadding(btnPad, btnPad / 3, btnPad, btnPad / 3);
-        expandBtn.setOnClickListener(new View.OnClickListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda4
-            @Override // android.view.View.OnClickListener
-            public final void onClick(View view) {
-                this.f$0.lambda$buildCollapsedBar$0(view);
+        expandBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                VkEditPanel.this.lambda$buildCollapsedBar$0(view);
             }
         });
         bar.addView(expandBtn);
@@ -112,10 +112,10 @@ public class VkEditPanel extends FrameLayout {
             finishBtn.setBackgroundDrawable(makeButtonBg(-11184811, corner6));
         }
         finishBtn.setPadding(btnPad, btnPad / 3, btnPad, btnPad / 3);
-        finishBtn.setOnClickListener(new View.OnClickListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda5
-            @Override // android.view.View.OnClickListener
-            public final void onClick(View view) {
-                this.f$0.lambda$buildCollapsedBar$1(view);
+        finishBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                VkEditPanel.this.lambda$buildCollapsedBar$1(view);
             }
         });
         bar.addView(finishBtn);
@@ -155,22 +155,22 @@ public class VkEditPanel extends FrameLayout {
         addPresetRow();
         addDelayRow();
         addGridSizeRow();
-        addActionButton("Refit Keys", new Runnable() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda1
-            @Override // java.lang.Runnable
-            public final void run() {
-                this.f$0.lambda$buildContent$2();
+        addActionButton("Refit Keys", new Runnable() {
+            @Override
+            public void run() {
+                VkEditPanel.this.lambda$buildContent$2();
             }
         });
-        addActionButton("Hide Buttons", new Runnable() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda2
-            @Override // java.lang.Runnable
-            public final void run() {
-                this.f$0.lambda$buildContent$3();
+        addActionButton("Hide Buttons", new Runnable() {
+            @Override
+            public void run() {
+                VkEditPanel.this.lambda$buildContent$3();
             }
         });
-        addActionButton("Reset Layout", new Runnable() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda3
-            @Override // java.lang.Runnable
-            public final void run() {
-                this.f$0.lambda$buildContent$4();
+        addActionButton("Reset Layout", new Runnable() {
+            @Override
+            public void run() {
+                VkEditPanel.this.lambda$buildContent$4();
             }
         });
         updateSwitchStates();
@@ -243,22 +243,16 @@ public class VkEditPanel extends FrameLayout {
             }
             this.gridSizeSpinner.setSelection(sel);
         }
-        this.gridSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(this) { // from class: javax.microedition.lcdui.overlay.VkEditPanel.1
-            final /* synthetic */ VkEditPanel this$0;
-
-            {
-                this.this$0 = this;
-            }
-
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+        this.gridSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (this.this$0.vk != null) {
-                    this.this$0.vk.setGridSize(gridValues[position]);
-                    this.this$0.vk.postInvalidate();
+                if (VkEditPanel.this.vk != null) {
+                    VkEditPanel.this.vk.setGridSize(gridValues[position]);
+                    VkEditPanel.this.vk.postInvalidate();
                 }
             }
 
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+            @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
@@ -279,14 +273,8 @@ public class VkEditPanel extends FrameLayout {
         tv.setTextSize(1, 14.0f);
         row.addView(tv, new LinearLayout.LayoutParams(0, -2, 1.0f));
         this.presetSpinner = new Spinner(getContext());
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, getContext(), android.R.layout.simple_spinner_item, presetNames) { // from class: javax.microedition.lcdui.overlay.VkEditPanel.2
-            final /* synthetic */ VkEditPanel this$0;
-
-            {
-                this.this$0 = this;
-            }
-
-            @Override // android.widget.ArrayAdapter, android.widget.BaseAdapter, android.widget.SpinnerAdapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, presetNames) {
+            @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
@@ -304,8 +292,8 @@ public class VkEditPanel extends FrameLayout {
         if (this.vk != null) {
             this.presetSpinner.setSelection(this.vk.getSettings().joyPreset);
         }
-        this.presetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel.3
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+        this.presetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (VkEditPanel.this.vk != null) {
                     VkEditPanel.this.vk.applyJoyPreset(position);
@@ -316,7 +304,7 @@ public class VkEditPanel extends FrameLayout {
                 }
             }
 
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+            @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
@@ -354,15 +342,15 @@ public class VkEditPanel extends FrameLayout {
         } else {
             row.setVisibility(8);
         }
-        this.delaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel.4
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+        this.delaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (VkEditPanel.this.vk != null) {
                     VkEditPanel.this.vk.getSettings().joyRepeatDelay = position * 100;
                 }
             }
 
-            @Override // android.widget.AdapterView.OnItemSelectedListener
+            @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
@@ -388,8 +376,8 @@ public class VkEditPanel extends FrameLayout {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
         lp.setMargins(margin, margin / 2, margin, margin / 2);
         this.contentPanel.addView(btn, lp);
-        btn.setOnClickListener(new View.OnClickListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda0
-            @Override // android.view.View.OnClickListener
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
             public final void onClick(View view) {
                 onClick.run();
             }
@@ -449,28 +437,28 @@ public class VkEditPanel extends FrameLayout {
         }
         if (this.joystickSwitch != null) {
             this.joystickSwitch.setChecked(this.vk.getSettings().joyEnabled);
-            this.joystickSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda6
-                @Override // android.widget.CompoundButton.OnCheckedChangeListener
+            this.joystickSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
                 public final void onCheckedChanged(CompoundButton compoundButton, boolean z) {
-                    this.f$0.lambda$updateSwitchStates$6(compoundButton, z);
+                    VkEditPanel.this.lambda$updateSwitchStates$6(compoundButton, z);
                 }
             });
         }
         if (this.gridSwitch != null) {
             this.gridSwitch.setChecked(this.vk.isShowGrid());
-            this.gridSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda7
-                @Override // android.widget.CompoundButton.OnCheckedChangeListener
+            this.gridSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
                 public final void onCheckedChanged(CompoundButton compoundButton, boolean z) {
-                    this.f$0.lambda$updateSwitchStates$7(compoundButton, z);
+                    VkEditPanel.this.lambda$updateSwitchStates$7(compoundButton, z);
                 }
             });
         }
         if (this.snapSwitch != null) {
             this.snapSwitch.setChecked(this.vk.isSnapToGrid());
-            this.snapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() { // from class: javax.microedition.lcdui.overlay.VkEditPanel$$ExternalSyntheticLambda8
-                @Override // android.widget.CompoundButton.OnCheckedChangeListener
+            this.snapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
                 public final void onCheckedChanged(CompoundButton compoundButton, boolean z) {
-                    this.f$0.lambda$updateSwitchStates$8(compoundButton, z);
+                    VkEditPanel.this.lambda$updateSwitchStates$8(compoundButton, z);
                 }
             });
         }
