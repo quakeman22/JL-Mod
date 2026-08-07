@@ -36,6 +36,7 @@ junit = "4.13.2"
 pngj = "2.2.3"
 rx-android = "2.1.1"
 zip4j = "2.11.5"
+androidsvg = "1.4"
 
 [libraries]
 acra-http = { module = "ch.acra:acra-http", version.ref = "acra-http" }
@@ -73,6 +74,7 @@ google-material = { module = "com.google.android.material:material", version.ref
 google-oboe = { module = "com.google.oboe:oboe", version.ref = "google-oboe" }
 junit = { module = "junit:junit", version.ref = "junit" }
 pngj = { module = "com.github.nikita36078:pngj", version.ref = "pngj" }
+androidsvg = { module = "com.caverock:androidsvg-aar", version.ref = "androidsvg" }
 rx-android = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rx-android" }
 zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
 
