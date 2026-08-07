@@ -138,6 +138,21 @@
         android:textSize="16sp" />
 
     <TextView
+        android:id="@+id/gameplay_menu_savestate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_gameplay_menu_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="38dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
+        android:text="@string/gameplay_menu_savestate"
+        android:textColor="@color/settings_title"
+        android:textSize="16sp" />
+
+    <TextView
         android:id="@+id/gameplay_menu_multiplayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
