@@ -169,6 +169,13 @@
     <string name="pref_classics_key_mode_mixed">Arrows + numbers</string>
     <string name="pref_classics_key_mode_arrows">Arrows / FIRE</string>
     <string name="pref_classics_key_mode_numbers">Numbers</string>
+    <string name="gameplay_menu_savestate">Savestate</string>
+    <string name="savestate_title">Savestate</string>
+    <string name="savestate_save_current">Save current state</string>
+    <string name="savestate_empty">No savestates found for this game yet.</string>
+    <string name="savestate_saved">Savestate saved: %1$s</string>
+    <string name="savestate_restore_pending">Restoring savestate on next launch</string>
+    <string name="savestate_restore_failed">Failed to restore savestate</string>
     <string name="pref_classics_handset_skin_title">Handset skin</string>
     <string name="pref_classics_handset_skin_dark">Handset Dark</string>
     <string name="pref_classics_handset_skin_gold">Handset Gold</string>
