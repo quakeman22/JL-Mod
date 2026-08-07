@@ -529,6 +529,12 @@ public class MicroActivity extends AppCompatActivity {
 		gameFrameParams.bottomToTop = CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
+		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
+			gameFrameParams.matchConstraintPercentWidth = 0.58f;
+			gameFrameParams.matchConstraintMaxWidth = dpToPx(360);
+			gameFrameParams.topMargin = dpToPx(10);
+			gameFrameParams.horizontalBias = 0.5f;
+		}
 		binding.gameFrame.setLayoutParams(gameFrameParams);
 		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 	}
@@ -570,7 +576,7 @@ public class MicroActivity extends AppCompatActivity {
 				(ConstraintLayout.LayoutParams) binding.phoneShellContainer.getLayoutParams();
 		phoneParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
 		phoneParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.endToStart = R.id.game_frame;
+		phoneParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
 		phoneParams.endToEnd = ConstraintLayout.LayoutParams.UNSET;
 		phoneParams.topToTop = R.id.game_frame;
 		phoneParams.topToBottom = ConstraintLayout.LayoutParams.UNSET;
@@ -585,7 +591,7 @@ public class MicroActivity extends AppCompatActivity {
 		ConstraintLayout.LayoutParams dpadParams =
 				(ConstraintLayout.LayoutParams) binding.controlPadShell.getLayoutParams();
 		dpadParams.startToStart = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.startToEnd = R.id.game_frame;
+		dpadParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
 		dpadParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
 		dpadParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
 		dpadParams.topToTop = R.id.game_frame;
@@ -1337,16 +1343,16 @@ public class MicroActivity extends AppCompatActivity {
 			showSavestateDialog();
 		});
 		View customControlsRow = view.findViewById(R.id.gameplay_menu_custom_controls);
-		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) && ContextHolder.getVk() != null) {
-			customControlsRow.setVisibility(View.VISIBLE);
-			customControlsRow.setOnClickListener(v -> {
-				uiSounds().playConfirm();
-				if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+		customControlsRow.setVisibility(View.VISIBLE);
+		customControlsRow.setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) && ContextHolder.getVk() != null) {
 				showCustomControlsEditorDialog();
-			});
-		} else {
-			customControlsRow.setVisibility(View.GONE);
-		}
+			} else {
+				Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
+			}
+		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
