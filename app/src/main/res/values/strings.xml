@@ -15,6 +15,8 @@
     <string name="action_context_shortcut">Add shortcut</string>
     <string name="action_keyboard_ime">Keyboard (IME)</string>
     <string name="action_lock_orientation">Lock screen rotate</string>
+    <string name="action_layout_edit_mode">Edit keyboard layout</string>
+    <string name="action_memory_search">Memory search</string>
     <string name="action_multiplayer">Multiplayer</string>
     <string name="action_multiplayer_unavailable">Multiplayer is not available yet</string>
     <string name="multiplayer_use_network">Use network instead of Bluetooth</string>
@@ -81,6 +83,17 @@
     <string name="custom_controls_resize">Resize buttons</string>
     <string name="custom_controls_finish">Finish editing</string>
     <string name="custom_controls_edit_hint">Drag the buttons on screen. Open the menu again to finish and save.</string>
+    <string name="memory_search_title">Memory search</string>
+    <string name="memory_search_hint">Enter a numeric value</string>
+    <string name="memory_search_exact">Search</string>
+    <string name="memory_search_changed">Changed</string>
+    <string name="memory_search_clear">Clear</string>
+    <string name="memory_search_results">Results: %1$d</string>
+    <string name="memory_no_results">No results found.</string>
+    <string name="memory_edit_value">Edit value</string>
+    <string name="memory_value_updated">Value updated</string>
+    <string name="memory_refresh">Refresh</string>
+    <string name="memory_refine">Refine</string>
     <string name="licenses">Licenses</string>
     <string name="load_profile">Load profile</string>
     <string name="loading_info">loading info…</string>
