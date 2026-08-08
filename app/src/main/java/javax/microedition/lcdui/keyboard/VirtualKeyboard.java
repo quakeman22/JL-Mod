@@ -20,9 +20,12 @@ package javax.microedition.lcdui.keyboard;
 import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_A;
 import static javax.microedition.lcdui.keyboard.KeyMapper.SE_KEY_SPECIAL_GAMING_B;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.Paint;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -37,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
+import java.util.Locale;
 
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.graphics.CanvasWrapper;
@@ -72,6 +76,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final int SHAPE_OVAL = 0;
 	private static final int SHAPE_RECT = 1;
 	public static final int SHAPE_ROUND_RECT = 2;
+	private static final int EDIT_GRID_DIVISIONS = 12;
 
 	public static final int TYPE_CUSTOM = 0;
 	private static final int TYPE_PHONE = 1;
@@ -189,10 +194,16 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			Math.min(ContextHolder.getDisplayWidth(), ContextHolder.getDisplayHeight()) / 6.0f;
 	private float snapRadius;
 	private int layoutVariant;
+	private boolean editShowGrid;
+	private boolean editSnapToGrid;
+	private int editGridSize;
 
 	public VirtualKeyboard(ProfileModel settings) {
 		this.settings = settings;
 		this.saveFile = new File(settings.dir + Config.MIDLET_KEY_LAYOUT_FILE);
+		editShowGrid = settings.keyboardEditShowGrid;
+		editSnapToGrid = settings.keyboardEditSnapToGrid;
+		editGridSize = settings.keyboardEditGridSize > 0 ? settings.keyboardEditGridSize : 64;
 
 		for (int i = KEY_NUM1; i < 9; i++) {
 			keypad[i] = new VirtualKey(Canvas.KEY_NUM1 + i, Integer.toString(1 + i));
@@ -243,6 +254,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				saveLayout();
 			}
 		}
+		loadKeySkins();
 		HandlerThread thread = new HandlerThread("MidletVirtualKeyboard");
 		thread.start();
 		handler = new Handler(thread.getLooper());
@@ -833,6 +845,65 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		hide();
 	}
 
+	public boolean isEditGridVisible() {
+		return editShowGrid;
+	}
+
+	public void setEditGridVisible(boolean visible) {
+		editShowGrid = visible;
+		settings.keyboardEditShowGrid = visible;
+		ProfilesManager.saveConfig(settings);
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	public boolean isSnapToGridEnabled() {
+		return editSnapToGrid;
+	}
+
+	public void setSnapToGridEnabled(boolean enabled) {
+		editSnapToGrid = enabled;
+		settings.keyboardEditSnapToGrid = enabled;
+		ProfilesManager.saveConfig(settings);
+	}
+
+	public int getGridSize() {
+		return editGridSize;
+	}
+
+	public void setGridSize(int size) {
+		if (size < 8) {
+			size = 8;
+		}
+		editGridSize = size;
+		settings.keyboardEditGridSize = size;
+		ProfilesManager.saveConfig(settings);
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	public int getSelectedEditKey() {
+		return settings.keyboardEditSelectedKey;
+	}
+
+	public void setSelectedEditKey(int keyIndex) {
+		settings.keyboardEditSelectedKey = Math.max(0, Math.min(keyIndex, keypad.length - 1));
+		ProfilesManager.saveConfig(settings);
+	}
+
+	public void refitKeys() {
+		if (screen == null) {
+			return;
+		}
+		resize(screen, virtualScreen.left, virtualScreen.top, virtualScreen.right, virtualScreen.bottom);
+	}
+
+	public void reloadCurrentLayout() {
+		setLayout(layoutVariant);
+	}
+
 	private void resizeKey(int key, float w, float h) {
 		VirtualKey vKey = keypad[key];
 		vKey.resize(w, h);
@@ -898,6 +969,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			return;
 		}
 		if (visible && (layoutEditMode != LAYOUT_EOF || settings.vkAlpha > 0)) {
+			if (layoutEditMode != LAYOUT_EOF && editShowGrid) {
+				drawEditGrid(g);
+			}
 			for (VirtualKey key : keypad) {
 				if (key.visible) {
 					key.paint(g);
@@ -990,6 +1064,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					VirtualKey key = keypad[editedIndex];
 					RectF rect = key.rect;
 					rect.offsetTo(x - offsetX, y - offsetY);
+					if (editSnapToGrid) {
+						snapRectToGrid(rect);
+					}
 					key.snapMode = RectSnap.NO_SNAP;
 					for (int i = 0; i < keypad.length; i++) {
 						if (i != editedIndex && findSnap(editedIndex, i)) {
@@ -1278,11 +1355,87 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		ProfilesManager.saveConfig(settings);
 	}
 
+	private void loadKeySkins() {
+		File skinDir = new File(settings.dir + Config.KEYBOARD_SKINS_DIR);
+		if (!skinDir.exists()) {
+			//noinspection ResultOfMethodCallIgnored
+			skinDir.mkdirs();
+		}
+		for (int i = 0; i < keypad.length; i++) {
+			keypad[i].loadSkin(skinDir, i);
+		}
+	}
+
+	public void refreshKeySkins() {
+		loadKeySkins();
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	private void drawEditGrid(CanvasWrapper g) {
+		if (virtualScreen.isEmpty()) {
+			return;
+		}
+		g.setDrawColor(0x33FFFFFF);
+		float left = virtualScreen.left;
+		float top = virtualScreen.top;
+		float right = virtualScreen.right;
+		float bottom = virtualScreen.bottom;
+		float stepX = virtualScreen.width() / EDIT_GRID_DIVISIONS;
+		float stepY = virtualScreen.height() / EDIT_GRID_DIVISIONS;
+		for (int i = 1; i < EDIT_GRID_DIVISIONS; i++) {
+			float x = left + (stepX * i);
+			g.drawLine(x, top, x, bottom);
+			float y = top + (stepY * i);
+			g.drawLine(left, y, right, y);
+		}
+	}
+
+	public File getKeySkinDir() {
+		File skinDir = new File(settings.dir + Config.KEYBOARD_SKINS_DIR);
+		if (!skinDir.exists()) {
+			//noinspection ResultOfMethodCallIgnored
+			skinDir.mkdirs();
+		}
+		return skinDir;
+	}
+
+	public File getKeySkinFile(int keyIndex) {
+		return new File(getKeySkinDir(), String.format(Locale.US, "key_%02d.png", keyIndex));
+	}
+
+	public File getKeyPressedSkinFile(int keyIndex) {
+		return new File(getKeySkinDir(), String.format(Locale.US, "key_%02d_pressed.png", keyIndex));
+	}
+
+	public File getKeyIconFile(int keyIndex) {
+		return new File(getKeySkinDir(), String.format(Locale.US, "key_%02d_icon.png", keyIndex));
+	}
+
+	public File getKeyIconScaleFile(int keyIndex) {
+		return new File(getKeySkinDir(), String.format(Locale.US, "key_%02d_icon_scale.txt", keyIndex));
+	}
+
+	private void snapRectToGrid(RectF rect) {
+		if (editGridSize <= 0 || virtualScreen.isEmpty()) {
+			return;
+		}
+		float grid = editGridSize;
+		float snappedLeft = Math.round((rect.left - virtualScreen.left) / grid) * grid + virtualScreen.left;
+		float snappedTop = Math.round((rect.top - virtualScreen.top) / grid) * grid + virtualScreen.top;
+		rect.offsetTo(snappedLeft, snappedTop);
+	}
+
 	private class VirtualKey implements Runnable {
 		final String label;
 		final int keyCode;
 		final RectF rect = new RectF();
 		final PointF snapOffset = new PointF();
+		Bitmap keyBitmap;
+		Bitmap pressedBitmap;
+		Bitmap iconBitmap;
+		float iconScale = 1.0f;
 		int snapOrigin;
 		int snapMode;
 		boolean snapValid;
@@ -1304,6 +1457,54 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			rect.bottom = rect.top + height;
 		}
 
+		void loadSkin(File skinDir, int keyIndex) {
+			recycleSkin();
+			keyBitmap = decodeKeySkin(new File(skinDir, String.format(Locale.US, "key_%02d.png", keyIndex)));
+			pressedBitmap = decodeKeySkin(new File(skinDir,
+					String.format(Locale.US, "key_%02d_pressed.png", keyIndex)));
+			iconBitmap = decodeKeySkin(new File(skinDir, String.format(Locale.US, "key_%02d_icon.png", keyIndex)));
+			File scaleFile = new File(skinDir,
+					String.format(Locale.US, "key_%02d_icon_scale.txt", keyIndex));
+			if (scaleFile.isFile()) {
+				try (DataInputStream dis = new DataInputStream(new FileInputStream(scaleFile))) {
+					iconScale = Math.max(0.1f, dis.readFloat());
+				} catch (IOException ignored) {
+					iconScale = 1.0f;
+				}
+			} else {
+				iconScale = 1.0f;
+			}
+		}
+
+		private void recycleSkin() {
+			if (keyBitmap != null) {
+				keyBitmap.recycle();
+				keyBitmap = null;
+			}
+			if (pressedBitmap != null) {
+				pressedBitmap.recycle();
+				pressedBitmap = null;
+			}
+			if (iconBitmap != null) {
+				iconBitmap.recycle();
+				iconBitmap = null;
+			}
+		}
+
+		private Bitmap decodeKeySkin(File file) {
+			if (!file.isFile()) {
+				return null;
+			}
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+			try {
+				return BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+			} catch (Throwable t) {
+				Log.w(TAG, "Failed to load keyboard skin: " + file, t);
+				return null;
+			}
+		}
+
 		boolean contains(float x, float y) {
 			return visible && rect.contains(x, y);
 		}
@@ -1323,21 +1524,36 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			g.setTextColor(alpha | fgColor);
 			g.setDrawColor(alpha | settings.vkOutlineColor);
 
-			switch (settings.vkButtonShape) {
-				case SHAPE_ROUND_RECT -> {
-					g.fillRoundRect(rect, corners, corners);
-					g.drawRoundRect(rect, corners, corners);
-				}
-				case SHAPE_RECT -> {
-					g.fillRect(rect);
-					g.drawRect(rect);
-				}
-				case SHAPE_OVAL -> {
-					g.fillArc(rect, 0, 360);
-					g.drawArc(rect, 0, 360);
+			Bitmap bitmap = selected && pressedBitmap != null ? pressedBitmap : keyBitmap;
+			if (bitmap != null) {
+				g.drawBitmap(bitmap, rect);
+			} else {
+				switch (settings.vkButtonShape) {
+					case SHAPE_ROUND_RECT -> {
+						g.fillRoundRect(rect, corners, corners);
+						g.drawRoundRect(rect, corners, corners);
+					}
+					case SHAPE_RECT -> {
+						g.fillRect(rect);
+						g.drawRect(rect);
+					}
+					case SHAPE_OVAL -> {
+						g.fillArc(rect, 0, 360);
+						g.drawArc(rect, 0, 360);
+					}
 				}
 			}
-			g.drawString(label, rect.centerX(), rect.centerY());
+			if (bitmap == null || layoutEditMode != LAYOUT_EOF) {
+				g.drawString(label, rect.centerX(), rect.centerY());
+			}
+			if (iconBitmap != null) {
+				float size = Math.min(rect.width(), rect.height()) * 0.6f * iconScale;
+				float cx = rect.centerX();
+				float cy = rect.centerY();
+				RectF iconRect = new RectF(cx - (size / 2.0f), cy - (size / 2.0f),
+						cx + (size / 2.0f), cy + (size / 2.0f));
+				g.drawBitmap(iconBitmap, iconRect);
+			}
 		}
 
 		@NonNull

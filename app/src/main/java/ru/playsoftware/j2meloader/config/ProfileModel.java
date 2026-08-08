@@ -142,6 +142,18 @@ public class ProfileModel {
 	@SerializedName("VirtualKeyboardDelay")
 	public int vkHideDelay;
 
+	@SerializedName("KeyboardEditShowGrid")
+	public boolean keyboardEditShowGrid;
+
+	@SerializedName("KeyboardEditSnapToGrid")
+	public boolean keyboardEditSnapToGrid;
+
+	@SerializedName("KeyboardEditGridSize")
+	public int keyboardEditGridSize;
+
+	@SerializedName("KeyboardEditSelectedKey")
+	public int keyboardEditSelectedKey;
+
 	@SerializedName("VirtualKeyboardColorBackground")
 	public int vkBgColor;
 
@@ -211,6 +223,8 @@ public class ProfileModel {
 		vkBgColorSelected = 0x000080;
 		vkFgColorSelected = 0xFFFFFF;
 		vkOutlineColor = 0xFFFFFF;
+		keyboardEditGridSize = 64;
+		keyboardEditSelectedKey = 0;
 		systemProperties = ContextHolder.getAssetAsString("defaults/system.props");
 	}
 }

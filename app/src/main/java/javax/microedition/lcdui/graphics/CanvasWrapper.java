@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
@@ -95,6 +96,34 @@ public class CanvasWrapper {
 		Bitmap bitmap = image.getBitmap();
 		bitmap.prepareToDraw();
 		canvas.drawBitmap(bitmap, image.getBounds(), dst, imgPaint);
+	}
+
+	public void drawBitmap(Bitmap bitmap, Rect src, RectF dst) {
+		if (bitmap == null) {
+			return;
+		}
+		bitmap.prepareToDraw();
+		canvas.drawBitmap(bitmap, src, dst, imgPaint);
+	}
+
+	public void drawBitmap(Bitmap bitmap, RectF src, RectF dst) {
+		if (bitmap == null) {
+			return;
+		}
+		bitmap.prepareToDraw();
+		canvas.drawBitmap(bitmap, src, dst, imgPaint);
+	}
+
+	public void drawBitmap(Bitmap bitmap, RectF dst) {
+		if (bitmap == null) {
+			return;
+		}
+		bitmap.prepareToDraw();
+		canvas.drawBitmap(bitmap, null, dst, imgPaint);
+	}
+
+	public void drawLine(float startX, float startY, float stopX, float stopY) {
+		canvas.drawLine(startX, startY, stopX, stopY, drawPaint);
 	}
 
 	public void fillRect(RectF rect) {

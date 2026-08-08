@@ -53,13 +53,20 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -68,6 +75,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -82,6 +90,9 @@ import org.acra.ErrorReporter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -128,6 +139,10 @@ public class MicroActivity extends AppCompatActivity {
 	private String classicsHandsetSkin = "dark";
 	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
+	private int pendingKeyboardSkinKey = -1;
+	private int pendingKeyboardSkinType = 0;
+	private final ActivityResultLauncher<String> pickKeyboardSkinLauncher =
+			registerForActivityResult(new ActivityResultContracts.GetContent(), this::onKeyboardSkinPicked);
 
 	private UiSoundEffects uiSounds() {
 		return UiSoundEffects.get(this);
@@ -1151,6 +1166,11 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showClassicsKeyModeDialog();
 		});
+		view.findViewById(R.id.gameplay_menu_vk_edit).setOnClickListener(v -> {
+			uiSounds().playConfirm();
+			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
+			showKeyboardCustomizerDialog();
+		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1277,6 +1297,224 @@ public class MicroActivity extends AppCompatActivity {
 					}
 				});
 		builder.show();
+	}
+
+	private void showKeyboardCustomizerDialog() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk == null) {
+			return;
+		}
+		vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog_vk_customizer, null, false);
+		SwitchCompat swShowGrid = view.findViewById(R.id.sw_vk_show_grid);
+		SwitchCompat swSnapGrid = view.findViewById(R.id.sw_vk_snap_grid);
+		Spinner spGridSize = view.findViewById(R.id.sp_vk_grid_size);
+		Button btnPerKeySkins = view.findViewById(R.id.btn_vk_per_key_skins);
+		Button btnRefitKeys = view.findViewById(R.id.btn_vk_refit_keys);
+		Button btnHideButtons = view.findViewById(R.id.btn_vk_hide_buttons);
+		Button btnResetLayout = view.findViewById(R.id.btn_vk_reset_layout);
+		Button btnCollapse = view.findViewById(R.id.btn_vk_collapse);
+		Button btnFinish = view.findViewById(R.id.btn_vk_finish);
+
+		ArrayAdapter<String> gridAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+		gridAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		int[] gridSizes = {32, 48, 64, 96, 128};
+		int selectedGrid = 0;
+		for (int i = 0; i < gridSizes.length; i++) {
+			int size = gridSizes[i];
+			if (size == vk.getGridSize()) {
+				selectedGrid = i;
+			}
+			gridAdapter.add(size == 64 ? "64px (Default)" : size + "px");
+		}
+		spGridSize.setAdapter(gridAdapter);
+		spGridSize.setSelection(selectedGrid);
+		swShowGrid.setChecked(vk.isEditGridVisible());
+		swSnapGrid.setChecked(vk.isSnapToGridEnabled());
+		swShowGrid.setOnCheckedChangeListener((buttonView, isChecked) -> vk.setEditGridVisible(isChecked));
+		swSnapGrid.setOnCheckedChangeListener((buttonView, isChecked) -> vk.setSnapToGridEnabled(isChecked));
+		spGridSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
+				vk.setGridSize(gridSizes[position]);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+		btnPerKeySkins.setOnClickListener(v -> showKeyboardSkinDialog());
+		btnRefitKeys.setOnClickListener(v -> vk.refitKeys());
+		btnHideButtons.setOnClickListener(v -> showHideButtonDialog());
+		btnResetLayout.setOnClickListener(v -> {
+			vk.reloadCurrentLayout();
+			vk.refreshKeySkins();
+			showSaveVkAlert(true);
+		});
+
+		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setView(view)
+				.create();
+		btnCollapse.setOnClickListener(v -> dialog.dismiss());
+		btnFinish.setOnClickListener(v -> {
+			dialog.dismiss();
+			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+			showSaveVkAlert(true);
+		});
+		dialog.show();
+	}
+
+	private void showKeyboardSkinDialog() {
+		final VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk == null) {
+			return;
+		}
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog_vk_skin, null, false);
+		Spinner spKey = view.findViewById(R.id.sp_vk_skin_key);
+		Button btnButton = view.findViewById(R.id.btn_vk_skin_button);
+		Button btnPressed = view.findViewById(R.id.btn_vk_skin_button_pressed);
+		Button btnIcon = view.findViewById(R.id.btn_vk_skin_icon);
+		EditText etIconScale = view.findViewById(R.id.et_vk_skin_icon_scale);
+		Button btnClear = view.findViewById(R.id.btn_vk_skin_clear);
+		Button btnOk = view.findViewById(R.id.btn_vk_skin_ok);
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, vk.getKeyNames());
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spKey.setAdapter(adapter);
+		int selectedKey = Math.max(0, Math.min(vk.getSelectedEditKey(), adapter.getCount() - 1));
+		spKey.setSelection(selectedKey);
+
+		Runnable refreshLabels = () -> {
+			int keyIndex = spKey.getSelectedItemPosition();
+			btnButton.setText(skinButtonLabel(vk.getKeySkinFile(keyIndex)));
+			btnPressed.setText(skinButtonLabel(vk.getKeyPressedSkinFile(keyIndex)));
+			btnIcon.setText(skinButtonLabel(vk.getKeyIconFile(keyIndex)));
+			etIconScale.setText(readIconScale(vk.getKeyIconScaleFile(keyIndex)));
+		};
+		spKey.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
+				vk.setSelectedEditKey(position);
+				refreshLabels.run();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+		refreshLabels.run();
+
+		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+				.setView(view)
+				.create();
+		btnButton.setOnClickListener(v -> {
+			pendingKeyboardSkinKey = spKey.getSelectedItemPosition();
+			pendingKeyboardSkinType = 0;
+			pickKeyboardSkinLauncher.launch("image/*");
+		});
+		btnPressed.setOnClickListener(v -> {
+			pendingKeyboardSkinKey = spKey.getSelectedItemPosition();
+			pendingKeyboardSkinType = 1;
+			pickKeyboardSkinLauncher.launch("image/*");
+		});
+		btnIcon.setOnClickListener(v -> {
+			pendingKeyboardSkinKey = spKey.getSelectedItemPosition();
+			pendingKeyboardSkinType = 2;
+			pickKeyboardSkinLauncher.launch("image/*");
+		});
+		btnClear.setOnClickListener(v -> {
+			int keyIndex = spKey.getSelectedItemPosition();
+			deleteFileIfExists(vk.getKeySkinFile(keyIndex));
+			deleteFileIfExists(vk.getKeyPressedSkinFile(keyIndex));
+			deleteFileIfExists(vk.getKeyIconFile(keyIndex));
+			deleteFileIfExists(vk.getKeyIconScaleFile(keyIndex));
+			vk.refreshKeySkins();
+			refreshLabels.run();
+		});
+		btnOk.setOnClickListener(v -> {
+			int keyIndex = spKey.getSelectedItemPosition();
+			writeIconScale(vk.getKeyIconScaleFile(keyIndex), etIconScale.getText() != null
+					? etIconScale.getText().toString().trim() : "1.0");
+			vk.refreshKeySkins();
+			dialog.dismiss();
+		});
+		dialog.show();
+	}
+
+	private void onKeyboardSkinPicked(Uri uri) {
+		if (uri == null || pendingKeyboardSkinKey < 0) {
+			pendingKeyboardSkinKey = -1;
+			pendingKeyboardSkinType = 0;
+			return;
+		}
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk == null) {
+			pendingKeyboardSkinKey = -1;
+			pendingKeyboardSkinType = 0;
+			return;
+		}
+		File target;
+		if (pendingKeyboardSkinType == 1) {
+			target = vk.getKeyPressedSkinFile(pendingKeyboardSkinKey);
+		} else if (pendingKeyboardSkinType == 2) {
+			target = vk.getKeyIconFile(pendingKeyboardSkinKey);
+		} else {
+			target = vk.getKeySkinFile(pendingKeyboardSkinKey);
+		}
+		try (InputStream in = getContentResolver().openInputStream(uri)) {
+			if (in == null) {
+				return;
+			}
+			try (OutputStream out = new FileOutputStream(target)) {
+				byte[] buffer = new byte[16 * 1024];
+				int read;
+				while ((read = in.read(buffer)) >= 0) {
+					out.write(buffer, 0, read);
+				}
+			}
+			vk.refreshKeySkins();
+		} catch (IOException e) {
+			e.printStackTrace();
+			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+		} finally {
+			pendingKeyboardSkinKey = -1;
+			pendingKeyboardSkinType = 0;
+		}
+	}
+
+	private String skinButtonLabel(File file) {
+		return file.isFile() ? file.getName() : getString(R.string.vk_skin_default);
+	}
+
+	private String readIconScale(File file) {
+		if (!file.isFile()) {
+			return "1.0";
+		}
+		try (java.io.DataInputStream in = new java.io.DataInputStream(new java.io.FileInputStream(file))) {
+			return Float.toString(in.readFloat());
+		} catch (IOException e) {
+			return "1.0";
+		}
+	}
+
+	private void writeIconScale(File file, String value) {
+		float parsed;
+		try {
+			parsed = Float.parseFloat(value);
+		} catch (Exception e) {
+			parsed = 1.0f;
+		}
+		try (java.io.DataOutputStream out = new java.io.DataOutputStream(new FileOutputStream(file))) {
+			out.writeFloat(parsed);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void deleteFileIfExists(File file) {
+		if (file.exists() && !file.delete()) {
+			file.deleteOnExit();
+		}
 	}
 
 	private void showLimitFpsDialog() {
