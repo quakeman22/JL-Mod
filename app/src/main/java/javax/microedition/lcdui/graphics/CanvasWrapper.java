@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
@@ -98,16 +97,6 @@ public class CanvasWrapper {
 		canvas.drawBitmap(bitmap, image.getBounds(), dst, imgPaint);
 	}
 
-	public void drawBitmap(Bitmap bitmap, Rect src, RectF dst) {
-		bitmap.prepareToDraw();
-		canvas.drawBitmap(bitmap, src, dst, imgPaint);
-	}
-
-	public void drawBitmap(Bitmap bitmap, RectF dst) {
-		bitmap.prepareToDraw();
-		canvas.drawBitmap(bitmap, null, dst, imgPaint);
-	}
-
 	public void fillRect(RectF rect) {
 		canvas.drawRect(rect, fillPaint);
 	}
@@ -124,28 +113,8 @@ public class CanvasWrapper {
 		fillPaint.setColor(color);
 	}
 
-	public void setStrokeWidth(float width) {
-		drawPaint.setStrokeWidth(width);
-	}
-
-	public void drawLine(float x1, float y1, float x2, float y2) {
-		canvas.drawLine(x1, y1, x2, y2, drawPaint);
-	}
-
 	public void setTextColor(int color) {
 		textPaint.setColor(color);
-	}
-
-	public void setAlpha(int alpha) {
-		imgPaint.setAlpha(alpha);
-	}
-
-	public int getAlpha() {
-		return imgPaint.getAlpha();
-	}
-
-	public Canvas getCanvas() {
-		return canvas;
 	}
 
 	public void drawBackgroundedText(String text) {

@@ -22,8 +22,6 @@ import static android.content.pm.ActivityInfo.*;
 import static ru.playsoftware.j2meloader.util.Constants.*;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,7 +34,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -58,14 +55,10 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.CheckBox;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.ListView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -89,11 +82,9 @@ import org.acra.ErrorReporter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
-import java.util.List;
 
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Displayable;
@@ -102,9 +93,7 @@ import javax.microedition.lcdui.ViewHandler;
 import javax.microedition.lcdui.event.SimpleEvent;
 import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
-import javax.microedition.lcdui.overlay.VkEditPanel;
 import javax.microedition.lcdui.skin.SkinLayer;
-import javax.microedition.midlet.MIDlet;
 import javax.microedition.util.ContextHolder;
 
 import io.reactivex.SingleObserver;
@@ -118,7 +107,6 @@ import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.GameLog;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.util.MultiplayerPrefs;
-import ru.playsoftware.j2meloader.util.SavestateManager;
 import ru.playsoftware.j2meloader.util.UiSoundEffects;
 
 public class MicroActivity extends AppCompatActivity {
@@ -126,10 +114,6 @@ public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_AUTO = 1;
 	private static final int ORIENTATION_PORTRAIT = 2;
 	private static final int ORIENTATION_LANDSCAPE = 3;
-	private static final String CLASSICS_STYLE_JOYSTICK = "joystick";
-	private static final String CLASSICS_STYLE_PHONE = "phone";
-	private static final String CLASSICS_STYLE_HANDSET = "handset";
-	private static final String CLASSICS_STYLE_CUSTOM = "custom";
 
 	private Displayable current;
 	private boolean actionBarEnabled;
@@ -140,15 +124,10 @@ public class MicroActivity extends AppCompatActivity {
 	private int menuKey;
 	private String appPath;
 	private ActivityMicroBinding binding;
-	private String classicsControlStyle = CLASSICS_STYLE_JOYSTICK;
+	private String classicsControlStyle = "joystick";
 	private String classicsHandsetSkin = "dark";
 	private String classicsKeyMode = "mixed";
 	private AlertDialog gameplayMenuDialog;
-	private List<MemoryScanner.Result> memoryResults;
-	private final List<MemoryScanner.Result> pinnedResults = new java.util.ArrayList<>();
-	private boolean memoryFirstSearch = true;
-	private VkEditPanel vkEditPanel;
-	private boolean[] hideModeInitialVisibility;
 
 	private UiSoundEffects uiSounds() {
 		return UiSoundEffects.get(this);
@@ -164,7 +143,7 @@ public class MicroActivity extends AppCompatActivity {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
-		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, CLASSICS_STYLE_JOYSTICK));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		actionBarEnabled = sp.getBoolean(PREF_TOOLBAR, false);
 		statusBarEnabled = sp.getBoolean(PREF_STATUSBAR, false);
 		if (sp.getBoolean(PREF_KEEP_SCREEN, false)) {
@@ -197,7 +176,6 @@ public class MicroActivity extends AppCompatActivity {
 			finish();
 			return;
 		}
-		applyPendingSavestateIfAny();
 		microLoader.applyConfiguration();
 		attachOverlayLayers();
 		SkinLayer skinLayer = SkinLayer.getInstance();
@@ -317,7 +295,7 @@ public class MicroActivity extends AppCompatActivity {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
-		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, CLASSICS_STYLE_JOYSTICK));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 	}
 
 	@Override
@@ -329,7 +307,7 @@ public class MicroActivity extends AppCompatActivity {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		applyClassicsViewSize(sp.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
 		applyClassicsKeyMode(sp.getString(PREF_CLASSICS_KEY_MODE, "mixed"));
-		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, CLASSICS_STYLE_JOYSTICK));
+		applyClassicsControlStyle(sp.getString(PREF_CLASSICS_CONTROL_STYLE, "joystick"));
 		bindDisplayable(current);
 	}
 
@@ -501,155 +479,31 @@ public class MicroActivity extends AppCompatActivity {
 	private void applyClassicsControlStyle(String style) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		classicsHandsetSkin = prefs.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
-		boolean customSelected = CLASSICS_STYLE_CUSTOM.equals(style);
 		boolean handsetSelected = "handset".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
 		if (handsetAvailable) {
-			classicsControlStyle = CLASSICS_STYLE_HANDSET;
-		} else if (customSelected) {
-			classicsControlStyle = CLASSICS_STYLE_CUSTOM;
-		} else if (CLASSICS_STYLE_PHONE.equals(style) || handsetSelected) {
-			classicsControlStyle = CLASSICS_STYLE_PHONE;
+			classicsControlStyle = "handset";
+		} else if ("phone".equals(style) || handsetSelected) {
+			classicsControlStyle = "phone";
 		} else {
-			classicsControlStyle = CLASSICS_STYLE_JOYSTICK;
+			classicsControlStyle = "joystick";
 		}
-		int joystickVisibility = CLASSICS_STYLE_JOYSTICK.equals(classicsControlStyle)
-				|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		int phoneVisibility = (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
-				|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) ? View.VISIBLE : View.GONE;
-		int handsetVisibility = CLASSICS_STYLE_HANDSET.equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		int actionClusterVisibility = CLASSICS_STYLE_JOYSTICK.equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		int joystickVisibility = "joystick".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		binding.controlPadShell.setVisibility(joystickVisibility);
-		binding.actionCluster.setVisibility(actionClusterVisibility);
+		binding.actionCluster.setVisibility(joystickVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
-		binding.controlTopRow.setVisibility(CLASSICS_STYLE_HANDSET.equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
-		applyDefaultControlArrangement();
-		binding.dpadConsoleBackdrop.setVisibility(View.VISIBLE);
+		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
-		gameFrameParams.bottomToTop = CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)
+		gameFrameParams.bottomToTop = "handset".equals(classicsControlStyle)
 				? R.id.handset_shell_container
 				: R.id.control_top_row;
 		binding.gameFrame.setLayoutParams(gameFrameParams);
 		applyClassicsViewSize(prefs.getString(PREF_CLASSICS_VIEW_SIZE, "default"));
-	}
-
-	private void applyDefaultControlArrangement() {
-		ConstraintLayout.LayoutParams phoneParams =
-				(ConstraintLayout.LayoutParams) binding.phoneShellContainer.getLayoutParams();
-		phoneParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-		phoneParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-		phoneParams.topToTop = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.topToBottom = R.id.control_top_row;
-		phoneParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.bottomToBottom = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.horizontalBias = 0.5f;
-		phoneParams.setMarginStart(dpToPx(0));
-		phoneParams.setMarginEnd(dpToPx(0));
-		binding.phoneShellContainer.setLayoutParams(phoneParams);
-
-		ConstraintLayout.LayoutParams dpadParams =
-				(ConstraintLayout.LayoutParams) binding.controlPadShell.getLayoutParams();
-		dpadParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-		dpadParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.endToStart = R.id.action_cluster;
-		dpadParams.endToEnd = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.topToTop = R.id.guide_controls_top;
-		dpadParams.topToBottom = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.bottomToBottom = R.id.guide_controls_bottom;
-		dpadParams.horizontalBias = 0.18f;
-		dpadParams.setMarginStart(dpToPx(12));
-		dpadParams.setMarginEnd(dpToPx(12));
-		binding.controlPadShell.setLayoutParams(dpadParams);
-	}
-
-	private void applyCustomControlArrangement() {
-		ConstraintLayout.LayoutParams phoneParams =
-				(ConstraintLayout.LayoutParams) binding.phoneShellContainer.getLayoutParams();
-		phoneParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-		phoneParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.endToEnd = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.topToTop = R.id.game_frame;
-		phoneParams.topToBottom = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
-		phoneParams.bottomToBottom = R.id.game_frame;
-		phoneParams.horizontalBias = 0.0f;
-		phoneParams.verticalBias = 0.5f;
-		phoneParams.setMarginStart(dpToPx(12));
-		phoneParams.setMarginEnd(dpToPx(10));
-		binding.phoneShellContainer.setLayoutParams(phoneParams);
-
-		ConstraintLayout.LayoutParams dpadParams =
-				(ConstraintLayout.LayoutParams) binding.controlPadShell.getLayoutParams();
-		dpadParams.startToStart = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.startToEnd = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.endToStart = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-		dpadParams.topToTop = R.id.game_frame;
-		dpadParams.topToBottom = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
-		dpadParams.bottomToBottom = R.id.game_frame;
-		dpadParams.horizontalBias = 1.0f;
-		dpadParams.verticalBias = 0.5f;
-		dpadParams.setMarginStart(dpToPx(10));
-		dpadParams.setMarginEnd(dpToPx(12));
-		binding.controlPadShell.setLayoutParams(dpadParams);
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			binding.dpadConsoleBackdrop.setImageResource(R.drawable.bg_handset_game_background);
-		} else {
-			binding.dpadConsoleBackdrop.setImageResource(R.drawable.bg_handset_game_background);
-		}
-	}
-
-	private void applyCustomControlSkin() {
-		int buttonBackground = R.drawable.bg_handset_key;
-		int softLeftBackground = R.drawable.bg_handset_softkey;
-		int softRightBackground = R.drawable.bg_handset_softkey_right;
-		int menuBackground = R.drawable.bg_handset_menu_key;
-		int textColor = Color.parseColor("#D8D8D8");
-
-		binding.buttonSoftLeftShell.setBackgroundResource(softLeftBackground);
-		binding.buttonMenuShell.setBackgroundResource(menuBackground);
-		binding.buttonSoftRightShell.setBackgroundResource(softRightBackground);
-		binding.buttonSoftLeftShell.setTextColor(textColor);
-		binding.buttonMenuShell.setTextColor(textColor);
-		binding.buttonSoftRightShell.setTextColor(textColor);
-
-		binding.phoneKey1.setBackgroundResource(buttonBackground);
-		binding.phoneKey2.setBackgroundResource(buttonBackground);
-		binding.phoneKey3.setBackgroundResource(buttonBackground);
-		binding.phoneKey4.setBackgroundResource(buttonBackground);
-		binding.phoneKey5.setBackgroundResource(buttonBackground);
-		binding.phoneKey6.setBackgroundResource(buttonBackground);
-		binding.phoneKey7.setBackgroundResource(buttonBackground);
-		binding.phoneKey8.setBackgroundResource(buttonBackground);
-		binding.phoneKey9.setBackgroundResource(buttonBackground);
-		binding.phoneKeyStar.setBackgroundResource(buttonBackground);
-		binding.phoneKey0.setBackgroundResource(buttonBackground);
-		binding.phoneKeyPound.setBackgroundResource(buttonBackground);
-		binding.phoneKey1.setTextColor(textColor);
-		binding.phoneKey2.setTextColor(textColor);
-		binding.phoneKey3.setTextColor(textColor);
-		binding.phoneKey4.setTextColor(textColor);
-		binding.phoneKey5.setTextColor(textColor);
-		binding.phoneKey6.setTextColor(textColor);
-		binding.phoneKey7.setTextColor(textColor);
-		binding.phoneKey8.setTextColor(textColor);
-		binding.phoneKey9.setTextColor(textColor);
-		binding.phoneKeyStar.setTextColor(textColor);
-		binding.phoneKey0.setTextColor(textColor);
-		binding.phoneKeyPound.setTextColor(textColor);
-
-		binding.dpadUpVisual.setBackgroundResource(buttonBackground);
-		binding.dpadLeftVisual.setBackgroundResource(buttonBackground);
-		binding.dpadRightVisual.setBackgroundResource(buttonBackground);
-		binding.dpadDownVisual.setBackgroundResource(buttonBackground);
 	}
 
 	private void applyClassicsKeyMode(String mode) {
@@ -795,7 +649,7 @@ public class MicroActivity extends AppCompatActivity {
 		addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
 		addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
 		addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
-		if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
+		if ("phone".equals(classicsControlStyle)) {
 			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
 			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
 			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
@@ -808,26 +662,7 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, Canvas.KEY_STAR, binding.phoneKeyStar);
 			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.phoneKey0);
 			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.phoneKeyPound);
-			Rect dpad = getViewBounds(binding.controlPadShell);
-			addKeyBound(keyBounds, Canvas.KEY_UP, subdivideRect(dpad, 1, 0));
-			addKeyBound(keyBounds, Canvas.KEY_LEFT, subdivideRect(dpad, 0, 1));
-			addKeyBound(keyBounds, Canvas.KEY_FIRE, subdivideRect(dpad, 1, 1));
-			addKeyBound(keyBounds, Canvas.KEY_RIGHT, subdivideRect(dpad, 2, 1));
-			addKeyBound(keyBounds, Canvas.KEY_DOWN, subdivideRect(dpad, 1, 2));
-		} else if (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)) {
-			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
-			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
-			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
-			addKeyBound(keyBounds, Canvas.KEY_NUM4, binding.phoneKey4);
-			addKeyBound(keyBounds, Canvas.KEY_NUM5, binding.phoneKey5);
-			addKeyBound(keyBounds, Canvas.KEY_NUM6, binding.phoneKey6);
-			addKeyBound(keyBounds, Canvas.KEY_NUM7, binding.phoneKey7);
-			addKeyBound(keyBounds, Canvas.KEY_NUM8, binding.phoneKey8);
-			addKeyBound(keyBounds, Canvas.KEY_NUM9, binding.phoneKey9);
-			addKeyBound(keyBounds, Canvas.KEY_STAR, binding.phoneKeyStar);
-			addKeyBound(keyBounds, Canvas.KEY_NUM0, binding.phoneKey0);
-			addKeyBound(keyBounds, Canvas.KEY_POUND, binding.phoneKeyPound);
-		} else if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) {
+		} else if ("handset".equals(classicsControlStyle)) {
 			addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.handsetSoftLeft);
 			addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.handsetMenu);
 			addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.handsetSoftRight);
@@ -850,12 +685,10 @@ public class MicroActivity extends AppCompatActivity {
 			addKeyBound(keyBounds, getJoystickDpadFireKey(), subdivideRect(dpad, 1, 1));
 			addKeyBound(keyBounds, getJoystickDpadRightKey(), subdivideRect(dpad, 2, 1));
 			addKeyBound(keyBounds, getJoystickDpadDownKey(), subdivideRect(dpad, 1, 2));
-			if (CLASSICS_STYLE_JOYSTICK.equals(classicsControlStyle)) {
-				addKeyBound(keyBounds, getJoystickActionAKey(), binding.buttonAShell);
-				addKeyBound(keyBounds, getJoystickActionBKey(), binding.buttonBShell);
-				addKeyBound(keyBounds, getJoystickActionXKey(), binding.buttonXShell);
-				addKeyBound(keyBounds, getJoystickActionYKey(), binding.buttonYShell);
-			}
+			addKeyBound(keyBounds, getJoystickActionAKey(), binding.buttonAShell);
+			addKeyBound(keyBounds, getJoystickActionBKey(), binding.buttonBShell);
+			addKeyBound(keyBounds, getJoystickActionXKey(), binding.buttonXShell);
+			addKeyBound(keyBounds, getJoystickActionYKey(), binding.buttonYShell);
 		}
 		if (keyBounds.get(Canvas.KEY_SOFT_LEFT) == null
 				|| keyBounds.get(KeyMapper.KEY_OPTIONS_MENU) == null
@@ -909,7 +742,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private boolean updateJoystickPressedVisual(int keyCode, boolean pressed) {
-		if (!CLASSICS_STYLE_JOYSTICK.equals(classicsControlStyle)) {
+		if (!"joystick".equals(classicsControlStyle)) {
 			return false;
 		}
 		boolean handled = false;
@@ -969,15 +802,15 @@ public class MicroActivity extends AppCompatActivity {
 			}
 			switch (keyCode) {
 				case Canvas.KEY_SOFT_LEFT -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetSoftLeft.setPressed(pressed);
 					else binding.buttonSoftLeftShell.setPressed(pressed);
 				}
 				case Canvas.KEY_SOFT_RIGHT -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetSoftRight.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetSoftRight.setPressed(pressed);
 					else binding.buttonSoftRightShell.setPressed(pressed);
 				}
 				case KeyMapper.KEY_OPTIONS_MENU -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetMenu.setPressed(pressed);
 					else binding.buttonMenuShell.setPressed(pressed);
 				}
 				case Canvas.KEY_UP -> binding.dpadUpVisual.setPressed(pressed);
@@ -985,71 +818,55 @@ public class MicroActivity extends AppCompatActivity {
 				case Canvas.KEY_LEFT -> binding.dpadLeftVisual.setPressed(pressed);
 				case Canvas.KEY_RIGHT -> binding.dpadRightVisual.setPressed(pressed);
 				case Canvas.KEY_NUM1 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey1.setPressed(pressed);
 					else binding.phoneKey1.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM2 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey2.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey2.setPressed(pressed);
 					else binding.phoneKey2.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM3 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey3.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey3.setPressed(pressed);
 					else binding.phoneKey3.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM4 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey4.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey4.setPressed(pressed);
 					else binding.phoneKey4.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM5 -> {
-					if (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
-							|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-						binding.phoneKey5.setPressed(pressed);
-					} else if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) {
-						binding.handsetKey5.setPressed(pressed);
-					}
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey5.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey5.setPressed(pressed);
 					else binding.buttonXShell.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM6 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey6.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey6.setPressed(pressed);
 					else binding.phoneKey6.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM7 -> {
-					if (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
-							|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-						binding.phoneKey7.setPressed(pressed);
-					} else if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) {
-						binding.handsetKey7.setPressed(pressed);
-					}
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey7.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey7.setPressed(pressed);
 					else binding.buttonAShell.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM8 -> {
-					if (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
-							|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-						binding.phoneKey8.setPressed(pressed);
-					} else if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) {
-						binding.handsetKey8.setPressed(pressed);
-					}
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey8.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey8.setPressed(pressed);
 					else binding.buttonBShell.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM9 -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKey9.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKey9.setPressed(pressed);
 					else binding.phoneKey9.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM0 -> {
-					if (CLASSICS_STYLE_PHONE.equals(classicsControlStyle)
-							|| CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle)) {
-						binding.phoneKey0.setPressed(pressed);
-					} else if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) {
-						binding.handsetKey0.setPressed(pressed);
-					}
+					if ("phone".equals(classicsControlStyle)) binding.phoneKey0.setPressed(pressed);
+					else if ("handset".equals(classicsControlStyle)) binding.handsetKey0.setPressed(pressed);
 					else binding.buttonYShell.setPressed(pressed);
 				}
 				case Canvas.KEY_STAR -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKeyStar.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKeyStar.setPressed(pressed);
 					else binding.phoneKeyStar.setPressed(pressed);
 				}
 				case Canvas.KEY_POUND -> {
-					if (CLASSICS_STYLE_HANDSET.equals(classicsControlStyle)) binding.handsetKeyPound.setPressed(pressed);
+					if ("handset".equals(classicsControlStyle)) binding.handsetKeyPound.setPressed(pressed);
 					else binding.phoneKeyPound.setPressed(pressed);
 				}
 			}
@@ -1201,12 +1018,6 @@ public class MicroActivity extends AppCompatActivity {
 		} else if (id == R.id.action_save_log) {
 			uiSounds().playConfirm();
 			saveLog();
-		} else if (id == R.id.action_memory_search) {
-			uiSounds().playConfirm();
-			showMemorySearchDialog();
-		} else if (id == R.id.action_layout_edit_mode) {
-			uiSounds().playConfirm();
-			showEditLayoutMode();
 		} else if (id == R.id.action_lock_orientation) {
 			uiSounds().playConfirm();
 			if (item.isChecked()) {
@@ -1340,22 +1151,6 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showClassicsKeyModeDialog();
 		});
-		view.findViewById(R.id.gameplay_menu_savestate).setOnClickListener(v -> {
-			uiSounds().playConfirm();
-			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
-			showSavestateDialog();
-		});
-		View customControlsRow = view.findViewById(R.id.gameplay_menu_custom_controls);
-		customControlsRow.setVisibility(View.VISIBLE);
-		customControlsRow.setOnClickListener(v -> {
-			uiSounds().playConfirm();
-			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
-			if (CLASSICS_STYLE_CUSTOM.equals(classicsControlStyle) && ContextHolder.getVk() != null) {
-				showEditLayoutMode();
-			} else {
-				Toast.makeText(this, R.string.custom_controls_edit_hint, Toast.LENGTH_LONG).show();
-			}
-		});
 		View multiplayerRow = view.findViewById(R.id.gameplay_menu_multiplayer);
 		multiplayerRow.setEnabled(true);
 		multiplayerRow.setAlpha(1f);
@@ -1385,298 +1180,6 @@ public class MicroActivity extends AppCompatActivity {
 				controller.hide(WindowInsetsCompat.Type.systemBars());
 			}
 		}
-	}
-
-	private void showEditLayoutMode() {
-		final VirtualKeyboard vk = ContextHolder.getVk();
-		if (vk == null) {
-			return;
-		}
-		vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
-		Toast.makeText(this, R.string.layout_edit_mode, Toast.LENGTH_SHORT).show();
-		if (vkEditPanel == null) {
-			vkEditPanel = new VkEditPanel(binding.midletFrame, new VkEditPanel.Listener() {
-				@Override
-				public void finishEditing() {
-					VirtualKeyboard keyboard = ContextHolder.getVk();
-					if (keyboard == null) {
-						return;
-					}
-					if (keyboard.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE) {
-						boolean[] current = keyboard.getKeysVisibility();
-						keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
-						keyboard.postInvalidate();
-						if (hideModeInitialVisibility != null
-								&& !Arrays.equals(current, hideModeInitialVisibility)) {
-							showSaveVkAlert(true);
-						}
-						hideModeInitialVisibility = null;
-						if (vkEditPanel != null) {
-							vkEditPanel.setHideModeActive(false);
-						}
-						return;
-					}
-					keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
-					keyboard.postInvalidate();
-					Toast.makeText(MicroActivity.this, R.string.layout_edit_finished, Toast.LENGTH_SHORT).show();
-					showSaveVkAlert(false);
-					if (vkEditPanel != null) {
-						vkEditPanel.setHideModeActive(false);
-					}
-				}
-
-				@Override
-				public void refitKeys() {
-					VirtualKeyboard keyboard = ContextHolder.getVk();
-					if (keyboard != null) {
-						keyboard.flattenKeysToScreenAnchored();
-						keyboard.postInvalidate();
-					}
-				}
-
-				@Override
-				public void resetLayout() {
-					VirtualKeyboard keyboard = ContextHolder.getVk();
-					if (keyboard != null) {
-						keyboard.setLayout(keyboard.getLayout());
-						keyboard.postInvalidate();
-					}
-				}
-
-				@Override
-				public void showHideButtons() {
-					VirtualKeyboard keyboard = ContextHolder.getVk();
-					if (keyboard == null) {
-						return;
-					}
-					if (keyboard.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE) {
-						boolean[] current = keyboard.getKeysVisibility();
-						keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
-						keyboard.postInvalidate();
-						if (hideModeInitialVisibility != null
-								&& !Arrays.equals(current, hideModeInitialVisibility)) {
-							showSaveVkAlert(true);
-						}
-						hideModeInitialVisibility = null;
-						if (vkEditPanel != null) {
-							vkEditPanel.setHideModeActive(false);
-						}
-						return;
-					}
-					hideModeInitialVisibility = keyboard.getKeysVisibility();
-					keyboard.setLayoutEditMode(VirtualKeyboard.LAYOUT_HIDE);
-					keyboard.postInvalidate();
-					if (vkEditPanel != null) {
-						vkEditPanel.setHideModeActive(true);
-					}
-				}
-			});
-		}
-		vkEditPanel.setHideModeActive(vk.getLayoutEditMode() == VirtualKeyboard.LAYOUT_HIDE);
-		vkEditPanel.show();
-	}
-
-	private void finishEditLayout() {
-		final VirtualKeyboard vk = ContextHolder.getVk();
-		if (vkEditPanel != null) {
-			vkEditPanel.dismiss();
-			vkEditPanel = null;
-		}
-		if (vk != null) {
-			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
-			vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
-		}
-		Toast.makeText(this, R.string.layout_edit_finished, Toast.LENGTH_SHORT).show();
-		showSaveVkAlert(false);
-	}
-
-	private void refitKeys() {
-		final VirtualKeyboard vk = ContextHolder.getVk();
-		if (vk == null) {
-			return;
-		}
-		vk.flattenKeysToScreenAnchored();
-		vk.postInvalidate();
-		Toast.makeText(this, R.string.refit_keys, Toast.LENGTH_SHORT).show();
-	}
-
-	private void showMemorySearchDialog() {
-		final MIDlet midlet = MidletThread.getMidlet();
-		if (midlet == null) {
-			Toast.makeText(this, R.string.memory_no_results, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		LinearLayout root = new LinearLayout(this);
-		root.setOrientation(LinearLayout.VERTICAL);
-		root.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
-		final EditText etValue = new EditText(this);
-		etValue.setHint(R.string.memory_search_hint);
-		etValue.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
-		etValue.setKeyListener(DigitsKeyListener.getInstance("0123456789-"));
-		etValue.setSingleLine(true);
-		etValue.setMaxLines(1);
-		Button btnSearch = new Button(this);
-		btnSearch.setText("SEARCH");
-		Button btnRefine = new Button(this);
-		btnRefine.setText("Changed");
-		Button btnRefresh = new Button(this);
-		btnRefresh.setText("CLEAR");
-		LinearLayout btnRow = new LinearLayout(this);
-		btnRow.setOrientation(LinearLayout.HORIZONTAL);
-		btnRow.addView(btnSearch);
-		btnRow.addView(btnRefine);
-		btnRow.addView(btnRefresh);
-		final TextView tvCount = new TextView(this);
-		tvCount.setPadding(0, dpToPx(8), 0, dpToPx(8));
-		final ArrayList<String> displayItems = new ArrayList<>();
-		final ArrayList<MemoryScanner.Result> resultItems = new ArrayList<>();
-		final ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this,
-				android.R.layout.simple_list_item_1, displayItems);
-		final ListView listView = new ListView(this);
-		listView.setAdapter(listAdapter);
-		int maxListHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.5f);
-		int listHeight = Math.max(dpToPx(200), Math.min(maxListHeight, dpToPx(600)));
-		root.addView(etValue);
-		root.addView(btnRow);
-		root.addView(tvCount);
-		root.addView(listView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
-		final AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
-				.setTitle(R.string.memory_search_title)
-				.setView(root)
-				.setNegativeButton(android.R.string.cancel, (DialogInterface.OnClickListener) null)
-				.show();
-		listView.setOnItemClickListener((parent, view, position, id) -> {
-			MemoryScanner.Result r = resultItems.get(position);
-			showMemoryEditDialog(r, () -> updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems));
-		});
-		listView.setOnItemLongClickListener((parent, view, position, id) -> {
-			MemoryScanner.Result r = resultItems.get(position);
-			if (pinnedResults.contains(r)) {
-				pinnedResults.remove(r);
-				Toast.makeText(this, "Unpinned", Toast.LENGTH_SHORT).show();
-			} else {
-				pinnedResults.add(r);
-				if (memoryResults != null) {
-					memoryResults.remove(r);
-				}
-				Toast.makeText(this, "Pinned", Toast.LENGTH_SHORT).show();
-			}
-			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
-			return true;
-		});
-		btnSearch.setOnClickListener(v -> {
-			String text = etValue.getText().toString().trim();
-			boolean hasValue = !text.isEmpty();
-			long searchValue = 0L;
-			if (hasValue) {
-				try {
-					searchValue = Long.parseLong(text);
-				} catch (NumberFormatException e) {
-					Toast.makeText(this, "Invalid value", Toast.LENGTH_SHORT).show();
-					return;
-				}
-			}
-			try {
-				memoryResults = MemoryScanner.search(midlet, searchValue, hasValue ? MemoryScanner.TYPE_EXACT : MemoryScanner.TYPE_UNKNOWN);
-				memoryFirstSearch = false;
-				MemoryScanner.updateValues(memoryResults);
-				updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
-			} catch (Throwable t) {
-				GameLog.e("MemorySearch", "Search failed", t);
-				Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
-			}
-		});
-		btnRefine.setOnClickListener(v -> {
-			if (memoryResults == null || memoryResults.isEmpty()) {
-				Toast.makeText(this, "Search first", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			memoryResults = MemoryScanner.refine(memoryResults, MemoryScanner.TYPE_CHANGED, 0L);
-			MemoryScanner.updateValues(memoryResults);
-			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
-		});
-		btnRefresh.setOnClickListener(v -> {
-			memoryResults = null;
-			memoryFirstSearch = true;
-			pinnedResults.clear();
-			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
-			Toast.makeText(this, "Cleared", Toast.LENGTH_SHORT).show();
-		});
-		if (memoryResults != null && !memoryResults.isEmpty()) {
-			updateMemorySearchList(tvCount, listAdapter, displayItems, resultItems);
-		}
-	}
-
-	private void updateMemorySearchList(TextView tvCount, ArrayAdapter<String> adapter,
-			ArrayList<String> displayItems, ArrayList<MemoryScanner.Result> resultItems) {
-		displayItems.clear();
-		resultItems.clear();
-		int total = 0;
-		for (MemoryScanner.Result r : pinnedResults) {
-			displayItems.add("* " + formatResult(r));
-			resultItems.add(r);
-			total++;
-		}
-		if (memoryResults != null) {
-			for (MemoryScanner.Result r : memoryResults) {
-				displayItems.add("  " + formatResult(r));
-				resultItems.add(r);
-				total++;
-			}
-		}
-		if (total == 0) {
-			tvCount.setText(R.string.memory_no_results);
-		} else {
-			tvCount.setText(getString(R.string.memory_search_results, total));
-		}
-		adapter.notifyDataSetChanged();
-	}
-
-	private String formatResult(MemoryScanner.Result r) {
-		String base = r.toString();
-		long cur = r.readValue();
-		if (cur != r.lastValue) {
-			return base + " was " + r.lastValue;
-		}
-		return base;
-	}
-
-	private void showMemoryEditDialog(MemoryScanner.Result result, Runnable onUpdate) {
-		if (result == null) {
-			return;
-		}
-		LinearLayout layout = new LinearLayout(this);
-		layout.setOrientation(LinearLayout.VERTICAL);
-		layout.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
-		TextView tvCurrent = new TextView(this);
-		tvCurrent.setText("Current: " + result.toString());
-		final EditText etNewVal = new EditText(this);
-		etNewVal.setHint(R.string.memory_edit_value);
-		etNewVal.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
-		etNewVal.setKeyListener(DigitsKeyListener.getInstance("0123456789-"));
-		etNewVal.setSingleLine(true);
-		layout.addView(tvCurrent);
-		layout.addView(etNewVal);
-		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
-				.setTitle(R.string.memory_edit_value)
-				.setView(layout)
-				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-					String text = etNewVal.getText() == null ? "" : etNewVal.getText().toString().trim();
-					if (TextUtils.isEmpty(text)) {
-						return;
-					}
-					try {
-						long newVal = Long.parseLong(text);
-						result.writeValue(newVal);
-						Toast.makeText(this, "Value updated", Toast.LENGTH_SHORT).show();
-						if (onUpdate != null) {
-							onUpdate.run();
-						}
-					} catch (NumberFormatException e) {
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.show();
 	}
 
 	@SuppressLint("CheckResult")
@@ -1713,131 +1216,19 @@ public class MicroActivity extends AppCompatActivity {
 		}
 	}
 
-	private void showSavestateDialog() {
-		File appDataDir = getCurrentAppDataDir();
-		List<File> states = SavestateManager.listStates(appDataDir);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
-				.setTitle(R.string.savestate_title)
-				.setPositiveButton(R.string.savestate_save_current, (dialog, which) -> saveCurrentSavestate())
-				.setNegativeButton(android.R.string.cancel, null);
-		if (states.isEmpty()) {
-			builder.setMessage(R.string.savestate_empty);
-		} else {
-			CharSequence[] items = new CharSequence[states.size()];
-			for (int i = 0; i < states.size(); i++) {
-				items[i] = formatSavestateLabel(states.get(i));
-			}
-			builder.setItems(items, (dialog, which) -> requestRestoreSavestate(states.get(which)));
-		}
-		builder.show();
-	}
-
-	private void saveCurrentSavestate() {
-		new Thread(() -> {
-			try {
-				File saved = SavestateManager.saveState(getCurrentAppDataDir());
-				GameLog.i("Savestate", "Saved state to " + saved);
-				runOnUiThread(() -> Toast.makeText(MicroActivity.this,
-						getString(R.string.savestate_saved, saved.getName()),
-						Toast.LENGTH_LONG).show());
-			} catch (IOException e) {
-				GameLog.e("Savestate", "Failed to save state", e);
-				runOnUiThread(() -> Toast.makeText(MicroActivity.this,
-						R.string.error, Toast.LENGTH_SHORT).show());
-			}
-		}, "SavestateSave").start();
-	}
-
-	private void requestRestoreSavestate(File stateFile) {
-		if (stateFile == null || !stateFile.isFile()) {
-			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		try {
-			SavestateManager.setPendingRestore(this, stateFile.getAbsolutePath());
-			scheduleGameRelaunch();
-		} catch (Exception e) {
-			GameLog.e("Savestate", "Failed to request restore", e);
-			Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	private void scheduleGameRelaunch() {
-		Intent launchIntent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appPath), this, MicroActivity.class);
-		launchIntent.putExtra(KEY_MIDLET_NAME, appName);
-		int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			flags |= PendingIntent.FLAG_IMMUTABLE;
-		}
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, appPath.hashCode(), launchIntent, flags);
-		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if (alarmManager != null) {
-			long triggerAt = SystemClock.elapsedRealtime() + 1500L;
-			alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent);
-		}
-		Toast.makeText(this, R.string.savestate_restore_pending, Toast.LENGTH_SHORT).show();
-		MidletThread.destroyApp();
-	}
-
-	private void applyPendingSavestateIfAny() {
-		String pendingState = SavestateManager.consumePendingRestore(this);
-		if (pendingState == null || pendingState.isBlank()) {
-			return;
-		}
-		File stateFile = new File(pendingState);
-		try {
-			SavestateManager.restoreState(getCurrentAppDataDir(), stateFile);
-			GameLog.i("Savestate", "Restored state from " + stateFile);
-		} catch (Exception e) {
-			GameLog.e("Savestate", "Failed to restore state from " + stateFile, e);
-			Toast.makeText(this, R.string.savestate_restore_failed, Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	private File getCurrentAppDataDir() {
-		return new File(Config.getDataDir(), new File(appPath).getName());
-	}
-
-	private CharSequence formatSavestateLabel(File stateFile) {
-		String name = stateFile.getName();
-		if (name.endsWith(ru.playsoftware.j2meloader.util.SavestateManager.STATE_FILE_SUFFIX)) {
-			name = name.substring(0,
-					name.length() - ru.playsoftware.j2meloader.util.SavestateManager.STATE_FILE_SUFFIX.length());
-		}
-		return name;
-	}
-
 	private void showHideButtonDialog() {
 		final VirtualKeyboard vk = ContextHolder.getVk();
-		if (vk == null) {
-			return;
-		}
-		boolean[] states = hideModeInitialVisibility != null
-				? hideModeInitialVisibility.clone()
-				: vk.getKeysVisibility();
+		boolean[] states = vk.getKeysVisibility();
 		boolean[] changed = states.clone();
-		if (vkEditPanel != null) {
-			vkEditPanel.setHideModeActive(true);
-		}
-		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
+		new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setTitle(R.string.hide_buttons)
-				.setMultiChoiceItems(vk.getKeyNames(), changed, (dialogInterface, which, isChecked) -> {})
-				.setPositiveButton(android.R.string.ok, (dialogInterface, which) -> {
+				.setMultiChoiceItems(vk.getKeyNames(), changed, (dialog, which, isChecked) -> {})
+				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
 					if (!Arrays.equals(states, changed)) {
 						vk.setKeysVisibility(changed);
 						showSaveVkAlert(true);
 					}
-					if (vkEditPanel != null) {
-						vkEditPanel.setHideModeActive(false);
-					}
-				})
-				.create();
-		dialog.setOnDismissListener(d -> {
-			if (vkEditPanel != null) {
-				vkEditPanel.setHideModeActive(false);
-			}
-		});
-		dialog.show();
+				}).show();
 	}
 
 	private void showSaveVkAlert(boolean keepScreenPreferred) {
