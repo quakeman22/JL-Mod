@@ -61,6 +61,10 @@ public class Profile implements Comparable<Profile> {
 		return new File(Config.getProfilesDir(), name + Config.MIDLET_KEY_LAYOUT_FILE);
 	}
 
+	public File getCustomKeyLayout() {
+		return new File(Config.getProfilesDir(), name + Config.MIDLET_KEY_LAYOUT_CUSTOM_FILE);
+	}
+
 	@Override
 	public String toString() {
 		return name;
@@ -76,7 +80,11 @@ public class Profile implements Comparable<Profile> {
 	}
 
 	boolean hasKeyLayout() {
-		return getKeyLayout().exists();
+		return getKeyLayout().exists() || getCustomKeyLayout().exists();
+	}
+
+	boolean hasCustomKeyLayout() {
+		return getCustomKeyLayout().exists();
 	}
 
 	@Override

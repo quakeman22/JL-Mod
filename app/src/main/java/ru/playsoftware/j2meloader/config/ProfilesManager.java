@@ -71,6 +71,7 @@ public class ProfilesManager {
 		}
 		File dstConfig = new File(toPath, Config.MIDLET_CONFIG_FILE);
 		File dstKeyLayout = new File(toPath, Config.MIDLET_KEY_LAYOUT_FILE);
+		File dstCustomKeyLayout = new File(toPath, Config.MIDLET_KEY_LAYOUT_CUSTOM_FILE);
 		try {
 			if (config) {
 				File source = from.getConfig();
@@ -84,7 +85,16 @@ public class ProfilesManager {
 					}
 				}
 			}
-			if (keyboard) FileUtils.copyFileUsingChannel(from.getKeyLayout(), dstKeyLayout);
+			if (keyboard) {
+				File srcKeyLayout = from.getKeyLayout();
+				if (srcKeyLayout.exists()) {
+					FileUtils.copyFileUsingChannel(srcKeyLayout, dstKeyLayout);
+				}
+				File srcCustomKeyLayout = from.getCustomKeyLayout();
+				if (srcCustomKeyLayout.exists()) {
+					FileUtils.copyFileUsingChannel(srcCustomKeyLayout, dstCustomKeyLayout);
+				}
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -98,9 +108,17 @@ public class ProfilesManager {
 		profile.create();
 		File srcConfig = new File(fromPath, Config.MIDLET_CONFIG_FILE);
 		File srcKeyLayout = new File(fromPath, Config.MIDLET_KEY_LAYOUT_FILE);
+		File srcCustomKeyLayout = new File(fromPath, Config.MIDLET_KEY_LAYOUT_CUSTOM_FILE);
 		try {
 			if (config) FileUtils.copyFileUsingChannel(srcConfig, profile.getConfig());
-			if (keyboard) FileUtils.copyFileUsingChannel(srcKeyLayout, profile.getKeyLayout());
+			if (keyboard) {
+				if (srcKeyLayout.exists()) {
+					FileUtils.copyFileUsingChannel(srcKeyLayout, profile.getKeyLayout());
+				}
+				if (srcCustomKeyLayout.exists()) {
+					FileUtils.copyFileUsingChannel(srcCustomKeyLayout, profile.getCustomKeyLayout());
+				}
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
