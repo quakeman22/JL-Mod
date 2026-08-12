@@ -106,14 +106,6 @@ public class CanvasWrapper {
 		canvas.drawBitmap(bitmap, src, dst, imgPaint);
 	}
 
-	public void drawBitmap(Bitmap bitmap, RectF src, RectF dst) {
-		if (bitmap == null) {
-			return;
-		}
-		bitmap.prepareToDraw();
-		canvas.drawBitmap(bitmap, src, dst, imgPaint);
-	}
-
 	public void drawBitmap(Bitmap bitmap, RectF dst) {
 		if (bitmap == null) {
 			return;
