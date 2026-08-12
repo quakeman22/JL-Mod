@@ -76,6 +76,7 @@
     <string name="layout_edit_mode">Keylayout edit mode</string>
     <string name="layout_scale_mode">Keylayout resize mode</string>
     <string name="layout_switch">Switch keylayout</string>
+    <string name="pref_vk_type_custom_editable">Custom Editable</string>
     <string name="vk_customizer_title">VK Edit</string>
     <string name="vk_customizer_per_key_skins">Per-key skins...</string>
     <string name="vk_customizer_refit_keys">Refit Keys</string>
