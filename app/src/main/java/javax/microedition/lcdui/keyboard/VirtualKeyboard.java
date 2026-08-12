@@ -85,6 +85,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final int TYPE_ARR_NUM = 4;
 	private static final int TYPE_NUMBERS = 5;
 	private static final int TYPE_ARROWS = 6;
+	public static final int TYPE_CUSTOM_EDITABLE = 7;
 
 	private static final float PHONE_KEY_ROWS = 5;
 	private static final float PHONE_KEY_SCALE_X = 2.0f;
@@ -175,7 +176,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private final int[] snapStack = new int[KEYBOARD_SIZE];
 
 	private final Handler handler;
-	private final File saveFile;
+	private File saveFile;
 	private final ProfileModel settings;
 	private final RectF virtualScreen = new RectF();
 
@@ -200,7 +201,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	public VirtualKeyboard(ProfileModel settings) {
 		this.settings = settings;
-		this.saveFile = new File(settings.dir + Config.MIDLET_KEY_LAYOUT_FILE);
+		this.saveFile = getLayoutFile(settings.vkType);
 		editShowGrid = settings.keyboardEditShowGrid;
 		editSnapToGrid = settings.keyboardEditSnapToGrid;
 		editGridSize = settings.keyboardEditGridSize > 0 ? settings.keyboardEditGridSize : 64;
@@ -243,15 +244,19 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				layoutVariant = TYPE_NUM_ARR;
 			}
 		}
+		saveFile = getLayoutFile(layoutVariant);
 		resetLayout(layoutVariant);
-		if (layoutVariant == TYPE_CUSTOM) {
+		if (layoutVariant == TYPE_CUSTOM || layoutVariant == TYPE_CUSTOM_EDITABLE) {
 			try {
 				readLayout();
 			} catch (IOException e) {
 				e.printStackTrace();
-				resetLayout(TYPE_NUM_ARR);
-				layoutVariant = TYPE_NUM_ARR;
-				saveLayout();
+				if (layoutVariant == TYPE_CUSTOM) {
+					resetLayout(TYPE_NUM_ARR);
+					layoutVariant = TYPE_NUM_ARR;
+					saveFile = getLayoutFile(layoutVariant);
+					saveLayout();
+				}
 			}
 		}
 		loadKeySkins();
@@ -261,7 +266,8 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	public void onLayoutChanged(int variant) {
-		if (variant == TYPE_CUSTOM && isPhone()) {
+		saveFile = getLayoutFile(variant);
+		if ((variant == TYPE_CUSTOM || variant == TYPE_CUSTOM_EDITABLE) && isPhone()) {
 			float min = screen.width();
 			float max = screen.height();
 			if (min > max) {
@@ -504,16 +510,19 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	public void setLayout(int variant) {
 		resetLayout(variant);
-		if (variant == TYPE_CUSTOM) {
+		if (variant == TYPE_CUSTOM || variant == TYPE_CUSTOM_EDITABLE) {
 			try {
 				readLayout();
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
-				resetLayout(layoutVariant);
-				return;
+				if (variant == TYPE_CUSTOM) {
+					resetLayout(layoutVariant);
+					return;
+				}
 			}
 		}
 		layoutVariant = variant;
+		saveFile = getLayoutFile(variant);
 		onLayoutChanged(variant);
 		for (int group = 0; group < keyScaleGroups.length; group++) {
 			resizeKeyGroup(group);
@@ -528,7 +537,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private void saveLayout() {
 		try (RandomAccessFile raf = new RandomAccessFile(saveFile, "rw")) {
 			int variant = layoutVariant;
-			if (variant != TYPE_CUSTOM && raf.length() > 16) {
+			if (variant != TYPE_CUSTOM && variant != TYPE_CUSTOM_EDITABLE && raf.length() > 16) {
 				try {
 					if (raf.readInt() != LAYOUT_SIGNATURE) {
 						throw new IOException("file signature not found");
@@ -574,7 +583,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			raf.writeInt(LAYOUT_TYPE);
 			raf.writeInt(1);
 			raf.write(variant);
-			if (variant != TYPE_CUSTOM) {
+			if (variant != TYPE_CUSTOM && variant != TYPE_CUSTOM_EDITABLE) {
 				raf.writeInt(LAYOUT_EOF);
 				raf.writeInt(0);
 				raf.setLength(raf.getFilePointer());
@@ -1356,6 +1365,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	private void loadKeySkins() {
+		if (!isCustomEditableLayout()) {
+			for (VirtualKey key : keypad) {
+				key.recycleSkin();
+			}
+			return;
+		}
 		File skinDir = new File(settings.dir + Config.KEYBOARD_SKINS_DIR);
 		if (!skinDir.exists()) {
 			//noinspection ResultOfMethodCallIgnored
@@ -1371,6 +1386,17 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		if (overlayView != null) {
 			overlayView.postInvalidate();
 		}
+	}
+
+	private boolean isCustomEditableLayout() {
+		return layoutVariant == TYPE_CUSTOM_EDITABLE;
+	}
+
+	private File getLayoutFile(int variant) {
+		String layoutFile = variant == TYPE_CUSTOM_EDITABLE
+				? Config.MIDLET_KEY_LAYOUT_CUSTOM_FILE
+				: Config.MIDLET_KEY_LAYOUT_FILE;
+		return new File(settings.dir + layoutFile);
 	}
 
 	private void drawEditGrid(CanvasWrapper g) {
@@ -1524,7 +1550,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			g.setTextColor(alpha | fgColor);
 			g.setDrawColor(alpha | settings.vkOutlineColor);
 
-			Bitmap bitmap = selected && pressedBitmap != null ? pressedBitmap : keyBitmap;
+			Bitmap bitmap = null;
+			if (isCustomEditableLayout()) {
+				bitmap = selected && pressedBitmap != null ? pressedBitmap : keyBitmap;
+			}
 			if (bitmap != null) {
 				g.drawBitmap(bitmap, rect);
 			} else {
@@ -1546,7 +1575,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			if (bitmap == null || layoutEditMode != LAYOUT_EOF) {
 				g.drawString(label, rect.centerX(), rect.centerY());
 			}
-			if (iconBitmap != null) {
+			if (isCustomEditableLayout() && iconBitmap != null) {
 				float size = Math.min(rect.width(), rect.height()) * 0.6f * iconScale;
 				float cx = rect.centerX();
 				float cy = rect.centerY();
