@@ -524,6 +524,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		layoutVariant = variant;
 		saveFile = getLayoutFile(variant);
 		onLayoutChanged(variant);
+		if (screen == null || overlayView == null) {
+			return;
+		}
 		for (int group = 0; group < keyScaleGroups.length; group++) {
 			resizeKeyGroup(group);
 		}
