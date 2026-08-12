@@ -1270,15 +1270,15 @@ public class MicroActivity extends AppCompatActivity {
 			int paddingT = getResources().getDimensionPixelOffset(androidx.appcompat.R.dimen.abc_dialog_padding_top_material);
 			dialog.setView(cb, paddingH, paddingT, paddingH, 0);
 
-			dialog.setButton(dialog.BUTTON_POSITIVE, getText(android.R.string.yes), (d, w) -> {
+		dialog.setButton(dialog.BUTTON_POSITIVE, getText(android.R.string.yes), (d, w) -> {
 				if (cb.isChecked()) {
 					vk.saveScreenParams();
 				}
-				vk.onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM);
+				vk.onLayoutChanged(vk.getLayout());
 			});
 		} else {
 			dialog.setButton(dialog.BUTTON_POSITIVE, getText(android.R.string.yes), (d, w) ->
-					ContextHolder.getVk().onLayoutChanged(VirtualKeyboard.TYPE_CUSTOM));
+					ContextHolder.getVk().onLayoutChanged(ContextHolder.getVk().getLayout()));
 		}
 		dialog.show();
 	}
@@ -1305,6 +1305,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (vk == null) {
 			return;
 		}
+		vk.setLayout(VirtualKeyboard.TYPE_CUSTOM_EDITABLE);
 		vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
 		View view = LayoutInflater.from(this).inflate(R.layout.dialog_vk_customizer, null, false);
 		SwitchCompat swShowGrid = view.findViewById(R.id.sw_vk_show_grid);
