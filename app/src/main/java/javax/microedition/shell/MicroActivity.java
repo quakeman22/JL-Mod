@@ -1289,7 +1289,8 @@ public class MicroActivity extends AppCompatActivity {
 				.setTitle(R.string.layout_switch)
 				.setSingleChoiceItems(R.array.PREF_VK_TYPE_ENTRIES, vk.getLayout(), null)
 				.setPositiveButton(android.R.string.ok, (d, w) -> {
-					vk.setLayout(((AlertDialog) d).getListView().getCheckedItemPosition());
+					int selected = ((AlertDialog) d).getListView().getCheckedItemPosition();
+					vk.setLayout(selected);
 					if (vk.isPhone()) {
 						setOrientation(ORIENTATION_PORTRAIT);
 					} else {
