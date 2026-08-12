@@ -496,7 +496,10 @@ public class MicroActivity extends AppCompatActivity {
 		classicsHandsetSkin = prefs.getString(PREF_CLASSICS_HANDSET_SKIN, "dark");
 		boolean handsetSelected = "handset".equals(style);
 		boolean handsetAvailable = handsetSelected && !isLandscapeUi();
-		if (handsetAvailable) {
+		boolean customSelected = "custom".equals(style);
+		if (customSelected) {
+			classicsControlStyle = "custom";
+		} else if (handsetAvailable) {
 			classicsControlStyle = "handset";
 		} else if ("phone".equals(style) || handsetSelected) {
 			classicsControlStyle = "phone";
@@ -504,13 +507,22 @@ public class MicroActivity extends AppCompatActivity {
 			classicsControlStyle = "joystick";
 		}
 		int joystickVisibility = "joystick".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
-		int phoneVisibility = "phone".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
+		int phoneVisibility = "phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)
+				? View.VISIBLE : View.GONE;
 		int handsetVisibility = "handset".equals(classicsControlStyle) ? View.VISIBLE : View.GONE;
 		binding.controlPadShell.setVisibility(joystickVisibility);
 		binding.actionCluster.setVisibility(joystickVisibility);
 		binding.phoneShellContainer.setVisibility(phoneVisibility);
 		binding.handsetShellContainer.setVisibility(handsetVisibility);
 		binding.controlTopRow.setVisibility("handset".equals(classicsControlStyle) ? View.GONE : View.VISIBLE);
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) {
+			if ("custom".equals(classicsControlStyle)) {
+				vk.setLayout(VirtualKeyboard.TYPE_CUSTOM_EDITABLE);
+			} else if (vk.getLayout() == VirtualKeyboard.TYPE_CUSTOM_EDITABLE) {
+				vk.setLayout(VirtualKeyboard.TYPE_CUSTOM);
+			}
+		}
 		applyHandsetSkin();
 		ConstraintLayout.LayoutParams gameFrameParams =
 				(ConstraintLayout.LayoutParams) binding.gameFrame.getLayoutParams();
