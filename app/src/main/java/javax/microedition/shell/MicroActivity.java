@@ -676,7 +676,7 @@ public class MicroActivity extends AppCompatActivity {
 		addKeyBound(keyBounds, Canvas.KEY_SOFT_LEFT, binding.buttonSoftLeftShell);
 		addKeyBound(keyBounds, KeyMapper.KEY_OPTIONS_MENU, binding.buttonMenuShell);
 		addKeyBound(keyBounds, Canvas.KEY_SOFT_RIGHT, binding.buttonSoftRightShell);
-		if ("phone".equals(classicsControlStyle)) {
+		if ("phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)) {
 			addKeyBound(keyBounds, Canvas.KEY_NUM1, binding.phoneKey1);
 			addKeyBound(keyBounds, Canvas.KEY_NUM2, binding.phoneKey2);
 			addKeyBound(keyBounds, Canvas.KEY_NUM3, binding.phoneKey3);
@@ -861,7 +861,7 @@ public class MicroActivity extends AppCompatActivity {
 					else binding.phoneKey4.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM5 -> {
-					if ("phone".equals(classicsControlStyle)) binding.phoneKey5.setPressed(pressed);
+					if ("phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)) binding.phoneKey5.setPressed(pressed);
 					else if ("handset".equals(classicsControlStyle)) binding.handsetKey5.setPressed(pressed);
 					else binding.buttonXShell.setPressed(pressed);
 				}
@@ -870,12 +870,12 @@ public class MicroActivity extends AppCompatActivity {
 					else binding.phoneKey6.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM7 -> {
-					if ("phone".equals(classicsControlStyle)) binding.phoneKey7.setPressed(pressed);
+					if ("phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)) binding.phoneKey7.setPressed(pressed);
 					else if ("handset".equals(classicsControlStyle)) binding.handsetKey7.setPressed(pressed);
 					else binding.buttonAShell.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM8 -> {
-					if ("phone".equals(classicsControlStyle)) binding.phoneKey8.setPressed(pressed);
+					if ("phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)) binding.phoneKey8.setPressed(pressed);
 					else if ("handset".equals(classicsControlStyle)) binding.handsetKey8.setPressed(pressed);
 					else binding.buttonBShell.setPressed(pressed);
 				}
@@ -884,7 +884,7 @@ public class MicroActivity extends AppCompatActivity {
 					else binding.phoneKey9.setPressed(pressed);
 				}
 				case Canvas.KEY_NUM0 -> {
-					if ("phone".equals(classicsControlStyle)) binding.phoneKey0.setPressed(pressed);
+					if ("phone".equals(classicsControlStyle) || "custom".equals(classicsControlStyle)) binding.phoneKey0.setPressed(pressed);
 					else if ("handset".equals(classicsControlStyle)) binding.handsetKey0.setPressed(pressed);
 					else binding.buttonYShell.setPressed(pressed);
 				}
