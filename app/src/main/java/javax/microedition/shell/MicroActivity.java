@@ -61,6 +61,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -1178,7 +1179,13 @@ public class MicroActivity extends AppCompatActivity {
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showClassicsKeyModeDialog();
 		});
-		view.findViewById(R.id.gameplay_menu_vk_edit).setOnClickListener(v -> {
+		View vkEditRow = view.findViewById(R.id.gameplay_menu_vk_edit);
+		VirtualKeyboard vkForMenu = ContextHolder.getVk();
+		boolean customLayoutActive = vkForMenu != null
+				&& (vkForMenu.getLayout() == VirtualKeyboard.TYPE_CUSTOM
+						|| vkForMenu.getLayout() == VirtualKeyboard.TYPE_CUSTOM_EDITABLE);
+		vkEditRow.setVisibility(customLayoutActive ? View.VISIBLE : View.GONE);
+		vkEditRow.setOnClickListener(v -> {
 			uiSounds().playConfirm();
 			if (gameplayMenuDialog != null) gameplayMenuDialog.dismiss();
 			showKeyboardCustomizerDialog();
@@ -1317,6 +1324,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (vk == null) {
 			return;
 		}
+		final int layoutBeforeEdit = vk.getLayout();
 		vk.setLayout(VirtualKeyboard.TYPE_CUSTOM_EDITABLE);
 		vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_KEYS);
 		View view = LayoutInflater.from(this).inflate(R.layout.dialog_vk_customizer, null, false);
@@ -1329,6 +1337,13 @@ public class MicroActivity extends AppCompatActivity {
 		Button btnResetLayout = view.findViewById(R.id.btn_vk_reset_layout);
 		Button btnCollapse = view.findViewById(R.id.btn_vk_collapse);
 		Button btnFinish = view.findViewById(R.id.btn_vk_finish);
+		SwitchCompat swJoystick = view.findViewById(R.id.sw_vk_joystick);
+		Spinner spJoystickPreset = view.findViewById(R.id.sp_vk_joystick_preset);
+		SeekBar sbJoystickRadius = view.findViewById(R.id.sb_vk_joystick_radius);
+		SeekBar sbJoystickDeadzone = view.findViewById(R.id.sb_vk_joystick_deadzone);
+		Button btnJoystickBaseSkin = view.findViewById(R.id.btn_vk_joystick_base_skin);
+		Button btnJoystickThumbSkin = view.findViewById(R.id.btn_vk_joystick_thumb_skin);
+		Button btnJoystickClearSkin = view.findViewById(R.id.btn_vk_joystick_clear_skin);
 
 		ArrayAdapter<String> gridAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 		gridAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1366,6 +1381,79 @@ public class MicroActivity extends AppCompatActivity {
 			showSaveVkAlert(true);
 		});
 
+		swJoystick.setChecked(vk.isJoystickEnabled());
+		swJoystick.setOnCheckedChangeListener((buttonView, isChecked) -> vk.setJoystickEnabled(isChecked));
+
+		ArrayAdapter<CharSequence> presetAdapter = ArrayAdapter.createFromResource(this,
+				R.array.joystick_preset_entries, android.R.layout.simple_spinner_item);
+		presetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spJoystickPreset.setAdapter(presetAdapter);
+		spJoystickPreset.setSelection(Math.max(0, Math.min(vk.getJoystickPreset(), presetAdapter.getCount() - 1)));
+		spJoystickPreset.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
+				vk.setJoystickPreset(position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
+		// Radius range: 4%..40% of the smaller screen dimension.
+		sbJoystickRadius.setProgress(Math.round((vk.getJoystickRadius() - 0.04f) / 0.36f * 100));
+		sbJoystickRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					vk.setJoystickRadius(0.04f + progress / 100f * 0.36f);
+				}
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+		});
+
+		// Dead zone range: 0%..80% of the joystick radius.
+		sbJoystickDeadzone.setProgress(Math.round(vk.getJoystickDeadZone() / 0.8f * 100));
+		sbJoystickDeadzone.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					vk.setJoystickDeadZone(progress / 100f * 0.8f);
+				}
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+		});
+
+		btnJoystickBaseSkin.setOnClickListener(v -> {
+			pendingKeyboardSkinKey = SKIN_TARGET_JOYSTICK_BASE;
+			pendingKeyboardSkinType = 0;
+			pickKeyboardSkinLauncher.launch("image/*");
+		});
+		btnJoystickThumbSkin.setOnClickListener(v -> {
+			pendingKeyboardSkinKey = SKIN_TARGET_JOYSTICK_THUMB;
+			pendingKeyboardSkinType = 0;
+			pickKeyboardSkinLauncher.launch("image/*");
+		});
+		btnJoystickClearSkin.setOnClickListener(v -> {
+			deleteFileIfExists(vk.getJoystickBaseSkinFile());
+			deleteFileIfExists(vk.getJoystickThumbSkinFile());
+			vk.refreshKeySkins();
+		});
+
 		AlertDialog dialog = new AlertDialog.Builder(this, R.style.ClassicsCompactAlertDialogTheme)
 				.setView(view)
 				.create();
@@ -1373,6 +1461,10 @@ public class MicroActivity extends AppCompatActivity {
 		btnFinish.setOnClickListener(v -> {
 			dialog.dismiss();
 			vk.setLayoutEditMode(VirtualKeyboard.LAYOUT_EOF);
+			// Leave the keyboard back on whichever custom variant was active before editing
+			// (TYPE_CUSTOM vs TYPE_CUSTOM_EDITABLE) instead of always leaving it stuck on
+			// TYPE_CUSTOM_EDITABLE.
+			vk.setLayout(layoutBeforeEdit);
 			showSaveVkAlert(true);
 		});
 		dialog.show();
@@ -1455,8 +1547,11 @@ public class MicroActivity extends AppCompatActivity {
 		dialog.show();
 	}
 
+	private static final int SKIN_TARGET_JOYSTICK_BASE = -2;
+	private static final int SKIN_TARGET_JOYSTICK_THUMB = -3;
+
 	private void onKeyboardSkinPicked(Uri uri) {
-		if (uri == null || pendingKeyboardSkinKey < 0) {
+		if (uri == null || pendingKeyboardSkinKey == -1) {
 			pendingKeyboardSkinKey = -1;
 			pendingKeyboardSkinType = 0;
 			return;
@@ -1468,7 +1563,11 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		File target;
-		if (pendingKeyboardSkinType == 1) {
+		if (pendingKeyboardSkinKey == SKIN_TARGET_JOYSTICK_BASE) {
+			target = vk.getJoystickBaseSkinFile();
+		} else if (pendingKeyboardSkinKey == SKIN_TARGET_JOYSTICK_THUMB) {
+			target = vk.getJoystickThumbSkinFile();
+		} else if (pendingKeyboardSkinType == 1) {
 			target = vk.getKeyPressedSkinFile(pendingKeyboardSkinKey);
 		} else if (pendingKeyboardSkinType == 2) {
 			target = vk.getKeyIconFile(pendingKeyboardSkinKey);

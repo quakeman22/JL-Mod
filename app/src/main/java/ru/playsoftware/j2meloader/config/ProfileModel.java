@@ -169,6 +169,30 @@ public class ProfileModel {
 	@SerializedName("VirtualKeyboardColorOutline")
 	public int vkOutlineColor;
 
+	@SerializedName("JoystickEnabled")
+	public boolean joyEnabled;
+
+	@SerializedName("JoystickPreset")
+	public int joyPreset;
+
+	@SerializedName("JoystickCenterX")
+	public float joyCenterX;
+
+	@SerializedName("JoystickCenterY")
+	public float joyCenterY;
+
+	@SerializedName("JoystickRadius")
+	public float joyRadius;
+
+	@SerializedName("JoystickDeadZone")
+	public float joyDeadZone;
+
+	@SerializedName("JoystickThumbScale")
+	public float joyThumbScale;
+
+	@SerializedName("JoystickRepeatDelay")
+	public int joyRepeatDelay;
+
 	@SerializedName("Layout")
 	public int keyCodesLayout;
 
@@ -225,6 +249,13 @@ public class ProfileModel {
 		vkOutlineColor = 0xFFFFFF;
 		keyboardEditGridSize = 64;
 		keyboardEditSelectedKey = 0;
+		joyPreset = 1;
+		joyCenterX = 0.22f;
+		joyCenterY = 0.72f;
+		joyRadius = 0.12f;
+		joyDeadZone = 0.15f;
+		joyThumbScale = 0.5f;
+		joyRepeatDelay = 120;
 		systemProperties = ContextHolder.getAssetAsString("defaults/system.props");
 	}
 }

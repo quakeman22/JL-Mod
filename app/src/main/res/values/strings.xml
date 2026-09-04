@@ -86,6 +86,20 @@
     <string name="vk_customizer_grid_size">Grid Size</string>
     <string name="vk_customizer_finish">Finish</string>
     <string name="vk_customizer_collapse">Collapse</string>
+    <string name="vk_customizer_joystick">Joystick</string>
+    <string name="vk_customizer_joystick_preset">Joystick mode</string>
+    <string name="vk_customizer_joystick_radius">Size</string>
+    <string name="vk_customizer_joystick_deadzone">Dead zone</string>
+    <string name="vk_customizer_joystick_base_skin">Base image…</string>
+    <string name="vk_customizer_joystick_thumb_skin">Thumb image…</string>
+    <string name="vk_customizer_joystick_clear_skin">Clear joystick images</string>
+    <string name="vk_customizer_joystick_hint">Drag the joystick on the screen (while editing) to reposition it.</string>
+    <string-array name="joystick_preset_entries">
+        <item>4-Way</item>
+        <item>8-Way</item>
+        <item>8-Way (Numpad diagonals A)</item>
+        <item>8-Way (Numpad diagonals B)</item>
+    </string-array>
     <string name="vk_skin_dialog_title">Per-key skins...</string>
     <string name="vk_skin_select_key">Select key</string>
     <string name="vk_skin_button">Button skin</string>

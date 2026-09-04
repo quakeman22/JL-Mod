@@ -12,13 +12,22 @@
     android:focusable="true"
     tools:showIn="@layout/fragment_appslist">
 
-    <ImageView
-        android:id="@+id/list_image"
+    <FrameLayout
         android:layout_width="118dp"
         android:layout_height="154dp"
-        android:adjustViewBounds="false"
-        android:scaleType="fitCenter"
-        tools:src="@mipmap/ic_launcher" />
+        android:background="@drawable/bg_grid_cover_border"
+        android:padding="1.5dp">
+
+        <ImageView
+            android:id="@+id/list_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="false"
+            android:scaleType="fitCenter"
+            android:background="@drawable/bg_grid_cover_clip"
+            android:clipToOutline="true"
+            tools:src="@mipmap/ic_launcher" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/list_title"

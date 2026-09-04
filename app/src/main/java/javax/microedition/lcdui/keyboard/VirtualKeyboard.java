@@ -87,6 +87,22 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final int TYPE_ARROWS = 6;
 	public static final int TYPE_CUSTOM_EDITABLE = 7;
 
+	// Sentinel value for `editedIndex` while the joystick (rather than a key) is being dragged.
+	private static final int EDIT_JOYSTICK = -2;
+
+	// Direction order used both here and in JOY_PRESETS: right, up-right, up, up-left,
+	// left, down-left, down, down-right.
+	private static final int[][] JOY_PRESETS = {
+			{KEY_RIGHT, -1, KEY_UP, -1, KEY_LEFT, -1, KEY_DOWN, -1},
+			{KEY_RIGHT, KEY_UP_RIGHT, KEY_UP, KEY_UP_LEFT, KEY_LEFT, KEY_DOWN_LEFT, KEY_DOWN, KEY_DOWN_RIGHT},
+			{KEY_RIGHT, KEY_NUM3, KEY_UP, KEY_NUM1, KEY_LEFT, KEY_NUM7, KEY_DOWN, KEY_NUM9},
+			{KEY_NUM6, KEY_NUM3, KEY_NUM2, KEY_NUM1, KEY_NUM4, KEY_NUM7, KEY_NUM8, KEY_NUM9},
+	};
+	public static final int JOY_PRESET_4WAY = 0;
+	public static final int JOY_PRESET_8WAY = 1;
+	public static final int JOY_PRESET_8WAY_NUMPAD_A = 2;
+	public static final int JOY_PRESET_8WAY_NUMPAD_B = 3;
+
 	private static final float PHONE_KEY_ROWS = 5;
 	private static final float PHONE_KEY_SCALE_X = 2.0f;
 	private static final float PHONE_KEY_SCALE_Y = 0.75f;
@@ -198,6 +214,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private boolean editShowGrid;
 	private boolean editSnapToGrid;
 	private int editGridSize;
+	private final Joystick joystick = new Joystick();
 
 	public VirtualKeyboard(ProfileModel settings) {
 		this.settings = settings;
@@ -205,6 +222,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		editShowGrid = settings.keyboardEditShowGrid;
 		editSnapToGrid = settings.keyboardEditSnapToGrid;
 		editGridSize = settings.keyboardEditGridSize > 0 ? settings.keyboardEditGridSize : 64;
+		joystick.centerXNorm = settings.joyCenterX > 0 ? settings.joyCenterX : 0.22f;
+		joystick.centerYNorm = settings.joyCenterY > 0 ? settings.joyCenterY : 0.72f;
+		joystick.radiusNorm = settings.joyRadius > 0 ? settings.joyRadius : 0.12f;
+		joystick.deadZoneNorm = settings.joyDeadZone > 0 ? settings.joyDeadZone : 0.15f;
 
 		for (int i = KEY_NUM1; i < 9; i++) {
 			keypad[i] = new VirtualKey(Canvas.KEY_NUM1 + i, Integer.toString(1 + i));
@@ -896,6 +917,69 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 	}
 
+	public boolean isJoystickEnabled() {
+		return settings.joyEnabled;
+	}
+
+	public void setJoystickEnabled(boolean enabled) {
+		settings.joyEnabled = enabled;
+		ProfilesManager.saveConfig(settings);
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	public int getJoystickPreset() {
+		return settings.joyPreset;
+	}
+
+	public void setJoystickPreset(int preset) {
+		if (preset < 0 || preset >= JOY_PRESETS.length) {
+			preset = JOY_PRESET_8WAY;
+		}
+		settings.joyPreset = preset;
+		ProfilesManager.saveConfig(settings);
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	/** Radius as a fraction (0..1) of the smaller screen dimension. */
+	public float getJoystickRadius() {
+		return joystick.radiusNorm;
+	}
+
+	public void setJoystickRadius(float radiusNorm) {
+		joystick.radiusNorm = Math.max(0.04f, Math.min(0.4f, radiusNorm));
+		settings.joyRadius = joystick.radiusNorm;
+		ProfilesManager.saveConfig(settings);
+		if (screen != null) {
+			joystick.resize(screen.width(), screen.height());
+		}
+		if (overlayView != null) {
+			overlayView.postInvalidate();
+		}
+	}
+
+	/** Dead zone as a fraction (0..1) of the joystick radius. */
+	public float getJoystickDeadZone() {
+		return joystick.deadZoneNorm;
+	}
+
+	public void setJoystickDeadZone(float deadZoneNorm) {
+		joystick.deadZoneNorm = Math.max(0f, Math.min(0.8f, deadZoneNorm));
+		settings.joyDeadZone = joystick.deadZoneNorm;
+		ProfilesManager.saveConfig(settings);
+	}
+
+	private int[] joyMap() {
+		int preset = settings.joyPreset;
+		if (preset < 0 || preset >= JOY_PRESETS.length) {
+			preset = JOY_PRESET_8WAY;
+		}
+		return JOY_PRESETS[preset];
+	}
+
 	public int getSelectedEditKey() {
 		return settings.keyboardEditSelectedKey;
 	}
@@ -952,6 +1036,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		} else {
 			snapKeys();
 		}
+		joystick.resize(screen.width(), screen.height());
 		overlayView.postInvalidate();
 		int delay = settings.vkHideDelay;
 		if (delay > 0 && obscuresVirtualScreen && layoutEditMode == LAYOUT_EOF) {
@@ -989,6 +1074,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					key.paint(g);
 				}
 			}
+			if (isCustomLayout()) {
+				joystick.paint(g);
+			}
 		}
 	}
 
@@ -998,6 +1086,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			case LAYOUT_EOF -> {
 				if (pointer > associatedKeys.length) {
 					return false;
+				}
+				if (isCustomLayout() && joystick.isUsable() && joystick.activePointer < 0 && joystick.contains(x, y)) {
+					joystick.pointerPressed(x, y, pointer);
+					overlayView.postInvalidate();
+					return true;
 				}
 				for (VirtualKey key : keypad) {
 					if (key.contains(x, y)) {
@@ -1020,6 +1113,12 @@ public class VirtualKeyboard implements Overlay, Runnable {
 						offsetY = y - rect.top;
 						return true;
 					}
+				}
+				if (isCustomLayout() && joystick.isUsable() && joystick.contains(x, y)) {
+					editedIndex = EDIT_JOYSTICK;
+					offsetX = x - joystick.centerX;
+					offsetY = y - joystick.centerY;
+					return true;
 				}
 				return false;
 			}
@@ -1060,6 +1159,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				if (pointer > associatedKeys.length) {
 					return false;
 				}
+				if (joystick.activePointer == pointer) {
+					joystick.pointerDragged(x, y);
+					overlayView.postInvalidate();
+					return true;
+				}
 				VirtualKey aKey = associatedKeys[pointer];
 				if (aKey == null) {
 					return pointerPressed(pointer, x, y);
@@ -1072,6 +1176,23 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				return true;
 			}
 			case LAYOUT_KEYS -> {
+				if (editedIndex == EDIT_JOYSTICK) {
+					float sw = screen.width();
+					float sh = screen.height();
+					float px = Math.max(0f, Math.min(sw, x - offsetX));
+					float py = Math.max(0f, Math.min(sh, y - offsetY));
+					if (editSnapToGrid) {
+						RectF tmp = new RectF(px, py, px, py);
+						snapRectToGrid(tmp);
+						px = tmp.left;
+						py = tmp.top;
+					}
+					joystick.centerXNorm = sw > 0 ? px / sw : joystick.centerXNorm;
+					joystick.centerYNorm = sh > 0 ? py / sh : joystick.centerYNorm;
+					joystick.resize(sw, sh);
+					overlayView.postInvalidate();
+					return true;
+				}
 				if (editedIndex >= 0) {
 					VirtualKey key = keypad[editedIndex];
 					RectF rect = key.rect;
@@ -1152,6 +1273,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			if (pointer > associatedKeys.length) {
 				return false;
 			}
+			if (joystick.activePointer == pointer) {
+				joystick.pointerReleased(pointer);
+				overlayView.postInvalidate();
+				return true;
+			}
 			VirtualKey key = associatedKeys[pointer];
 			if (key != null) {
 				associatedKeys[pointer] = null;
@@ -1160,6 +1286,13 @@ public class VirtualKeyboard implements Overlay, Runnable {
 				return true;
 			}
 		} else if (layoutEditMode == LAYOUT_KEYS) {
+			if (editedIndex == EDIT_JOYSTICK) {
+				settings.joyCenterX = joystick.centerXNorm;
+				settings.joyCenterY = joystick.centerYNorm;
+				ProfilesManager.saveConfig(settings);
+				editedIndex = -1;
+				return true;
+			}
 			for (int key = 0; key < keypad.length; key++) {
 				VirtualKey vKey = keypad[key];
 				if (vKey.snapOrigin == editedIndex) {
@@ -1214,6 +1347,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			key.selected = false;
 			handler.removeCallbacks(key);
 		}
+		joystick.clearState();
 	}
 
 	@Override
@@ -1368,10 +1502,11 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	private void loadKeySkins() {
-		if (!isCustomEditableLayout()) {
+		if (!isCustomLayout()) {
 			for (VirtualKey key : keypad) {
 				key.recycleSkin();
 			}
+			joystick.recycleSkin();
 			return;
 		}
 		File skinDir = new File(settings.dir + Config.KEYBOARD_SKINS_DIR);
@@ -1382,6 +1517,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		for (int i = 0; i < keypad.length; i++) {
 			keypad[i].loadSkin(skinDir, i);
 		}
+		joystick.loadSkin(skinDir);
 	}
 
 	public void refreshKeySkins() {
@@ -1391,12 +1527,17 @@ public class VirtualKeyboard implements Overlay, Runnable {
 		}
 	}
 
-	private boolean isCustomEditableLayout() {
-		return layoutVariant == TYPE_CUSTOM_EDITABLE;
+	/**
+	 * True for both {@link #TYPE_CUSTOM} and {@link #TYPE_CUSTOM_EDITABLE}: they represent
+	 * the same user-defined keyboard (one being edited, the other being played), and must
+	 * always share the same save file, key skins and rendering.
+	 */
+	private boolean isCustomLayout() {
+		return layoutVariant == TYPE_CUSTOM || layoutVariant == TYPE_CUSTOM_EDITABLE;
 	}
 
 	private File getLayoutFile(int variant) {
-		String layoutFile = variant == TYPE_CUSTOM_EDITABLE
+		String layoutFile = (variant == TYPE_CUSTOM || variant == TYPE_CUSTOM_EDITABLE)
 				? Config.MIDLET_KEY_LAYOUT_CUSTOM_FILE
 				: Config.MIDLET_KEY_LAYOUT_FILE;
 		return new File(settings.dir + layoutFile);
@@ -1444,6 +1585,14 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	public File getKeyIconScaleFile(int keyIndex) {
 		return new File(getKeySkinDir(), String.format(Locale.US, "key_%02d_icon_scale.txt", keyIndex));
+	}
+
+	public File getJoystickBaseSkinFile() {
+		return new File(getKeySkinDir(), "joystick_base.png");
+	}
+
+	public File getJoystickThumbSkinFile() {
+		return new File(getKeySkinDir(), "joystick_thumb.png");
 	}
 
 	private void snapRectToGrid(RectF rect) {
@@ -1554,7 +1703,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			g.setDrawColor(alpha | settings.vkOutlineColor);
 
 			Bitmap bitmap = null;
-			if (isCustomEditableLayout()) {
+			if (isCustomLayout()) {
 				bitmap = selected && pressedBitmap != null ? pressedBitmap : keyBitmap;
 			}
 			if (bitmap != null) {
@@ -1578,7 +1727,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			if (bitmap == null || layoutEditMode != LAYOUT_EOF) {
 				g.drawString(label, rect.centerX(), rect.centerY());
 			}
-			if (isCustomEditableLayout() && iconBitmap != null) {
+			if (isCustomLayout() && iconBitmap != null) {
 				float size = Math.min(rect.width(), rect.height()) * 0.6f * iconScale;
 				float cx = rect.centerX();
 				float cy = rect.centerY();
@@ -1700,6 +1849,217 @@ public class VirtualKeyboard implements Overlay, Runnable {
 			MicroActivity activity = ContextHolder.getActivity();
 			if (activity != null) {
 				activity.runOnUiThread(activity::showExitConfirmation);
+			}
+		}
+	}
+
+	/**
+	 * A draggable analog-style joystick, available only for the Custom keyboard
+	 * (see {@link #isCustomLayout()}). The finger position inside the base circle is
+	 * continuous, but it is always quantized down to one of the up/down/left/right
+	 * (and optionally diagonal) keys defined by {@link #JOY_PRESETS} - there is no
+	 * "analog" value delivered to the MIDlet, only discrete key press/release events.
+	 */
+	private class Joystick implements Runnable {
+		float centerXNorm;
+		float centerYNorm;
+		float radiusNorm;
+		float deadZoneNorm;
+		float centerX;
+		float centerY;
+		float radiusPx;
+		int activePointer = -1;
+		int currentDir = -1;
+		boolean selected;
+		final PointF thumbOffset = new PointF();
+		Bitmap baseBitmap;
+		Bitmap thumbBitmap;
+		private int repeatCount;
+
+		boolean isUsable() {
+			return settings.joyEnabled;
+		}
+
+		void resize(float screenW, float screenH) {
+			centerX = centerXNorm * screenW;
+			centerY = centerYNorm * screenH;
+			radiusPx = radiusNorm * Math.min(screenW, screenH);
+		}
+
+		boolean contains(float x, float y) {
+			if (radiusPx <= 0) {
+				return false;
+			}
+			float dx = x - centerX;
+			float dy = y - centerY;
+			return dx * dx + dy * dy <= radiusPx * radiusPx;
+		}
+
+		void loadSkin(File skinDir) {
+			recycleSkin();
+			baseBitmap = decodeSkin(new File(skinDir, "joystick_base.png"));
+			thumbBitmap = decodeSkin(new File(skinDir, "joystick_thumb.png"));
+		}
+
+		void recycleSkin() {
+			if (baseBitmap != null) {
+				baseBitmap.recycle();
+				baseBitmap = null;
+			}
+			if (thumbBitmap != null) {
+				thumbBitmap.recycle();
+				thumbBitmap = null;
+			}
+		}
+
+		private Bitmap decodeSkin(File file) {
+			if (!file.isFile()) {
+				return null;
+			}
+			BitmapFactory.Options opts = new BitmapFactory.Options();
+			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+			try {
+				return BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+			} catch (Throwable t) {
+				Log.w(TAG, "Failed to load joystick skin: " + file, t);
+				return null;
+			}
+		}
+
+		void pointerPressed(float x, float y, int pointer) {
+			activePointer = pointer;
+			selected = true;
+			thumbOffset.set(0, 0);
+			currentDir = -1;
+			pointerDragged(x, y);
+		}
+
+		void pointerDragged(float x, float y) {
+			float dx = x - centerX;
+			float dy = y - centerY;
+			float dist = (float) Math.sqrt(dx * dx + dy * dy);
+			float deadPx = deadZoneNorm * radiusPx;
+			if (dist < deadPx) {
+				thumbOffset.set(0, 0);
+				updateDirection(-1);
+				return;
+			}
+			if (dist > radiusPx) {
+				float ratio = radiusPx / dist;
+				dx *= ratio;
+				dy *= ratio;
+			}
+			thumbOffset.set(dx, dy);
+			float angle = (float) Math.atan2(-dy, dx);
+			if (angle < 0) {
+				angle += (float) (2 * Math.PI);
+			}
+			int dir;
+			if (settings.joyPreset == JOY_PRESET_4WAY) {
+				float q = (float) (Math.PI / 4);
+				if (angle < q || angle >= 7 * q) {
+					dir = 0;
+				} else if (angle < 3 * q) {
+					dir = 2;
+				} else if (angle < 5 * q) {
+					dir = 4;
+				} else {
+					dir = 6;
+				}
+			} else {
+				dir = Math.round(angle / (float) (Math.PI / 4)) % 8;
+			}
+			updateDirection(dir);
+		}
+
+		private void updateDirection(int dir) {
+			if (dir == currentDir) {
+				return;
+			}
+			handler.removeCallbacks(this);
+			int[] map = joyMap();
+			if (currentDir >= 0 && currentDir < map.length) {
+				int oldKey = map[currentDir];
+				if (oldKey >= 0) {
+					keypad[oldKey].selected = false;
+					if (target != null) {
+						target.postKeyReleased(keypad[oldKey].keyCode);
+					}
+				}
+			}
+			if (dir >= 0 && dir < map.length) {
+				int newKey = map[dir];
+				if (newKey >= 0 && target != null) {
+					keypad[newKey].selected = true;
+					target.postKeyPressed(keypad[newKey].keyCode);
+					repeatCount = 0;
+					handler.postDelayed(this, REPEAT_INTERVALS[0]);
+				}
+			}
+			currentDir = dir;
+		}
+
+		void pointerReleased(int pointer) {
+			if (pointer != activePointer) {
+				return;
+			}
+			activePointer = -1;
+			selected = false;
+			updateDirection(-1);
+			thumbOffset.set(0, 0);
+		}
+
+		void clearState() {
+			activePointer = -1;
+			selected = false;
+			updateDirection(-1);
+			thumbOffset.set(0, 0);
+		}
+
+		@Override
+		public void run() {
+			if (currentDir < 0 || target == null) {
+				return;
+			}
+			int[] map = joyMap();
+			if (currentDir >= map.length) {
+				return;
+			}
+			int key = map[currentDir];
+			if (key < 0) {
+				return;
+			}
+			target.postKeyRepeated(keypad[key].keyCode);
+			long delay = repeatCount < REPEAT_INTERVALS.length ? REPEAT_INTERVALS[repeatCount++] : 80;
+			handler.postDelayed(this, delay);
+		}
+
+		void paint(CanvasWrapper g) {
+			if (!isUsable() || radiusPx <= 0) {
+				return;
+			}
+			int alpha = (layoutEditMode != LAYOUT_EOF ? 0xFF : settings.vkAlpha) << 24;
+			RectF outer = new RectF(centerX - radiusPx, centerY - radiusPx, centerX + radiusPx, centerY + radiusPx);
+			if (baseBitmap != null) {
+				g.drawBitmap(baseBitmap, outer);
+			} else {
+				g.setFillColor((selected ? 0x55000000 : alpha) | settings.vkBgColor);
+				g.fillArc(outer, 0, 360);
+				g.setDrawColor(alpha | settings.vkOutlineColor);
+				g.drawArc(outer, 0, 360);
+			}
+			float thumbScale = settings.joyThumbScale > 0 ? settings.joyThumbScale : 0.5f;
+			float thumbR = radiusPx * thumbScale;
+			float tx = centerX + thumbOffset.x;
+			float ty = centerY + thumbOffset.y;
+			RectF inner = new RectF(tx - thumbR, ty - thumbR, tx + thumbR, ty + thumbR);
+			if (thumbBitmap != null) {
+				g.drawBitmap(thumbBitmap, inner);
+			} else {
+				g.setFillColor(alpha | settings.vkFgColor);
+				g.fillArc(inner, 0, 360);
+				g.setDrawColor(alpha | settings.vkOutlineColor);
+				g.drawArc(inner, 0, 360);
 			}
 		}
 	}
