@@ -1,6 +1,6 @@
 package com.sprintpcs.util;
 
-//import emulator.Emulator;
+import emulator.Emulator;
 
 // TODO
 public class System {
