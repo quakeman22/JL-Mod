@@ -89,15 +89,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	// Sentinel value for `editedIndex` while the joystick (rather than a key) is being dragged.
 	private static final int EDIT_JOYSTICK = -2;
-
-	// Direction order used both here and in JOY_PRESETS: right, up-right, up, up-left,
-	// left, down-left, down, down-right.
-	private static final int[][] JOY_PRESETS = {
-			{KEY_RIGHT, -1, KEY_UP, -1, KEY_LEFT, -1, KEY_DOWN, -1},
-			{KEY_RIGHT, KEY_UP_RIGHT, KEY_UP, KEY_UP_LEFT, KEY_LEFT, KEY_DOWN_LEFT, KEY_DOWN, KEY_DOWN_RIGHT},
-			{KEY_RIGHT, KEY_NUM3, KEY_UP, KEY_NUM1, KEY_LEFT, KEY_NUM7, KEY_DOWN, KEY_NUM9},
-			{KEY_NUM6, KEY_NUM3, KEY_NUM2, KEY_NUM1, KEY_NUM4, KEY_NUM7, KEY_NUM8, KEY_NUM9},
-	};
 	public static final int JOY_PRESET_4WAY = 0;
 	public static final int JOY_PRESET_8WAY = 1;
 	public static final int JOY_PRESET_8WAY_NUMPAD_A = 2;
@@ -138,6 +129,15 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private static final int KEY_B = 26;
 	private static final int KEY_MENU = 27;
 	private static final int KEYBOARD_SIZE = 28;
+
+	// Direction order used both here and by Joystick: right, up-right, up, up-left,
+	// left, down-left, down, down-right.
+	private static final int[][] JOY_PRESETS = {
+			{KEY_RIGHT, -1, KEY_UP, -1, KEY_LEFT, -1, KEY_DOWN, -1},
+			{KEY_RIGHT, KEY_UP_RIGHT, KEY_UP, KEY_UP_LEFT, KEY_LEFT, KEY_DOWN_LEFT, KEY_DOWN, KEY_DOWN_RIGHT},
+			{KEY_RIGHT, KEY_NUM3, KEY_UP, KEY_NUM1, KEY_LEFT, KEY_NUM7, KEY_DOWN, KEY_NUM9},
+			{KEY_NUM6, KEY_NUM3, KEY_NUM2, KEY_NUM1, KEY_NUM4, KEY_NUM7, KEY_NUM8, KEY_NUM9},
+	};
 
 	private static final float SCALE_SNAP_RADIUS = 0.05f;
 
